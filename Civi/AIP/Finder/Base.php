@@ -31,13 +31,13 @@ abstract class Base extends AbstractComponent
   public abstract function findNextSource() : string;
 
   /**
-   * Mark the given resource as 'processing',
+   * Claim this resource for this process,
    *  so it can be exclusively processed
    *
    * @param string $uri
    *   an URI to marked busy/processing
    */
-  public abstract function markSourceProcessing(string $uri);
+  public abstract function claimSource(string $uri);
 
   /**
    * Mark the given resource as 'processing',
@@ -47,6 +47,15 @@ abstract class Base extends AbstractComponent
    *   an URI to marked busy/processing
    */
   public abstract function markSourceProcessed(string $uri);
+
+  /**
+   * Mark the given resource as failed
+   *
+   * @param string $uri
+   *   an URI to marked as FAILED
+   */
+  public abstract function markSourceFailed(string $uri);
+
 
   /**
    * Mark the given resource as 'processing',

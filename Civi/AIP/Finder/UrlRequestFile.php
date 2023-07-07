@@ -33,4 +33,18 @@ class UrlRequestFile extends AbstractSource
       }
     }
   }
+
+  /**
+   * Set the aip_input parameter in the current request object.
+   *
+   * This is for debugging / testing only
+   *
+   * @param string $local_file
+   *    the local file that should be tested
+   * @return void
+   */
+  public function setFile(string $local_file)
+  {
+    $_REQUEST['aip_input'] = $local_file;
+  }
 }
