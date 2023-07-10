@@ -1,5 +1,7 @@
 <?php
 
+namespace Civi\AIP;
+
 use Civi\Test\HeadlessInterface;
 use Civi\Test\HookInterface;
 use Civi\Test\TransactionalInterface;
@@ -22,23 +24,27 @@ use Civi\Test\CiviEnvBuilder;
  * Mainly tests the regex extraction
  *  and the actions: copy, copy_append, copy_ltrim_zeros, set(ok), align_date, unset, strtolower, sha1, preg_replace, calculate, map(ok)
  */
-class CRM_AIP_BasicTest extends CRM_AIP_TestBase implements HeadlessInterface, HookInterface, TransactionalInterface
+class BasicTest extends TestBase implements HeadlessInterface, HookInterface, TransactionalInterface
 {
   /**
    * Test the 'set' action.
    */
   public function testSetupViaCode()
   {
-    /** @var Civi\AIP\Finder\Base $finder */
-    $finder = new \Civi\AIP\Finder\UrlRequestFile();
-    $finder->setFile($this->getTestResourcePath('input/test01.csv'));
+    // create finder
+    $finder = new Finder\UrlRequestFile();
+    $finder->setFile($this->getTestResourcePath('input/CSV/Test01.csv'));
 
-    /** @var Civi\AIP\Reader\Base $reader */
-    $reader = new \Civi\AIP\Reader\CSV();
+    // create reader
+    $reader = new Reader\CSV();
 
-    /** @var Civi\AIP\Processor\Base $processor */
-    $process = new Civi\AIP\Processor\TestProcessor($finder, $reader);
+    // create processor
+    $processor = new Processor\TestProcessor();
 
+    // create a process
+    $process = new Process($finder, $reader, $processor);
 
+    // run the process
+    $process->run();
   }
 }

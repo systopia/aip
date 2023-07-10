@@ -17,7 +17,44 @@ namespace Civi\AIP\Reader;
 
 use Civi\AIP\AbstractComponent;
 
-class Base extends AbstractComponent
+abstract class Base extends AbstractComponent
 {
+  /**
+   * Test if the Reader can access and read the given source
+   *
+   * @param string $source
+   *   URI identifying a source
+   *
+   * @return bool
+   *   can the given source be read
+   */
+  abstract static public function canReadSource(string  $source) : bool;
+
+  /**
+   * See if the current source has more records
+   *
+   * @return bool
+   *   can the given source be read
+   */
+  abstract public function hasMoreRecords() : bool;
+
+  /**
+   * Read and return the next record
+   *
+   * @return array|null
+   *   next record as an array data set, or null if there is no more records
+   */
+  abstract public function getNextRecord() : array;
+
+  /**
+   * Mark the last record as delivered by getNextRecord() as processed
+   */
+  abstract public function markLastRecordProcessed();
+
+  /**
+   * Mark the last record as delivered by getNextRecord() as failed
+   */
+  abstract public function markLastRecordFailed();
+
 
 }

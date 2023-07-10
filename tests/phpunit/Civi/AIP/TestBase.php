@@ -13,17 +13,21 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
+namespace Civi\AIP;
+
+use CRM_Aip_ExtensionUtil as E;
 use Civi\Test\HeadlessInterface;
 use Civi\Test\HookInterface;
 use Civi\Test\TransactionalInterface;
 use Civi\Test\CiviEnvBuilder;
+use \PHPUnit\Framework\TestCase as TestCase;
 
 /**
  * Base class for all CiviBanking tests
  *
  * @group headless
  */
-class CRM_AIP_TestBase extends \PHPUnit\Framework\TestCase implements HeadlessInterface, HookInterface, TransactionalInterface
+class TestBase extends TestCase implements HeadlessInterface, HookInterface, TransactionalInterface
 {
   use \Civi\Test\Api3TestTrait {
     callAPISuccess as protected traitCallAPISuccess;
@@ -38,7 +42,7 @@ class CRM_AIP_TestBase extends \PHPUnit\Framework\TestCase implements HeadlessIn
    *
    * @return \Civi\Test\CiviEnvBuilder
    *
-   * @throws CRM_Extension_Exception_ParseException
+   * @throws \CRM_Extension_Exception_ParseException
    */
   public function setUpHeadless(): CiviEnvBuilder
   {
@@ -51,7 +55,6 @@ class CRM_AIP_TestBase extends \PHPUnit\Framework\TestCase implements HeadlessIn
   public function setUp(): void
   {
     parent::setUp();
-    CRM_Utils_StaticCache::clearCache();
   }
 
   public function tearDown(): void

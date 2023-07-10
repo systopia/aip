@@ -13,15 +13,25 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
+namespace Civi\AIP;
+
 use Civi\AIP\Finder\Base    as Finder;
 use Civi\AIP\Reader\Base    as Reader;
 use Civi\AIP\Processor\Base as Processor;
+use \Exception;
 
 /**
  * A PROCESS will enclose various components
  **/
-abstract class Process extends \Civi\AIP\AbstractComponent
+class Process extends \Civi\AIP\AbstractComponent
 {
+  /**
+   * @var integer id
+   *   the ID of this process
+   */
+  protected int $id;
+
+
   /**
    * @var Finder $finder
    *   The finder instance used in this process
@@ -47,6 +57,27 @@ abstract class Process extends \Civi\AIP\AbstractComponent
   }
 
   /**
+   * Create a new process with the given finder, reader and processor
+   *
+   * @param Finder $finder
+   * @param Reader $reader
+   * @param Processor $processor
+   * @param int $id
+   */
+  public function __construct($finder, $reader, $processor, $id = 0)
+  {
+    $this->id = $id;
+    $this->finder = $finder;
+    $this->reader = $reader;
+    $this->processor = $processor;
+  }
+
+  public static function load($id) : Process
+  {
+    throw new \Exception("Persistance not yet implemented");
+  }
+
+  /**
    * Get the finder component
    *
    * @return Finder
@@ -60,45 +91,52 @@ abstract class Process extends \Civi\AIP\AbstractComponent
    * Run the given process
    *
    * @return void
+   *
+   * @throws Exception  should an unhandled exception appear
    */
   public function run()
   {
-    $finder = $this->getFinder();
-    $source = $finder->findNextSource();
-    if ($source) {
-      if ($this->reader->canReadSource($source)) {
+    // find a source
+    $source = $this->finder->findNextSource();
 
-      }
-    }
-
-    $this->reader = $reader = $finder->getReader();
-    if ($reader) {
-      if ($reader->isResume()) {
-        $this->log($reader->getId(), "Resuming processing resource: " . $reader->getInputName());
-      } else {
-        $this->log($reader->getId(), "Starting processing resource: " . $reader->getInputName());
-      }
-    }
-
-    // read and process
-    while ($this->processMoreRecords() && $reader->hasMoreRecords()) {
-      $record = $reader->getNextRecord();
-      try {
-        if ($this->processor->processRecord($record)) {
-          $reader->markRecordProcessed($record);
-        }
-      } catch (Exception $exception) {
-        $reader->markRecordFailed($record);
-        if (!$this->continueWithFailedRecord()) {
-
+    // check if there is a source for us
+    if ($source && $this->reader->canReadSource($source)) {
+      // read and process
+      $this->log('Reading source ');
+      while ($this->processMoreRecords() && $this->reader->hasMoreRecords()) {
+        $record = $this->reader->getNextRecord();
+        try {
+          $this->processor->processRecord($record);
+          $this->reader->markLastRecordProcessed();
+        } catch (\Exception $exception) {
+          $this->reader->markLastRecordFailed();
+          if (!$this->continueWithFailedRecord()) {
+            throw new Exception("Processing aborted due to an exception.");
+          }
         }
       }
     }
   }
 
+  /**
+   * Should / could this instance process more records right now?
+   *
+   * @return bool
+   */
   public function processMoreRecords() : bool
   {
     // should the process continue?
     return true;
+  }
+
+  /**
+   * Should this process continue, even if at least one record has failed?
+   *
+   * @return bool
+   */
+  public function continueWithFailedRecord() : bool
+  {
+    // todo: setting?
+    return false;
   }
 }

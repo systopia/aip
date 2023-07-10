@@ -13,38 +13,21 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
-namespace Civi\AIP\Reader;
+namespace Civi\AIP\Processor;
 
-use Civi\AIP\AbstractComponent;
-
-/**
- * This is a simple CVS file reader
- */
-class CSV extends Base
+class TestProcessor extends Base
 {
+  /**
+   * @var array list of records processed by this processor
+   */
+  public array $processed_records = [];
 
-  static public function canReadSource(string $source): bool
+  /**
+   *
+   * @return void
+   */
+  public function processRecord($record)
   {
-    // TODO: Implement canReadSource() method.
-  }
-
-  public function hasMoreRecords(): bool
-  {
-    // TODO: Implement hasMoreRecords() method.
-  }
-
-  public function getNextRecord(): array
-  {
-    // TODO: Implement getNextRecord() method.
-  }
-
-  public function markLastRecordProcessed()
-  {
-    // TODO: Implement markLastRecordProcessed() method.
-  }
-
-  public function markLastRecordFailed()
-  {
-    // TODO: Implement markLastRecordFailed() method.
+    // do nothing here, override in implementation
   }
 }

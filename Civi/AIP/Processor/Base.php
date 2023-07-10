@@ -19,5 +19,24 @@ use Civi\AIP\AbstractComponent;
 
 class Base extends AbstractComponent
 {
+  public function __construct()
+  {
 
+  }
+
+  /**
+   *
+   * @return void
+   */
+  /**
+   * Process the given record
+   *
+   * @param array $record
+   *
+   * @throws \Exception
+   */
+  public function processRecord($record)
+  {
+    // do nothing here, override in implementation
+  }
 }

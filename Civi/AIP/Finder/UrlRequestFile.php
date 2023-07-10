@@ -20,9 +20,9 @@ namespace Civi\AIP\Finder;
  *
  * BE *VERY* careful with this, it could be used to leak local information
  **/
-class UrlRequestFile extends AbstractSource
+class UrlRequestFile extends Base
 {
-  public function findNextSource()
+  public function findNextSource() : string
   {
     $potential_file_path = $_REQUEST['aip_input'];
     $this->log("Received file path '{$potential_file_path}, investigating");
@@ -46,5 +46,25 @@ class UrlRequestFile extends AbstractSource
   public function setFile(string $local_file)
   {
     $_REQUEST['aip_input'] = $local_file;
+  }
+
+  public function claimSource(string $uri)
+  {
+    // TODO: Implement claimSource() method.
+  }
+
+  public function markSourceProcessed(string $uri)
+  {
+    // TODO: Implement markSourceProcessed() method.
+  }
+
+  public function markSourceFailed(string $uri)
+  {
+    // TODO: Implement markSourceFailed() method.
+  }
+
+  public function canHandleSource(string $uri)
+  {
+    // TODO: Implement canHandleSource() method.
   }
 }
