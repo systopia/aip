@@ -15,26 +15,80 @@
 
 namespace Civi\AIP\Reader;
 
-use Civi\AIP\AbstractComponent;
-
+use CRM_Aip_ExtensionUtil as E;
 /**
  * This is a simple CVS file reader
  */
 class CSV extends Base
 {
+  /**
+   * The file this is working on
+   *
+   * @var string $current_file
+   */
+  protected $current_file = null;
 
-  static public function canReadSource(string $source): bool
+  /**
+   * The record currently being processed
+   *
+   * @var ?array
+   */
+  protected ?array $current_record = null;
+
+  /**
+   * The record currently being processed
+   *
+   * @var ?array
+   */
+  protected ?array $next_record = null;
+
+  public function canReadSource(string $source): bool
   {
-    // TODO: Implement canReadSource() method.
+    if (parent::canReadSource($source)) {
+      // file exists and is readable, check for the file type
+      $file_type = mime_content_type($source);
+
+      if (!in_array($file_type, ['text/csv', 'text/plain'])) {
+        $this->log(E::ts("Cannot process files of type '%1'.", [1 => $file_type]));
+        return false;
+      }
+
+      // looks good
+      return true;
+
+    } else {
+      // parent class check says: cannot access
+      return false;
+    }
+  }
+
+  /**
+   * Open the given source
+   *
+   * @param string $source
+   *
+   * @return void
+   */
+  protected function openFile($source)
+  {
+    if (!$this->canReadSource($source)) {
+      $this->raiseException(E::ts("Cannot open source '%1'.", [1 => $source]));
+    }
+
+
   }
 
   public function hasMoreRecords(): bool
   {
+    if (!isset($this->next_record)) {
+
+    }
     // TODO: Implement hasMoreRecords() method.
   }
 
   public function getNextRecord(): array
   {
+
     // TODO: Implement getNextRecord() method.
   }
 

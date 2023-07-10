@@ -16,6 +16,7 @@
 namespace Civi\AIP\Processor;
 
 use Civi\AIP\AbstractComponent;
+use CRM_Aip_ExtensionUtil as E;
 
 class Base extends AbstractComponent
 {
@@ -38,5 +39,15 @@ class Base extends AbstractComponent
   public function processRecord($record)
   {
     // do nothing here, override in implementation
+  }
+
+  /**
+   * Return the type of the given component
+   *
+   * @return string
+   */
+  public function getType()
+  {
+    return E::ts("Processor");
   }
 }

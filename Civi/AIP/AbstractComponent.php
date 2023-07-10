@@ -15,11 +15,18 @@
 
 namespace Civi\AIP;
 
+use CRM_Aip_ExtensionUtil as E;
+
 /**
  * Generic infrastructure for component
  **/
-class AbstractComponent
+abstract class AbstractComponent
 {
+  /**
+   * @var Process the process this component belongs to
+   */
+  protected Process $process;
+
   /**
    * @var array $configuration
    *   this component's configuration
@@ -33,6 +40,64 @@ class AbstractComponent
   protected array $state = [];
 
   /**
+   * Get config option
+   *
+   * @param string $path
+   *   a variable name, or a '/' separated path to it
+   *
+   * @return mixed
+   */
+  public function getConfigValue(string $path)
+  {
+    return $this->getArrayValue($this->configuration, $path);
+  }
+
+  /**
+   * Get config option
+   *
+   * @param string $path
+   *   a variable name, or a '/' separated path to it
+   *
+   * @return mixed
+   */
+  public function getStateValue(string $path)
+  {
+    return $this->getArrayValue($this->state, $path);
+  }
+
+  /**
+   * Get the process this component belongs to
+   *
+   * @return Process
+   */
+  public function getProcess()
+  {
+    return $this->process;
+  }
+
+  /**
+   * Get value from an recursive array with the given path
+   *
+   * @param string $path
+   *   a variable name, or a '/' separated path to it
+   *
+   * @return mixed
+   */
+  public function getArrayValue(array $value, string $path)
+  {
+    // look for the value in the path
+    $path = explode('/', $path);
+    foreach (array_keys($path) as $index => $key) {
+      $value = $value[$key];
+      if ($index == count($path)) {
+        return $value;
+      }
+    }
+
+    return null;
+  }
+
+  /**
    * Get the component's configuration
    *
    * @return array
@@ -41,6 +106,13 @@ class AbstractComponent
   {
     return $this->configuration;
   }
+
+  /**
+   * Get the component's type
+   *
+   * @return string
+   */
+  public abstract function getType();
 
   /**
    * Set the component's configuration, e.g. when instantiated
@@ -91,5 +163,24 @@ class AbstractComponent
         \Civi::log()->debug($message);
         break;
     }
+  }
+
+  /**
+   * Raise an exception
+   *
+   * @param $message
+   *   message
+   *
+   * @throws \Exception
+   *   the requested exception
+   *
+   * @return void
+   */
+  public function raiseException($message)
+  {
+    throw new \Exception(E::ts("[%1(:%2)] %3", [
+                               1 => $this->getType(),
+                               2 => $this->getProcess()->getID(),
+                               3 => $message]));
   }
 }

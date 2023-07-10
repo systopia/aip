@@ -16,6 +16,7 @@
 namespace Civi\AIP\Finder;
 
 use Civi\AIP\AbstractComponent;
+use CRM_Aip_ExtensionUtil as E;
 
 /**
  * A FINDER is used to identify new data sources to process
@@ -69,4 +70,13 @@ abstract class Base extends AbstractComponent
    */
   public abstract function canHandleSource(string $uri);
 
+  /**
+   * Return the type of the given component
+   *
+   * @return string
+   */
+  public function getType()
+  {
+    return E::ts("Finder");
+  }
 }

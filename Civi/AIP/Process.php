@@ -68,8 +68,11 @@ class Process extends \Civi\AIP\AbstractComponent
   {
     $this->id = $id;
     $this->finder = $finder;
+    $this->finder->process = $this;
     $this->reader = $reader;
+    $this->reader->process = $this;
     $this->processor = $processor;
+    $this->processor->process = $this;
   }
 
   public static function load($id) : Process
@@ -85,6 +88,16 @@ class Process extends \Civi\AIP\AbstractComponent
   public function getFinder() : Finder
   {
     return $this->finder;
+  }
+
+  /**
+   * Get the process ID
+   *
+   * @return int
+   */
+  public function getID()
+  {
+    return $this->id;
   }
 
   /**
@@ -138,5 +151,10 @@ class Process extends \Civi\AIP\AbstractComponent
   {
     // todo: setting?
     return false;
+  }
+
+  public function getType()
+  {
+    return E::ts("Processor");
   }
 }
