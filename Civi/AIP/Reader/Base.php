@@ -34,7 +34,7 @@ abstract class Base extends AbstractComponent
    * @return array|null
    *   next record as an array data set, or null if there is no more records
    */
-  abstract public function getNextRecord() : array;
+  abstract public function getNextRecord() : ?array;
 
   /**
    * Mark the last record as delivered by getNextRecord() as processed
@@ -74,6 +74,14 @@ abstract class Base extends AbstractComponent
   }
 
   /**
+   * @param string $source
+   */
+  public function initialiseWithSource($source)
+  {
+    // anything?
+  }
+
+  /**
    * Return the type of the given component
    *
    * @return string
@@ -81,5 +89,57 @@ abstract class Base extends AbstractComponent
   public function getType()
   {
     return E::ts("Reader");
+  }
+
+  /**
+   * The number of records already processed
+   *
+   * @return integer processed
+   */
+  public function getProcessedRecordCount()
+  {
+    return (int) $this->getStateValue('processed_record_count');
+  }
+
+  /**
+   * Number of records processed
+   *
+   * @param $record_count int the new record count
+   */
+  protected function setProcessedRecordCount(int $record_count)
+  {
+    return $this->setStateValue('processed_record_count', $record_count);
+  }
+
+  /**
+   * Number of records failed while processing
+   *
+   * @param $record_count int the new record count
+   */
+  protected function setFailedRecordCount(int $record_count)
+  {
+    return $this->setStateValue('failed_record_count', $record_count);
+  }
+
+  /**
+   * Number of records failed while processing
+   *
+   * @return integer failed
+   */
+  public function getFailedRecordCount()
+  {
+    return (int) $this->getStateValue('failed_record_count');
+  }
+
+  /**
+   * Reset the state of this module
+   *
+   * @return void
+   */
+  public function resetState()
+  {
+    $this->setProcessedRecordCount(0);
+    $this->setFailedRecordCount(0);
+    parent::resetState();
   }
 }

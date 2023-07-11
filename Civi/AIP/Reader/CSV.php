@@ -21,12 +21,31 @@ use CRM_Aip_ExtensionUtil as E;
  */
 class CSV extends Base
 {
+  /************ CONFIG VALUES ***********************
+   *  csv_separator        (default ';')
+   *  csv_string_enclosure (default '";"')
+   *  csv_string_escape    (default '\')
+   *************************************************/
+
+  /************ STATE VALUES *********************
+   * current_file            file currently working on
+   * processed_record_count  number of records processed
+   * failed_record_count     number of records failed to process
+   **********************************************/
+
   /**
    * The file this is working on
    *
-   * @var string $current_file
+   * @var resource $current_file_handle
    */
-  protected $current_file = null;
+  protected $current_file_handle = null;
+
+  /**
+   * The headers of the current CSV file
+   *
+   * @var array $current_file_headers
+   */
+  protected $current_file_headers = null;
 
   /**
    * The record currently being processed
@@ -62,43 +81,145 @@ class CSV extends Base
     }
   }
 
+  public function initialiseWithSource($source)
+  {
+    parent::initialiseWithSource($source);
+
+    // check if we're working on another file
+    $current_file = $this->getCurrentFile();
+    if ($current_file) {
+      // this reader was busy reading the given file.
+      if ($current_file != $source) {
+        //  If it's not the same, we have to reset some values:
+        $this->resetState();
+
+        // read the line headers
+        $this->current_file_headers = $this->readNextRecord();
+      }
+    }
+    $this->setCurrentFile($source);
+  }
+
+
   /**
    * Open the given source
    *
    * @param string $source
    *
    * @return void
+   *
+   * @throws \Exception
+   *   if the file couldn't be opened
    */
-  protected function openFile($source)
+  protected function openFile(string $source)
   {
+    if ($this->current_file_handle) {
+      $this->raiseException(E::ts("There is already an open file", [1 => $source]));
+    }
+
+    // check if accessible
     if (!$this->canReadSource($source)) {
       $this->raiseException(E::ts("Cannot open source '%1'.", [1 => $source]));
     }
 
+    // open the file
+    $this->current_file_handle = fopen($source, 'r');
+    if (empty($this->current_file_handle)) {
+      $this->raiseException(E::ts("Cannot read source '%1'.", [1 => $source]));
+    }
 
+    // update state
+    $this->resetState();
+    $this->setCurrentFile($source);
+
+    // read first record
+    $this->readNextRecord();
   }
 
   public function hasMoreRecords(): bool
   {
-    if (!isset($this->next_record)) {
-
-    }
-    // TODO: Implement hasMoreRecords() method.
+    return isset($this->next_record);
   }
 
-  public function getNextRecord(): array
+  /**
+   * Get the next record from the file
+   *
+   * @return array|null
+   *   a record, or null if there are no more records
+   */
+  public function getNextRecord(): ?array
   {
+    if (!$this->current_file_handle) {
+      $this->openFile($this->getStateValue('current_file'));
+    }
+    if ($this->hasMoreRecords()) {
+      $next_record = $this->next_record;
+      $this->next_record = $this->readNextRecord();
+      return $next_record;
+    } else {
+      return null;
+    }
+  }
 
-    // TODO: Implement getNextRecord() method.
+  /**
+   * Read the next record from the open file
+   */
+  public function readNextRecord() {
+    if (empty($this->current_file_handle)) {
+      throw new \Exception("No file handle!");
+    }
+
+    // read record
+    $separator = $this->getConfigValue('csv_separator', ';');
+    $enclosure = $this->getConfigValue('csv_string_enclosure', '"');
+    $escape = $this->getConfigValue('csv_string_escape', '\\');
+    $encoding = $this->getConfigValue('csv_string_encoding', 'iso-8859');
+    $record = fgetcsv($this->current_file_handle, $separator, $enclosure, $escape);
+
+    // encode record
+    if ($encoding != 'UTF8') {
+      foreach ($record as $field => &$value) {
+        $value = mb_convert_encoding($value, 'UTF8', $encoding);
+      }
+    }
+
+    return $record;
   }
 
   public function markLastRecordProcessed()
   {
-    // TODO: Implement markLastRecordProcessed() method.
+    $this->setProcessedRecordCount($this->getProcessedRecordCount() + 1);
   }
 
   public function markLastRecordFailed()
   {
-    // TODO: Implement markLastRecordFailed() method.
+    $this->setFailedRecordCount($this->getFailedRecordCount() + 1);
   }
+
+  /**
+   * The file this is working on
+   *
+   * @return string the current file path/url
+   */
+  public function getCurrentFile()
+  {
+    return $this->getStateValue('current_file');
+  }
+
+  /**
+   * The file this is working on
+   *
+   * @param $file string the current file path/url
+   */
+  protected function setCurrentFile($file)
+  {
+    return $this->setStateValue('current_file', $file);
+  }
+
+  public function resetState()
+  {
+    $this->setStateValue('current_file', null);
+    parent::resetState();
+  }
+
 }

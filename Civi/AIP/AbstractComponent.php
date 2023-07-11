@@ -47,22 +47,51 @@ abstract class AbstractComponent
    *
    * @return mixed
    */
-  public function getConfigValue(string $path)
+  public function getConfigValue(string $path, $default = null)
   {
-    return $this->getArrayValue($this->configuration, $path);
+    $value = $this->getArrayValue($this->configuration, $path);
+    return $value ?? $default;
   }
 
   /**
-   * Get config option
+   * Get a value from the component's state
    *
    * @param string $path
    *   a variable name, or a '/' separated path to it
    *
    * @return mixed
    */
-  public function getStateValue(string $path)
+  public function getStateValue(string $path, $default = null)
   {
-    return $this->getArrayValue($this->state, $path);
+    $value = $this->getArrayValue($this->state, $path);
+    return $value ?? $default;
+  }
+
+  /**
+   * Set a value in the component's state
+   *
+   * @param string $path
+   *   a variable name, or a '/' separated path to it
+   *
+   * @param mixed $value
+   *   the new value
+   *
+   * @return mixed
+   *   the previous value
+   */
+  public function setStateValue(string $path, $value)
+  {
+    return $this->setArrayValue($this->state, $path, $value);
+  }
+
+  /**
+   * Reset the state of this module
+   *
+   * @return void
+   */
+  public function resetState()
+  {
+    // anything? $this->state = [];?
   }
 
   /**
@@ -78,23 +107,62 @@ abstract class AbstractComponent
   /**
    * Get value from an recursive array with the given path
    *
+   * @param array $array
+   *   the vault
+   *
    * @param string $path
    *   a variable name, or a '/' separated path to it
    *
    * @return mixed
    */
-  public function getArrayValue(array $value, string $path)
+  public function getArrayValue(array $array, string $path)
   {
     // look for the value in the path
     $path = explode('/', $path);
-    foreach (array_keys($path) as $index => $key) {
-      $value = $value[$key];
-      if ($index == count($path)) {
-        return $value;
+    foreach ($path as $index => $key) {
+      $array = $array[$key] ?? null;
+      if ($index == (count($path) - 1)) {
+        return $array;
       }
     }
 
     return null;
+  }
+
+  /**
+   * Set value from an recursive array with the given path
+   *
+   * @param array $array
+   *   the vault
+   *
+   * @param string $path
+   *   a variable name, or a '/' separated path to it
+   *
+   * @return mixed
+   *   the previously used value
+   */
+  public function setArrayValue(array &$array, string $path, $value)
+  {
+    // get the current value
+    $previous_value = $this->getArrayValue($array, $path);
+
+    // iterate through the path
+    $path = explode('/', $path);
+    foreach ($path as $index => $key) {
+      if ($index == (count($path) - 1)) {
+        // this is the element we're looking for
+        $array[$key] = $value;
+        break;
+
+      } else {
+        if (!isset($array[$path])) {
+          $array[$path] &= [];
+        }
+        $array = &$array[$path];
+      }
+    }
+
+    return $previous_value;
   }
 
   /**

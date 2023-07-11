@@ -77,7 +77,7 @@ class Process extends \Civi\AIP\AbstractComponent
 
   public static function load($id) : Process
   {
-    throw new \Exception("Persistance not yet implemented");
+    throw new \Exception("Persistence not yet implemented");
   }
 
   /**
@@ -115,7 +115,8 @@ class Process extends \Civi\AIP\AbstractComponent
     // check if there is a source for us
     if ($source && $this->reader->canReadSource($source)) {
       // read and process
-      $this->log('Reading source ');
+      $this->log('Reading source ' . $source);
+      $this->reader->initialiseWithSource($source);
       while ($this->processMoreRecords() && $this->reader->hasMoreRecords()) {
         $record = $this->reader->getNextRecord();
         try {
