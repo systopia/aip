@@ -39,12 +39,20 @@ abstract class Base extends AbstractComponent
   /**
    * Mark the last record as delivered by getNextRecord() as processed
    */
-  abstract public function markLastRecordProcessed();
+  public function markLastRecordProcessed()
+  {
+    $processed_record_count = $this->getProcessedRecordCount();
+    $this->setProcessedRecordCount($processed_record_count + 1);
+  }
 
   /**
    * Mark the last record as delivered by getNextRecord() as failed
    */
-  abstract public function markLastRecordFailed();
+  public function markLastRecordFailed()
+  {
+    $failed_record_count = $this->getFailedRecordCount();
+    $this->setFailedRecordCount($failed_record_count + 1);
+  }
 
   /**
    * Test if the Reader can access and read the given source
@@ -98,7 +106,7 @@ abstract class Base extends AbstractComponent
    */
   public function getProcessedRecordCount()
   {
-    return (int) $this->getStateValue('processed_record_count');
+    return (int) $this->getStateValue('processed_record_count', 0);
   }
 
   /**

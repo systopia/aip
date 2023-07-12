@@ -110,14 +110,14 @@ class Process extends \Civi\AIP\AbstractComponent
   public function run()
   {
     // find a source
-    $source = $this->finder->findNextSource();
+    $source_url = $this->finder->findNextSource();
 
     // check if there is a source for us
-    if ($source && $this->reader->canReadSource($source)) {
+    if ($source_url && $this->reader->canReadSource($source_url)) {
       // read and process
-      $this->log('Reading source ' . $source);
-      $this->reader->initialiseWithSource($source);
-      while ($this->processMoreRecords() && $this->reader->hasMoreRecords()) {
+      $this->log('Reading source ' . $source_url);
+      $this->reader->initialiseWithSource($source_url);
+      while ($this->shouldProcessMoreRecords() && $this->reader->hasMoreRecords()) {
         $record = $this->reader->getNextRecord();
         try {
           $this->processor->processRecord($record);
@@ -137,7 +137,7 @@ class Process extends \Civi\AIP\AbstractComponent
    *
    * @return bool
    */
-  public function processMoreRecords() : bool
+  public function shouldProcessMoreRecords() : bool
   {
     // should the process continue?
     return true;

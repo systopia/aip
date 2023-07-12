@@ -29,5 +29,6 @@ class TestProcessor extends Base
   public function processRecord($record)
   {
     // do nothing here, override in implementation
+    \Civi::log()->debug("Processed Record: " . json_encode($record));
   }
 }

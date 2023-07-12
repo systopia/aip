@@ -15,6 +15,7 @@
 
 namespace Civi\AIP\Reader;
 
+use Civi\FormProcessor\API\Exception;
 use CRM_Aip_ExtensionUtil as E;
 /**
  * This is a simple CVS file reader
@@ -87,17 +88,28 @@ class CSV extends Base
 
     // check if we're working on another file
     $current_file = $this->getCurrentFile();
-    if ($current_file) {
-      // this reader was busy reading the given file.
-      if ($current_file != $source) {
-        //  If it's not the same, we have to reset some values:
-        $this->resetState();
+    if ($current_file == $source) {
+      // we should restart where we left off:
+      // 1) open file
+      $this->openFile($current_file);
 
-        // read the line headers
-        $this->current_file_headers = $this->readNextRecord();
+      // 2) read headers
+      $this->current_file_headers = $this->readNextRecord();
+
+      // 3) skip all already processed rows
+      $line_nr = $this->getProcessedRecordCount();
+      for ($skip = 1; $skip <= $line_nr; $skip ++) {
+        $this->skipNextRecord();
       }
+
+    } else {
+      // this is a NEW file, re-init file
+      $this->resetState();
+      $this->openFile($source);
+      $this->current_file_headers = $this->readNextRecord();
     }
-    $this->setCurrentFile($source);
+
+    $this->readNextRecord();
   }
 
 
@@ -149,9 +161,6 @@ class CSV extends Base
    */
   public function getNextRecord(): ?array
   {
-    if (!$this->current_file_handle) {
-      $this->openFile($this->getStateValue('current_file'));
-    }
     if ($this->hasMoreRecords()) {
       $next_record = $this->next_record;
       $this->next_record = $this->readNextRecord();
@@ -159,6 +168,21 @@ class CSV extends Base
     } else {
       return null;
     }
+  }
+
+  /**
+   * Read the next record from the open file
+   */
+  public function skipNextRecord() {
+    if (empty($this->current_file_handle)) {
+      throw new \Exception("No file handle!");
+    }
+
+    // read record
+    $separator = $this->getConfigValue('csv_separator', ';');
+    $enclosure = $this->getConfigValue('csv_string_enclosure', '"');
+    $escape = $this->getConfigValue('csv_string_escape', '\\');
+    fgetcsv($this->current_file_handle, $separator, $enclosure, $escape);
   }
 
   /**
@@ -173,14 +197,12 @@ class CSV extends Base
     $separator = $this->getConfigValue('csv_separator', ';');
     $enclosure = $this->getConfigValue('csv_string_enclosure', '"');
     $escape = $this->getConfigValue('csv_string_escape', '\\');
-    $encoding = $this->getConfigValue('csv_string_encoding', 'iso-8859');
-    $record = fgetcsv($this->current_file_handle, $separator, $enclosure, $escape);
+    $encoding = $this->getConfigValue('csv_string_encoding', 'UTF8');
+    $record = fgetcsv($this->current_file_handle, null, $separator, $enclosure, $escape);
 
     // encode record
     if ($encoding != 'UTF8') {
-      foreach ($record as $field => &$value) {
-        $value = mb_convert_encoding($value, 'UTF8', $encoding);
-      }
+      $record = mb_convert_encoding($record, 'UTF8', $encoding);
     }
 
     return $record;

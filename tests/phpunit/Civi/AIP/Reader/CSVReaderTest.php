@@ -5,7 +5,6 @@ namespace Civi\AIP;
 use Civi\Test\HeadlessInterface;
 use Civi\Test\HookInterface;
 use Civi\Test\TransactionalInterface;
-use Civi\Test\CiviEnvBuilder;
 
 /**
  * Basic test to see if the components interact as they should
@@ -24,12 +23,12 @@ use Civi\Test\CiviEnvBuilder;
  * Mainly tests the regex extraction
  *  and the actions: copy, copy_append, copy_ltrim_zeros, set(ok), align_date, unset, strtolower, sha1, preg_replace, calculate, map(ok)
  */
-class BasicTest extends TestBase implements HeadlessInterface, HookInterface, TransactionalInterface
+class CSVReaderTest extends TestBase implements HeadlessInterface, HookInterface, TransactionalInterface
 {
   /**
    * Create a simple processor (UrlRequestFile, CSV reader, TestProcessor)
    */
-  public function testSetupViaCode()
+  public function testReadSimpleCSV()
   {
     // create finder
     $finder = new Finder\UrlRequestFile();
@@ -37,6 +36,7 @@ class BasicTest extends TestBase implements HeadlessInterface, HookInterface, Tr
 
     // create reader
     $reader = new Reader\CSV();
+    $reader->setConfiguration(['csv_string_encoding' => 'ISO-8859-15']);
 
     // create processor
     $processor = new Processor\TestProcessor();
@@ -46,5 +46,9 @@ class BasicTest extends TestBase implements HeadlessInterface, HookInterface, Tr
 
     // run the process
     $process->run();
+
+    // check results
+    $this->assertEquals(2, $reader->getProcessedRecordCount(), "This should've processed the two records in the file.");
+    $this->assertEquals(0, $reader->getFailedRecordCount());
   }
 }
