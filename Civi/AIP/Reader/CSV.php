@@ -19,6 +19,16 @@ use Civi\FormProcessor\API\Exception;
 use CRM_Aip_ExtensionUtil as E;
 /**
  * This is a simple CVS file reader
+ *
+ ************ CONFIG VALUES ***********************
+ *  csv_separator        (default ';')
+ *  csv_string_enclosure (default '";"')
+ *  csv_string_escape    (default '\')
+
+ ************ STATE VALUES ************************
+ * current_file            file currently working on
+ * processed_record_count  number of records processed
+ * failed_record_count     number of records failed to process
  */
 class CSV extends Base
 {
@@ -33,6 +43,10 @@ class CSV extends Base
    * processed_record_count  number of records processed
    * failed_record_count     number of records failed to process
    **********************************************/
+
+  public function __construct() {
+    parent::__construct();
+  }
 
   /**
    * The file this is working on
@@ -56,11 +70,24 @@ class CSV extends Base
   protected ?array $current_record = null;
 
   /**
-   * The record currently being processed
+   * The record to be processed next
    *
    * @var ?array
    */
-  protected ?array $next_record = null;
+  protected ?array $lookahead_record = null;
+
+  /**
+   * The record that was processed last
+   *
+   * @var ?array
+   */
+  protected ?array $last_processed_record = null;
+
+  /**
+   * @var int timestamp since this component was created
+   */
+  protected int $running_since = 0;
+
 
   public function canReadSource(string $source): bool
   {
@@ -82,11 +109,18 @@ class CSV extends Base
     }
   }
 
+  /**
+   * Open and init the CSV file
+   *
+   * @throws \Exception
+   *   any issues with opening/reading the file
+   */
   public function initialiseWithSource($source)
   {
     parent::initialiseWithSource($source);
 
     // check if we're working on another file
+    $this->current_record = null;
     $current_file = $this->getCurrentFile();
     if ($current_file == $source) {
       // we should restart where we left off:
@@ -95,21 +129,20 @@ class CSV extends Base
 
       // 2) read headers
       $this->current_file_headers = $this->readNextRecord();
+      $this->lookahead_record     = $this->readNextRecord();
 
       // 3) skip all already processed rows
       $line_nr = $this->getProcessedRecordCount();
       for ($skip = 1; $skip <= $line_nr; $skip ++) {
-        $this->skipNextRecord();
+        $this->lookahead_record = $this->readNextRecord();
       }
 
     } else {
       // this is a NEW file, re-init file
       $this->resetState();
       $this->openFile($source);
-      $this->current_file_headers = $this->readNextRecord();
+      $this->current_file_headers = $this->getNextRecord();
     }
-
-    $this->readNextRecord();
   }
 
 
@@ -145,12 +178,22 @@ class CSV extends Base
     $this->setCurrentFile($source);
 
     // read first record
-    $this->readNextRecord();
+    $this->lookahead_record = $this->readNextRecord();
+  }
+
+  /**
+   * Get the current record being processed right now
+   *
+   * @return array|bool
+   */
+  public function getCurrentRecord(): array
+  {
+    return isset($this->current_record);
   }
 
   public function hasMoreRecords(): bool
   {
-    return isset($this->next_record);
+    return is_array($this->lookahead_record);
   }
 
   /**
@@ -162,9 +205,9 @@ class CSV extends Base
   public function getNextRecord(): ?array
   {
     if ($this->hasMoreRecords()) {
-      $next_record = $this->next_record;
-      $this->next_record = $this->readNextRecord();
-      return $next_record;
+      $this->current_record   = $this->lookahead_record;
+      $this->lookahead_record = $this->readNextRecord();
+      return $this->current_record;
     } else {
       return null;
     }
@@ -172,6 +215,8 @@ class CSV extends Base
 
   /**
    * Read the next record from the open file
+   *
+   * @todo needed?
    */
   public function skipNextRecord() {
     if (empty($this->current_file_handle)) {
@@ -190,19 +235,25 @@ class CSV extends Base
    */
   public function readNextRecord() {
     if (empty($this->current_file_handle)) {
-      throw new \Exception("No file handle!");
+      throw new \Exception("No file opened.");
     }
 
     // read record
+    // todo: move to class properties
     $separator = $this->getConfigValue('csv_separator', ';');
     $enclosure = $this->getConfigValue('csv_string_enclosure', '"');
     $escape = $this->getConfigValue('csv_string_escape', '\\');
     $encoding = $this->getConfigValue('csv_string_encoding', 'UTF8');
     $record = fgetcsv($this->current_file_handle, null, $separator, $enclosure, $escape);
 
-    // encode record
-    if ($encoding != 'UTF8') {
-      $record = mb_convert_encoding($record, 'UTF8', $encoding);
+    if ($record) {
+      // encode record
+      if ($encoding != 'UTF8') {
+        $record = mb_convert_encoding($record, 'UTF8', $encoding);
+      }
+    } else {
+      // this should be the end of the file
+      $record = null;
     }
 
     return $record;
@@ -211,11 +262,13 @@ class CSV extends Base
   public function markLastRecordProcessed()
   {
     $this->setProcessedRecordCount($this->getProcessedRecordCount() + 1);
+    $this->current_record = $this->lookahead_record;
   }
 
   public function markLastRecordFailed()
   {
     $this->setFailedRecordCount($this->getFailedRecordCount() + 1);
+    $this->current_record = $this->lookahead_record;
   }
 
   /**
@@ -244,4 +297,12 @@ class CSV extends Base
     parent::resetState();
   }
 
+  /**
+   * Get the last processed record
+   *
+   * @return array|null
+   */
+  public function getLastProcessedRecord(){
+    return $this->last_processed_record;
+  }
 }

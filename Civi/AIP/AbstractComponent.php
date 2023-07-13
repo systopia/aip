@@ -39,6 +39,8 @@ abstract class AbstractComponent
    */
   protected array $state = [];
 
+  public function __construct() {}
+
   /**
    * Get config option
    *
@@ -217,6 +219,7 @@ abstract class AbstractComponent
    */
   public function log($message, $level = 'debug')
   {
+    // todo: add timestamp to log
     switch ($level) {
       case 'info':
         \Civi::log()->info($message);

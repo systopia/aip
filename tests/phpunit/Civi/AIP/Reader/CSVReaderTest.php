@@ -36,6 +36,34 @@ class CSVReaderTest extends TestBase implements HeadlessInterface, HookInterface
 
     // create reader
     $reader = new Reader\CSV();
+    $reader->setConfiguration(['csv_string_encoding' => 'UTF-8']);
+
+    // create processor
+    $processor = new Processor\TestProcessor();
+
+    // create a process
+    $process = new Process($finder, $reader, $processor);
+
+    // run the process
+    $process->run();
+
+    // check results
+    $this->assertEquals(2, $reader->getProcessedRecordCount(), "This should've processed the two records in the file.");
+    $this->assertEquals(0, $reader->getFailedRecordCount());
+  }
+
+  /**
+   * Create a simple processor (UrlRequestFile, CSV reader, TestProcessor)
+   */
+  public function testReadSimpleCsvWithSuspension()
+  {
+    $this->fail("not implemented");
+    // create finder
+    $finder = new Finder\UrlRequestFile();
+    $finder->setFile($this->getTestResourcePath('input/CSV/Test01.csv'));
+
+    // create reader
+    $reader = new Reader\CSV();
     $reader->setConfiguration(['csv_string_encoding' => 'ISO-8859-15']);
 
     // create processor

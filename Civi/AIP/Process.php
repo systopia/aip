@@ -50,6 +50,10 @@ class Process extends \Civi\AIP\AbstractComponent
    */
   protected Processor $processor;
 
+  /**
+   * @var float timestamp on when the process was started
+   */
+  protected float $timestamp_start;
 
   public static function getProcesses($active = true) : array
   {
@@ -73,6 +77,7 @@ class Process extends \Civi\AIP\AbstractComponent
     $this->reader->process = $this;
     $this->processor = $processor;
     $this->processor->process = $this;
+    $this->timestamp_start = 0.0;
   }
 
   public static function load($id) : Process
@@ -110,6 +115,7 @@ class Process extends \Civi\AIP\AbstractComponent
   public function run()
   {
     // find a source
+    $this->timestamp_start = microtime(true);
     $source_url = $this->finder->findNextSource();
 
     // check if there is a source for us
@@ -133,17 +139,6 @@ class Process extends \Civi\AIP\AbstractComponent
   }
 
   /**
-   * Should / could this instance process more records right now?
-   *
-   * @return bool
-   */
-  public function shouldProcessMoreRecords() : bool
-  {
-    // should the process continue?
-    return true;
-  }
-
-  /**
    * Should this process continue, even if at least one record has failed?
    *
    * @return bool
@@ -157,5 +152,32 @@ class Process extends \Civi\AIP\AbstractComponent
   public function getType()
   {
     return E::ts("Processor");
+  }  /**
+ * Should / could this instance process more records right now?
+ *
+ * @return bool
+ */
+
+  public function shouldProcessMoreRecords() : bool
+  {
+    // check processing count limit
+    $processing_record_limit = (int) $this->getConfigValue('processing_limit/record_count');
+    if ($processing_record_limit && $this->reader->getProcessedRecordCount() >= $processing_record_limit) {
+      $this->log("Processing record limit of {$processing_record_limit} hit.");
+      return false;
+    }
+
+    // check processing time limit
+    $processing_time_limit = (int) $this->getConfigValue('processing_limit/processing_time');
+    if ($processing_time_limit) {
+      $elapsed_time = microtime(true) - $this->timestamp_start;
+      if ($elapsed_time > $processing_time_limit) {
+        $this->log("Processing time limit of {$processing_time_limit}s exceeded.");
+        return false;
+      }
+    }
+
+    // should the process continue?
+    return true;
   }
 }

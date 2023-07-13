@@ -20,10 +20,11 @@ use CRM_Aip_ExtensionUtil as E;
 
 class Base extends AbstractComponent
 {
-  public function __construct()
-  {
-
-  }
+  /**
+   * The last record that was processed
+   * @var array|null
+   */
+  protected ?array $last_processed_record = null;
 
   /**
    *
@@ -39,6 +40,7 @@ class Base extends AbstractComponent
   public function processRecord($record)
   {
     // do nothing here, override in implementation
+    $this->last_processed_record = $record;
   }
 
   /**
