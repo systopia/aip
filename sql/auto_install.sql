@@ -34,10 +34,15 @@ SET FOREIGN_KEY_CHECKS=1;
 -- * Configuration profiles implemented by config type providers.
 -- *
 -- *******************************************************/
-CREATE TABLE `civicrm_aip_processor` (
-  `id` int unsigned NOT NULL AUTO_INCREMENT COMMENT 'Unique Process ID.',
-  `config` text COMMENT 'configuration of the process',
-  `state`  text COMMENT 'current state of the process',
+CREATE TABLE `civicrm_aip_process` (
+  `id`                  INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Unique Process ID.',
+  `name`                VARCHAR(96) COMMENT 'name of the process',
+  `is_active`           BOOL        COMMENT 'is this process active',
+  `last_run`            DATETIME    COMMENT 'when was this process last run',
+  `class`               VARCHAR(96) COMMENT 'process implementation class, most likely \\Civi\\AIP\\Process',
+  `config`              TEXT        COMMENT 'configuration/state of the process',
+  `documentation`       TEXT        COMMENT 'should explain what the process does',
+  `state`  text         COMMENT 'current state of the process',
   PRIMARY KEY (`id`)
 )
 ENGINE=InnoDB;

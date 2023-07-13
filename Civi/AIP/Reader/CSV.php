@@ -174,7 +174,6 @@ class CSV extends Base
     }
 
     // update state
-    $this->resetState();
     $this->setCurrentFile($source);
 
     // read first record
@@ -188,7 +187,7 @@ class CSV extends Base
    */
   public function getCurrentRecord(): array
   {
-    return isset($this->current_record);
+    return $this->current_record;
   }
 
   public function hasMoreRecords(): bool

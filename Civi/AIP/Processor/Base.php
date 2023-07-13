@@ -44,11 +44,20 @@ class Base extends AbstractComponent
   }
 
   /**
+   * @return ?array
+   *   get the last record processed by this processor
+   */
+  public function getLastProcessedRecord() : ?array
+  {
+    return $this->last_processed_record;
+  }
+
+  /**
    * Return the type of the given component
    *
    * @return string
    */
-  public function getType()
+  public function getType() : string
   {
     return E::ts("Processor");
   }

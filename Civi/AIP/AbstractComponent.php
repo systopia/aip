@@ -87,6 +87,24 @@ abstract class AbstractComponent
   }
 
   /**
+   * Set a value in the component's configuration
+   *
+   * @param string $path
+   *   a variable name, or a '/' separated path to it
+   *
+   * @param mixed $value
+   *   the new value
+   *
+   * @return mixed
+   *   the previous value
+   */
+  public function setConfigValue(string $path, $value)
+  {
+    return $this->setArrayValue($this->configuration, $path, $value);
+  }
+
+
+  /**
    * Reset the state of this module
    *
    * @return void
@@ -157,10 +175,10 @@ abstract class AbstractComponent
         break;
 
       } else {
-        if (!isset($array[$path])) {
-          $array[$path] &= [];
+        if (!isset($array[$key])) {
+          $array[$key] = [];
         }
-        $array = &$array[$path];
+        $array = &$array[$key];
       }
     }
 
@@ -253,5 +271,20 @@ abstract class AbstractComponent
                                1 => $this->getType(),
                                2 => $this->getProcess()->getID(),
                                3 => $message]));
+  }
+
+  /**
+   * Serialise state
+   *
+   * @return array
+   *   serialised state
+   */
+  public function serialise() : array
+  {
+    return [
+        'class_name' => get_class($this),
+        'config'     => $this->configuration,
+        'state'      => $this->state
+    ];
   }
 }

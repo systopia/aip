@@ -20,17 +20,17 @@ use Civi\AIP\Reader\Base    as Reader;
 use Civi\AIP\Processor\Base as Processor;
 use \Exception;
 
+
 /**
  * A PROCESS will enclose various components
  **/
 class Process extends \Civi\AIP\AbstractComponent
 {
   /**
-   * @var integer id
-   *   the ID of this process
+   * @var integer $id
+   *  the processor's ID. Only present (>0) if the process is persisted
    */
-  protected int $id;
-
+  protected int $id = 0;
 
   /**
    * @var Finder $finder
@@ -54,6 +54,16 @@ class Process extends \Civi\AIP\AbstractComponent
    * @var float timestamp on when the process was started
    */
   protected float $timestamp_start;
+
+  /**
+   * @var string process name
+   */
+  protected string $name = '';
+
+  /**
+   * @var string documentation
+   */
+  protected string $documentation = '';
 
   public static function getProcesses($active = true) : array
   {
@@ -86,16 +96,6 @@ class Process extends \Civi\AIP\AbstractComponent
   }
 
   /**
-   * Get the finder component
-   *
-   * @return Finder
-   */
-  public function getFinder() : Finder
-  {
-    return $this->finder;
-  }
-
-  /**
    * Get the process ID
    *
    * @return int
@@ -116,7 +116,16 @@ class Process extends \Civi\AIP\AbstractComponent
   {
     // find a source
     $this->timestamp_start = microtime(true);
-    $source_url = $this->finder->findNextSource();
+    $this->log("Starting process " . $this->getID());
+
+    // check if this is a resume
+    if ($this->reader->getCurrentFile()) {
+      // this is a resume
+      $source_url = $this->reader->getCurrentFile();
+    } else {
+      // this is a new source
+      $source_url = $this->finder->findNextSource();
+    }
 
     // check if there is a source for us
     if ($source_url && $this->reader->canReadSource($source_url)) {
@@ -179,5 +188,139 @@ class Process extends \Civi\AIP\AbstractComponent
 
     // should the process continue?
     return true;
+  }
+
+  /**
+   * Get the reader object in this process
+   *
+   * @return Finder
+   */
+  public function getFinder() : Finder
+  {
+    return $this->finder;
+  }
+
+  /**
+   * Get the reader object in this process
+   *
+   * @return Reader
+   */
+  public function getReader() : Reader
+  {
+    return $this->reader;
+  }
+
+  /**
+   * Get the reader object in this process
+   *
+   * @return Processor
+   */
+  public function getProcessor () : Processor
+  {
+    return $this->processor;
+  }
+
+  /**
+   * STORE/RESTORE LOGIC
+   */
+
+  /**
+   * Store the given component
+   *
+   * @return int
+   *   component ID
+   */
+  public function store() : int
+  {
+    $serialised_config = json_encode([
+        'finder'    => $this->finder->configuration    + ['class' => get_class($this->finder)],
+        'reader'    => $this->reader->configuration    + ['class' => get_class($this->reader)],
+        'processor' => $this->processor->configuration + ['class' => get_class($this->processor)],
+        'process'   => $this->configuration,
+     ]);
+    $serialised_state = json_encode([
+       'finder'    => $this->finder->state,
+       'reader'    => $this->reader->state,
+       'processor' => $this->processor->state,
+       'process'   => $this->state,
+     ]);
+
+    if (!$this->id) {
+      \CRM_Core_DAO::executeQuery(
+              "INSERT INTO civicrm_aip_process (name, class, config, state) VALUES (%1, %2, %3, %4)",
+              [
+                      1 => [$this->name, 'String'],
+                      2 => [\get_class($this), 'String'],
+                      3 => [$serialised_config, 'String'],
+                      4 => [$serialised_state, 'String']
+              ]);
+      $this->id = \CRM_Core_DAO::singleValueQuery("SELECT LAST_INSERT_ID()");
+
+    } else {
+      \CRM_Core_DAO::executeQuery(
+              "UPDATE civicrm_aip_process SET name = %1, class = %2, config = %3, state = %4 WHERE id = %5",
+              [
+                      1 => [$this->name, 'String'],
+                      2 => [\get_class($this), 'String'],
+                      3 => [$serialised_config, 'String'],
+                      4 => [$serialised_state, 'String'],
+                      5 => [$this->id, 'Integer'],
+              ]);
+    }
+    $this->log("Process suspended.");
+    return $this->id;
+  }
+
+  /**
+   * Store the given component
+   *
+   * @param int id
+   *   component ID
+   */
+  public static function restore(int $id) : Process
+  {
+    $data_query = \CRM_Core_DAO::executeQuery(
+            "SELECT name, class, config, state FROM civicrm_aip_process WHERE id = %1",
+            [1 => [$id, 'Integer']]);
+    if ($data_query->fetch()) {
+      try {
+        // restore process:
+        $config = json_decode($data_query->config, true);
+        $state = json_decode($data_query->state, true);
+
+        // restore finder
+        $finder = new $config['finder']['class']();
+        unset($config['finder']['class']);
+        $finder->configuration = $config['finder']['config'] ?? [];
+        $finder->state = $state['finder']['state'] ?? [];
+
+        // restore reader
+        $reader = new $config['reader']['class']();
+        unset($config['reader']['class']);
+        $reader->configuration = $config['reader'] ?? [];
+        $reader->state = $state['reader'] ?? [];
+
+        // restore reader
+        $processor = new $config['processor']['class']();
+        unset($config['processor']['class']);
+        $processor->configuration = $config['processor'] ?? [];
+        $processor->state = $state['processor'] ?? [];
+
+        // finally, reconstruct the process
+        $process = new $data_query->class($finder, $reader, $processor, $id);
+        $process->name = $data_query->name;
+        $process->configuration = $config['process'] ?? [];
+        $process->state = $state['process'] ?? [];
+
+        $process_id = $process->getId();
+        $process->log("Process [{$id}] restored.");
+        return $process;
+
+      } catch (\Exception $ex) {
+        throw new \Exception("Error while loading process [{$id}]");
+      }
+    } else {
+      throw new \Exception("Couldn't find process [{$id}]");
+    }
   }
 }

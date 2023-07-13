@@ -14,21 +14,8 @@
 +--------------------------------------------------------*/
 
 namespace Civi\AIP\Processor;
+use Civi\AIP\Processor\Base as BaseProcessor;
 
-class TestProcessor extends Base
+class TestProcessor extends BaseProcessor
 {
-  /**
-   * @var array list of records processed by this processor
-   */
-  public array $processed_records = [];
-
-  /**
-   *
-   * @return void
-   */
-  public function processRecord($record)
-  {
-    // do nothing here, override in implementation
-    \Civi::log()->debug("Processed Record: " . json_encode($record));
-  }
 }
