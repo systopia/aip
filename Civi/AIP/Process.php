@@ -18,6 +18,7 @@ namespace Civi\AIP;
 use Civi\AIP\Finder\Base    as Finder;
 use Civi\AIP\Reader\Base    as Reader;
 use Civi\AIP\Processor\Base as Processor;
+use CRM_Aip_ExtensionUtil   as E;
 use \Exception;
 
 
@@ -146,8 +147,15 @@ class Process extends \Civi\AIP\AbstractComponent
       }
     }
     // store current state
-    $this->log("Finished process [" . $this->getID() . "] after processing " . $this->getReader()->getProcessedRecordCount() . " records.");
-    $this->store();
+    $total_processed_count = $this->getReader()->getProcessedRecordCount();
+    $session_processed_count = $this->getReader()->getSessionProcessedRecordCount();
+    $this->log(E::ts("Finished process [%1] after processing %2 records, %3 in total on this source(%4)", [
+            1 => $this->getID(),
+            2 => $session_processed_count,
+            3 => $total_processed_count,
+            4 => $source_url,
+      ]));
+   $this->store();
   }
 
   /**
@@ -174,7 +182,7 @@ class Process extends \Civi\AIP\AbstractComponent
   {
     // check processing count limit
     $processing_record_limit = (int) $this->getConfigValue('processing_limit/record_count');
-    if ($processing_record_limit && $this->reader->getProcessedRecordCount() >= $processing_record_limit) {
+    if ($processing_record_limit && $this->reader->getSessionProcessedRecordCount() >= $processing_record_limit) {
       $this->log("Processing record limit of {$processing_record_limit} hit.");
       return false;
     }

@@ -20,6 +20,9 @@ use CRM_Aip_ExtensionUtil as E;
 
 abstract class Base extends AbstractComponent
 {
+  /** @var int counting the records processed in this session */
+  protected int $records_processed_in_this_session = 0;
+
   /**
    * See if the current source has more records
    *
@@ -41,8 +44,18 @@ abstract class Base extends AbstractComponent
    */
   public function markLastRecordProcessed()
   {
+    $this->records_processed_in_this_session++;
     $processed_record_count = $this->getProcessedRecordCount();
     $this->setProcessedRecordCount($processed_record_count + 1);
+  }
+
+  /**
+   * Get the
+   * @return int
+   */
+  public function getSessionProcessedRecordCount() : int
+  {
+    return $this->records_processed_in_this_session;
   }
 
   /**
@@ -50,6 +63,7 @@ abstract class Base extends AbstractComponent
    */
   public function markLastRecordFailed()
   {
+    $this->records_processed_in_this_session++;
     $failed_record_count = $this->getFailedRecordCount();
     $this->setFailedRecordCount($failed_record_count + 1);
   }

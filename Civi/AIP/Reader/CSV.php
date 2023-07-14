@@ -58,9 +58,9 @@ class CSV extends Base
   /**
    * The headers of the current CSV file
    *
-   * @var array $current_file_headers
+   * @var ?array $current_file_headers
    */
-  protected $current_file_headers = null;
+  protected ?array $current_file_headers = null;
 
   /**
    * The record currently being processed
@@ -123,19 +123,19 @@ class CSV extends Base
     $this->current_record = null;
     $current_file = $this->getCurrentFile();
     if ($current_file == $source) {
-      // we should restart where we left off:
+      // same file: we should restart/resume where we left off:
       // 1) open file
       $this->openFile($current_file);
 
       // 2) read headers
-      $this->current_file_headers = $this->readNextRecord();
-      $this->lookahead_record     = $this->readNextRecord();
+      $this->current_file_headers = $this->getNextRecord();
 
       // 3) skip all already processed rows
-      $line_nr = $this->getProcessedRecordCount();
-      for ($skip = 1; $skip <= $line_nr; $skip ++) {
-        $this->lookahead_record = $this->readNextRecord();
+      $records_previously_processed = $this->getProcessedRecordCount() + $this->getFailedRecordCount();
+      for ($skip = 0; $skip < $records_previously_processed; $skip ++) {
+        $this->getNextRecord();
       }
+      if ($skip) $this->log("Resume: skipped {$skip} previously processed record(s).");
 
     } else {
       // this is a NEW file, re-init file
@@ -260,12 +260,14 @@ class CSV extends Base
 
   public function markLastRecordProcessed()
   {
+    $this->records_processed_in_this_session++;
     $this->setProcessedRecordCount($this->getProcessedRecordCount() + 1);
     $this->current_record = $this->lookahead_record;
   }
 
   public function markLastRecordFailed()
   {
+    $this->records_processed_in_this_session++;
     $this->setFailedRecordCount($this->getFailedRecordCount() + 1);
     $this->current_record = $this->lookahead_record;
   }
