@@ -1,4 +1,17 @@
 <?php
+/*-------------------------------------------------------+
+| SYSTOPIA Automatic Input Processing (AIP) Framework    |
+| Copyright (C) 2023 SYSTOPIA                            |
+| Author: B. Endres (endres@systopia.de)                 |
++--------------------------------------------------------+
+| This program is released as free software under the    |
+| Affero GPL license. You can redistribute it and/or     |
+| modify it under the terms of this license which you    |
+| can read by viewing the included agpl.txt or online    |
+| at www.gnu.org/licenses/agpl.html. Removal of this     |
+| copyright header is strictly prohibited without        |
+| written permission from the original author(s).        |
++--------------------------------------------------------*/
 
 namespace Civi\AIP;
 
@@ -7,21 +20,10 @@ use Civi\Test\HookInterface;
 use Civi\Test\TransactionalInterface;
 
 /**
- * Basic test to see if the components interact as they should
- *
- * Tips:
- *  - With HookInterface, you may implement CiviCRM hooks directly in the test class.
- *  Simply create corresponding functions (e.g. "hook_civicrm_post(...)" or similar).
- *  - With TransactionalInterface, any data changes made by setUp() or test****() functions will
- *  rollback automatically -- as long as you don't manipulate schema or truncate tables.
- *  If this test needs to manipulate schema or truncate tables, then either:
- *     a. Do all that using setupHeadless() and Civi\Test.
- *     b. Disable TransactionalInterface, and handle all setup/teardown yourself.
+ * Basic CVS Reader tests
  *
  * @group headless
  *
- * Mainly tests the regex extraction
- *  and the actions: copy, copy_append, copy_ltrim_zeros, set(ok), align_date, unset, strtolower, sha1, preg_replace, calculate, map(ok)
  */
 class CSVReaderTest extends TestBase implements HeadlessInterface, HookInterface, TransactionalInterface
 {
@@ -93,10 +95,8 @@ class CSVReaderTest extends TestBase implements HeadlessInterface, HookInterface
     // check results
     $processor = $process2->getProcessor();
     $last_processed_record = $process2->getProcessor()->getLastProcessedRecord();
-    $this->assertEquals("25120511", $last_processed_record[0], "This should've read the second record of the file");
+    $this->assertEquals("25120511", $last_processed_record['BLZ'], "This should've read the *second* record of the file");
     $this->assertEquals(1, $process2->getReader()->getSessionProcessedRecordCount(), "This should've processed the only one record because of the processing_limit/record_count = 1 limit.");
     $this->assertEquals(0, $process2->getReader()->getFailedRecordCount());
-    // todo: check if the second record was checked
-
   }
 }

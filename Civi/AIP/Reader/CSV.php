@@ -206,7 +206,20 @@ class CSV extends Base
     if ($this->hasMoreRecords()) {
       $this->current_record   = $this->lookahead_record;
       $this->lookahead_record = $this->readNextRecord();
-      return $this->current_record;
+
+      // map to headers
+      $record = $this->current_record;
+      if (is_array($this->current_file_headers)) {
+        // todo: setting to disable labelling?
+
+        $file_headers = $this->current_file_headers;
+        if (count($record) != count($file_headers)) {
+          $this->fixHeaderRecordColumnMismatch($file_headers, $record);
+        }
+        $record = array_combine($file_headers, $this->current_record);
+      }
+
+      return $record;
     } else {
       return null;
     }
@@ -305,5 +318,31 @@ class CSV extends Base
    */
   public function getLastProcessedRecord(){
     return $this->last_processed_record;
+  }
+
+  /**
+   * Fix a mismatch of the column count of the headers,
+   *  and the number of entries in the record
+   *
+   * @param array $file_headers
+   *   the column headers
+   *
+   * @param array $record
+   *   the record
+   *
+   * @return void
+   */
+  protected function fixHeaderRecordColumnMismatch(array &$file_headers, array &$record)
+  {
+    // if there are not enough headers, just add some generic ones
+    $counter = 0;
+    while (count($file_headers) < count($record)) {
+      $file_headers[] = "Column " . (count($file_headers) + 1);
+    }
+
+    // if there are not enough values, just add some empty ones
+    while (count($file_headers) > count($record)) {
+      $record[] = '';
+    }
   }
 }
