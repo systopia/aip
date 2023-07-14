@@ -16,7 +16,7 @@
 
 SET FOREIGN_KEY_CHECKS=0;
 
-DROP TABLE IF EXISTS `civicrm_aip_processor`;
+DROP TABLE IF EXISTS `civicrm_aip_process`;
 
 SET FOREIGN_KEY_CHECKS=1;
 

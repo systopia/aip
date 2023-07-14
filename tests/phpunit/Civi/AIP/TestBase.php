@@ -47,6 +47,10 @@ class TestBase extends TestCase implements HeadlessInterface, HookInterface, Tra
   public function setUpHeadless(): CiviEnvBuilder
   {
     $this->setUp();
+
+    // make sure the table is there??
+    //\CRM_Utils_File::sourceSQLFile(CIVICRM_DSN, 'sql/auto_install.sql');
+
     return \Civi\Test::headless()
       ->installMe(__DIR__)
       ->apply();
