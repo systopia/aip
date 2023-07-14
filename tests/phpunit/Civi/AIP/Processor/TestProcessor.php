@@ -18,4 +18,21 @@ use Civi\AIP\Processor\Base as BaseProcessor;
 
 class TestProcessor extends BaseProcessor
 {
+  /**
+   *
+   * @return void
+   */
+  /**
+   * Process the given record
+   *
+   * @param array $record
+   *
+   * @throws \Exception
+   */
+  public function processRecord($record)
+  {
+    parent::processRecord($record);
+    $this->log("Processed " . json_encode($record));
+  }
+
 }

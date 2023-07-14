@@ -116,7 +116,7 @@ class Process extends \Civi\AIP\AbstractComponent
   {
     // find a source
     $this->timestamp_start = microtime(true);
-    $this->log("Starting process " . $this->getID());
+    $this->log("Starting process [" . $this->getID() . "]");
 
     // check if this is a resume
     if ($this->reader->getCurrentFile()) {
@@ -145,6 +145,9 @@ class Process extends \Civi\AIP\AbstractComponent
         }
       }
     }
+    // store current state
+    $this->log("Finished process [" . $this->getID() . "] after processing " . $this->getReader()->getProcessedRecordCount() . " records.");
+    $this->store();
   }
 
   /**
@@ -267,7 +270,7 @@ class Process extends \Civi\AIP\AbstractComponent
                       5 => [$this->id, 'Integer'],
               ]);
     }
-    $this->log("Process suspended.");
+    $this->log("Process [{$this->id}] suspended.");
     return $this->id;
   }
 

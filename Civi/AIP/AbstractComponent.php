@@ -237,7 +237,8 @@ abstract class AbstractComponent
    */
   public function log($message, $level = 'debug')
   {
-    // todo: add timestamp to log
+    // todo: add timestamp and process ID to log
+    // todo: harmonise logging
     switch ($level) {
       case 'info':
         \Civi::log()->info($message);
