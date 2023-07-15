@@ -42,6 +42,19 @@ abstract class AbstractComponent
   public function __construct() {}
 
   /**
+   * Check if the component is ready,
+   *   i.e. configured correctly.
+   *
+   * @throws \Exception
+   *   an exception will be thrown if something's wrong with the
+   *     configuration or state
+   */
+  public function verifyConfiguration()
+  {
+    // by default, we're ready :)
+  }
+
+  /**
    * Get config option
    *
    * @param string $path
@@ -200,7 +213,7 @@ abstract class AbstractComponent
    *
    * @return string
    */
-  public abstract function getType();
+  public abstract function getTypeName();
 
   /**
    * Set the component's configuration, e.g. when instantiated
@@ -269,9 +282,9 @@ abstract class AbstractComponent
   public function raiseException($message)
   {
     throw new \Exception(E::ts("[%1(:%2)] %3", [
-                               1 => $this->getType(),
-                               2 => $this->getProcess()->getID(),
-                               3 => $message]));
+            1 => $this->getTypeName(),
+            2 => $this->getProcess()->getID(),
+            3 => $message]));
   }
 
   /**

@@ -22,7 +22,7 @@ namespace Civi\AIP\Finder;
  **/
 class UrlRequestFile extends Base
 {
-  public function findNextSource() : string
+  public function findNextSource() : ?string
   {
     $potential_file_path = $_REQUEST['aip_input'];
     $this->log("Received file path '{$potential_file_path}, investigating");

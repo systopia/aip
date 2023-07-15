@@ -108,7 +108,7 @@ abstract class Base extends AbstractComponent
    *
    * @return string
    */
-  public function getType()
+  public function getTypeName() : string
   {
     return E::ts("Reader");
   }

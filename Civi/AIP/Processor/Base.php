@@ -57,7 +57,7 @@ class Base extends AbstractComponent
    *
    * @return string
    */
-  public function getType() : string
+  public function getTypeName() : string
   {
     return E::ts("Processor");
   }

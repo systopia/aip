@@ -26,10 +26,10 @@ abstract class Base extends AbstractComponent
   /**
    * Ask the finder to find the next data source
    *
-   * @return string URI
+   * @return ?string URI
    *   an URI for the following reader to process
    */
-  public abstract function findNextSource() : string;
+  public abstract function findNextSource() : ?string;
 
   /**
    * Claim this resource for this process,
@@ -75,7 +75,7 @@ abstract class Base extends AbstractComponent
    *
    * @return string
    */
-  public function getType()
+  public function getTypeName() : string
   {
     return E::ts("Finder");
   }

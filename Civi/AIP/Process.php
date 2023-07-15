@@ -91,23 +91,8 @@ class Process extends \Civi\AIP\AbstractComponent
     $this->timestamp_start = 0.0;
   }
 
-  public static function load($id) : Process
-  {
-    throw new \Exception("Persistence not yet implemented");
-  }
-
   /**
-   * Get the process ID
-   *
-   * @return int
-   */
-  public function getID()
-  {
-    return $this->id;
-  }
-
-  /**
-   * Run the given process
+   * Run the given process, this is the main loop for processing records
    *
    * @return void
    *
@@ -118,6 +103,12 @@ class Process extends \Civi\AIP\AbstractComponent
     // find a source
     $this->timestamp_start = microtime(true);
     $this->log("Starting process [" . $this->getID() . "]");
+
+    // check if the components are fine:
+    $this->verifyConfiguration();
+    $this->finder->verifyConfiguration();
+    $this->reader->verifyConfiguration();
+    $this->processor->verifyConfiguration();
 
     // check if this is a resume
     if ($this->reader->getCurrentFile()) {
@@ -141,11 +132,14 @@ class Process extends \Civi\AIP\AbstractComponent
         } catch (\Exception $exception) {
           $this->reader->markLastRecordFailed();
           if (!$this->continueWithFailedRecord()) {
-            throw new Exception("Processing aborted due to an exception.");
+            $this->finder->markSourceFailed($source_url);
+            throw new Exception(E::ts("Processing aborted due to an exception: %1", [1 => $exception->getMessage()]));
           }
         }
       }
+      $this->finder->markSourceProcessed($source_url);
     }
+
     // store current state
     $total_processed_count = $this->getReader()->getProcessedRecordCount();
     $session_processed_count = $this->getReader()->getSessionProcessedRecordCount();
@@ -159,6 +153,17 @@ class Process extends \Civi\AIP\AbstractComponent
   }
 
   /**
+   * Get the process ID
+   *
+   * @return int
+   */
+  public function getID()
+  {
+    return $this->id;
+  }
+
+
+  /**
    * Should this process continue, even if at least one record has failed?
    *
    * @return bool
@@ -169,7 +174,7 @@ class Process extends \Civi\AIP\AbstractComponent
     return false;
   }
 
-  public function getType()
+  public function getTypeName() : string
   {
     return E::ts("Processor");
   }  /**

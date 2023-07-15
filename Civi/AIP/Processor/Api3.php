@@ -134,7 +134,7 @@ class Api3 extends Base
    *
    * @return string
    */
-  public function getType() : string
+  public function getTypeName() : string
   {
     return E::ts("APIv3 Processor");
   }
