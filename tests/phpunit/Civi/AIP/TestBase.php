@@ -84,4 +84,16 @@ class TestBase extends TestCase implements HeadlessInterface, HookInterface, Tra
     return $full_path;
   }
 
+  /**
+   * Create a temp dir
+   *
+   * @return string
+   *   temp dir name
+   */
+  public function createTempDir()
+  {
+    // lifted from https://stackoverflow.com/a/17280327
+    $tmpdir = '--tmpdir=' . sys_get_temp_dir();
+    return exec("mktemp -d $tmpdir AIPXXXXXX");
+  }
 }

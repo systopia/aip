@@ -57,19 +57,6 @@ abstract class Base extends AbstractComponent
    */
   public abstract function markSourceFailed(string $uri);
 
-
-  /**
-   * Mark the given resource as 'processing',
-   *  so it can be exclusively processed
-   *
-   * @param string $uri
-   *   an URI to marked busy/processing
-   *
-   * @return bool
-   *   true, if this source can be handled by this Finder
-   */
-  public abstract function canHandleSource(string $uri);
-
   /**
    * Return the type of the given component
    *

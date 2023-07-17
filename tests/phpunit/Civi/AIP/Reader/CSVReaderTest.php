@@ -28,7 +28,7 @@ use Civi\Test\TransactionalInterface;
 class CSVReaderTest extends TestBase implements HeadlessInterface, HookInterface, TransactionalInterface
 {
   /**
-   * Create a simple processor (UrlRequestFile, CSV reader, TestProcessor)
+   * Create a simple process (UrlRequestFile, CSV reader, TestProcessor)
    */
   public function testReadSimpleCSV()
   {
@@ -55,7 +55,7 @@ class CSVReaderTest extends TestBase implements HeadlessInterface, HookInterface
   }
 
   /**
-   * Create a simple processor (UrlRequestFile, CSV reader, TestProcessor),
+   * Create a simple process (UrlRequestFile, CSV reader, TestProcessor),
    * But then process one record, suspend,
    *      revive, process the remaining record
    */

@@ -27,7 +27,7 @@ use Civi\Test\CiviEnvBuilder;
 class BasicTest extends TestBase implements HeadlessInterface, HookInterface, TransactionalInterface
 {
   /**
-   * Create a simple processor (UrlRequestFile, CSV reader, TestProcessor)
+   * Create a simple process (UrlRequestFile, CSV reader, TestProcessor)
    */
   public function testSetupViaCode()
   {

@@ -21,25 +21,32 @@ use Civi\Test\TransactionalInterface;
 use \Civi\Test\Api3TestTrait;
 
 /**
- * Basic CVS Reader tests
+ * Basic DropFolder Finder
  *
  * @group headless
  *
  */
-class Api3ProcessorTest extends TestBase implements HeadlessInterface, HookInterface, TransactionalInterface
+class DropFolderFinderTest extends TestBase implements HeadlessInterface, HookInterface, TransactionalInterface
 {
   /**
-   * Create a simple process (UrlRequestFile, CSV reader, Api3 processor)
+   * Create a simple process (DropFolderFinder, CSV reader, Api3 processor)
    */
-  public function testSimpleApi3()
+  public function testSetup()
   {
     // create finder
-    $finder = new Finder\UrlRequestFile();
-    $finder->setFile($this->getTestResourcePath('input/CSV/Test03.csv'));
+    $finder = new Finder\DropFolderFinder();
+    $finder->setConfigValue('filter/file_name', '#[a-z0-9]+.csv#');
+    $finder->setConfigValue('folder/inbox', $this->createTempDir());
+    $finder->setConfigValue('folder/processing', $this->createTempDir());
+    $finder->setConfigValue('folder/processed', $this->createTempDir());
+    $finder->setConfigValue('folder/uploading', $this->createTempDir());
+    $finder->setConfigValue('folder/failed', $this->createTempDir());
 
-    // create reader
+    // create reader + put I file there
     $reader = new Reader\CSV();
     $reader->setConfiguration(['csv_string_encoding' => 'UTF-8']);
+    $file = $this->getTestResourcePath('input/CSV/Test03.csv');
+    copy($file, $finder->getConfigValue('folder/inbox') . DIRECTORY_SEPARATOR . 'sdasoi3423.csv');
 
     // create processor
     $processor = new Processor\Api3();
