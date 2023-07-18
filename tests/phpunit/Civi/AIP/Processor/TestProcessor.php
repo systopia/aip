@@ -32,7 +32,7 @@ class TestProcessor extends BaseProcessor
   public function processRecord($record)
   {
     parent::processRecord($record);
-    $this->log("Processed " . json_encode($record));
+    $this->log("Processed record #" . (1 + $this->process->getReader()->getRecordCount()), 'debug');
   }
 
 }

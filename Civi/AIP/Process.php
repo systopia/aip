@@ -102,7 +102,7 @@ class Process extends \Civi\AIP\AbstractComponent
   {
     // find a source
     $this->timestamp_start = microtime(true);
-    $this->log("Starting process [" . $this->getID() . "]");
+    $this->log("Starting process [" . $this->getID() . "]", 'info');
 
     // check if the components are fine:
     $this->verifyConfiguration();
@@ -122,8 +122,9 @@ class Process extends \Civi\AIP\AbstractComponent
     // check if there is a source for us
     if ($source_url && $this->reader->canReadSource($source_url)) {
       // read and process
-      $this->log('Reading source ' . $source_url);
+      $this->log('Reading source ' . $source_url, 'info');
       $this->reader->initialiseWithSource($source_url);
+      $this->log('Reader initialised with source: ' . $source_url, 'info');
       while ($this->shouldProcessMoreRecords() && $this->reader->hasMoreRecords()) {
         $record = $this->reader->getNextRecord();
         try {
@@ -148,8 +149,9 @@ class Process extends \Civi\AIP\AbstractComponent
             2 => $session_processed_count,
             3 => $total_processed_count,
             4 => $source_url,
-      ]));
+      ]), 'info');
    $this->store();
+   $this->flushAllLogs();
   }
 
   /**
@@ -188,7 +190,7 @@ class Process extends \Civi\AIP\AbstractComponent
     // check processing count limit
     $processing_record_limit = (int) $this->getConfigValue('processing_limit/record_count');
     if ($processing_record_limit && $this->reader->getSessionProcessedRecordCount() >= $processing_record_limit) {
-      $this->log("Processing record limit of {$processing_record_limit} hit.");
+      $this->log("Processing record limit of {$processing_record_limit} hit.", 'info');
       return false;
     }
 
@@ -197,7 +199,7 @@ class Process extends \Civi\AIP\AbstractComponent
     if ($processing_time_limit) {
       $elapsed_time = microtime(true) - $this->timestamp_start;
       if ($elapsed_time > $processing_time_limit) {
-        $this->log("Processing time limit of {$processing_time_limit}s exceeded.");
+        $this->log("Processing time limit of {$processing_time_limit}s exceeded.", 'info');
         return false;
       }
     }
@@ -283,7 +285,7 @@ class Process extends \Civi\AIP\AbstractComponent
                       5 => [$this->id, 'Integer'],
               ]);
     }
-    $this->log("Process [{$this->id}] suspended.");
+    $this->log("Process [{$this->id}] suspended.", 'debug');
     return $this->id;
   }
 
@@ -337,6 +339,18 @@ class Process extends \Civi\AIP\AbstractComponent
       }
     } else {
       throw new \Exception("Couldn't find process [{$id}]");
+    }
+  }
+
+  /**
+   * Flush all logs
+   *
+   * @return void
+   */
+  public function flushAllLogs()
+  {
+    foreach (self::$log_files as $log_file) {
+      fflush($log_file);
     }
   }
 }

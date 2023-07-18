@@ -81,13 +81,13 @@ abstract class Base extends AbstractComponent
   {
     // check if the source exists
     if (!file_exists($source)) {
-      $this->log(E::ts("Couldn't find source '%1'.", [1 => $source]));
+      $this->log(E::ts("Couldn't find source '%1'.", [1 => $source]), 'warning');
       return false;
     }
 
     // check if the source is readable
     if (!is_readable($source)) {
-      $this->log(E::ts("Couldn't open source '%1'.", [1 => $source]));
+      $this->log(E::ts("Couldn't open source '%1'.", [1 => $source]), 'warning');
       return false;
     }
 
@@ -151,6 +151,16 @@ abstract class Base extends AbstractComponent
   public function getFailedRecordCount()
   {
     return (int) $this->getStateValue('failed_record_count');
+  }
+
+  /**
+   * Get the number of records delivered by this reader
+   *
+   * @return int
+   */
+  public function getRecordCount()
+  {
+    return $this->getProcessedRecordCount() + $this->getFailedRecordCount();
   }
 
   /**

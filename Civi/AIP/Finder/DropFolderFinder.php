@@ -112,7 +112,7 @@ class DropFolderFinder extends Base
         if (is_file($file_path) && is_readable($file_path)) {
           return $file_path;
         } else {
-          $this->log(E::ts("File %1 could not be read.", [1 => $file_path]));
+          $this->log(E::ts("File %1 could not be read.", [1 => $file_path]), 'warning');
         }
       }
     }
@@ -134,7 +134,7 @@ class DropFolderFinder extends Base
     $target_file = $processing_folder . DIRECTORY_SEPARATOR . basename($file_path);
 
     if (rename($file_path, $target_file)) {
-      $this->log(E::ts("Moved file from %1 to %2 for processing.,", [1 => $file_path, 2 => $target_file]));
+      $this->log(E::ts("Moved file from %1 to %2 for processing.,", [1 => $file_path, 2 => $target_file]), 'info');
       return true;
     } else {
       throw new \Exception(E::ts("Couldn't claim source '%1'", [1 => $file_path]));
@@ -154,7 +154,7 @@ class DropFolderFinder extends Base
     $target_file = $processed_folder . DIRECTORY_SEPARATOR . basename($file_path);
 
     if (rename($file_path, $target_file)) {
-      $this->log(E::ts("Moved file from %1 to %2 to mark as processed.,", [1 => $file_path, 2 => $target_file]));
+      $this->log(E::ts("Moved file from %1 to %2 to mark as processed.,", [1 => $file_path, 2 => $target_file]), 'info');
       return true;
     } else {
       throw new \Exception(E::ts("Couldn't mark source '%1' as processed.", [1 => $file_path]));
@@ -174,7 +174,7 @@ class DropFolderFinder extends Base
     $target_file = $processed_folder . DIRECTORY_SEPARATOR . basename($file_path);
 
     if (rename($file_path, $target_file)) {
-      $this->log(E::ts("Moved file from %1 to %2 to mark as FAILED.,", [1 => $file_path, 2 => $target_file]));
+      $this->log(E::ts("Moved file from %1 to %2 to mark as FAILED.,", [1 => $file_path, 2 => $target_file]), 'info');
       return true;
     } else {
       throw new \Exception(E::ts("Couldn't mark source '%1' as FAILED.", [1 => $file_path]));

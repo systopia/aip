@@ -96,7 +96,7 @@ class CSV extends Base
       $file_type = mime_content_type($source);
 
       if (!in_array($file_type, ['text/csv', 'text/plain'])) {
-        $this->log(E::ts("Cannot process files of type '%1'.", [1 => $file_type]));
+        $this->log(E::ts("Cannot process files of type '%1'.", [1 => $file_type]), 'warning');
         return false;
       }
 
@@ -135,12 +135,13 @@ class CSV extends Base
       for ($skip = 0; $skip < $records_previously_processed; $skip ++) {
         $this->getNextRecord();
       }
-      if ($skip) $this->log("Resume: skipped {$skip} previously processed record(s).");
+      if ($skip) $this->log("Resume: skipped {$skip} previously processed record(s).", 'info');
 
     } else {
       // this is a NEW file, re-init file
       $this->resetState();
       $this->openFile($source);
+      $this->log("Opened new source: {$source}", 'info');
       $this->current_file_headers = $this->getNextRecord();
     }
   }

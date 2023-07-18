@@ -39,7 +39,12 @@ abstract class AbstractComponent
    */
   protected array $state = [];
 
-  public function __construct() {}
+  /** @var array file_name => handle  */
+  protected static $log_files = [];
+
+  public function __construct() {
+    $this->setConfigValue("log/file", "/home/bjoern/aip_logs/test.log");
+  }
 
   /**
    * Check if the component is ready,
@@ -244,17 +249,118 @@ abstract class AbstractComponent
    *   the log message
    *
    * @param string $level
-   *   log level, one of debug, info, warning
+   *   log level, one of debug, info, warning, error
    *
    * @return void
    */
-  public function log($message, $level = 'debug')
+  public function log($message, $log_level = 'debug')
   {
+    // find out if we should log this.
+    $min_log_level = strtolower($this->getConfigValue('log/level', 'debug'));
+
     // todo: add timestamp and process ID to log
     // todo: harmonise logging
-    switch ($level) {
+    switch ($log_level) {
+      case 'debug':
+        $this->writeLogMessage($message, $log_level);
+        break;
+
+      default:
       case 'info':
-        \Civi::log()->info($message);
+        if (in_array($min_log_level, ['info', 'warning', 'error'])) {
+          $this->writeLogMessage($message, $log_level);
+        }
+        break;
+
+      case 'warning':
+        if (in_array($min_log_level, ['warning', 'error'])) {
+          $this->writeLogMessage($message, $log_level);
+        }
+        break;
+
+      case 'error':
+        if (in_array($min_log_level, ['error'])) {
+          $this->writeLogMessage($message, $log_level);
+        }
+        break;
+    }
+  }
+
+  /**
+   * Write a log message to the given log sink
+   *
+   * @param string $message
+   *    the log message
+   *
+   * @param $log_level
+   *    the log level
+   *
+   * @return void
+   */
+  protected function writeLogMessage(string $message, $log_level)
+  {
+    $log_file = $this->getConfigValue('log/file');
+    if (empty($log_file)) {
+      // log to CiviCRM standard log
+      switch ($log_level) {
+        case 'debug':
+          \Civi::log("AIP")->debug($message);
+          break;
+
+        default:
+        case 'info':
+          \Civi::log("AIP")->info($message);
+          break;
+
+        case 'warning':
+          \Civi::log("AIP")->warning($message);
+          break;
+
+        case 'error':
+          \Civi::log("AIP")->error($message);
+          break;
+      }
+
+    } else {
+      // log to separate log file
+      if (!isset(AbstractComponent::$log_files[$log_file])) {
+        AbstractComponent::$log_files[$log_file] = fopen($log_file, "a");
+      }
+
+      $log_file_handle = AbstractComponent::$log_files[$log_file];
+      fwrite($log_file_handle, date('[Y-m-d H:i:s]'));
+      $process_id = $this->getProcess()->getID();
+      if ($process_id) {
+        fwrite($log_file_handle, "[P{$process_id}]");
+      }
+      fwrite($log_file_handle, ' ');
+      fwrite($log_file_handle, $message);
+      fwrite($log_file_handle, "\n");
+    }
+  }
+
+  /**
+   * Log messages to the CiviCRM default log
+   *
+   * @param string $message
+   *   the log message
+   *
+   * @param string $log_level
+   *   log level, one of debug, info, warning, error
+   *
+   * @return void
+   */
+  protected function logToCiviLog($message, $log_level = 'debug')
+  {
+    $max_log_level = $this->getConfigValue('log/level', 'debug');
+
+    // todo: add timestamp and process ID to log
+    // todo: harmonise logging
+    switch ($log_level) {
+      case 'info':
+        if (in_array($max_log_level, ['debug', 'info'])) {
+          \Civi::log()->info($message);
+        }
         break;
 
       case 'warning':

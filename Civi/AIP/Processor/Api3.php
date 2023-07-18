@@ -47,8 +47,10 @@ class Api3 extends Base
     $action = $this->getConfigValue('api_action');
     $hardcoded_values = (array) $this->getConfigValue('api_values');
     $call_parameters = array_merge($call_parameters, $hardcoded_values);
+    $call_hash = sha1(json_encode($call_parameters));
 
     // 4) Run the API call
+    $this->log("Call API {$entity}.{$action} with {$call_hash}", 'debug');
     \civicrm_api3($entity, $action, $call_parameters);
 
     // do nothing here, override in implementation

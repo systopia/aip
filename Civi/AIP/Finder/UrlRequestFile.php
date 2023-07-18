@@ -25,7 +25,7 @@ class UrlRequestFile extends Base
   public function findNextSource() : ?string
   {
     $potential_file_path = $_REQUEST['aip_input'];
-    $this->log("Received file path '{$potential_file_path}, investigating");
+    $this->log("Received file path '{$potential_file_path}, investigating", 'debug');
     if (isset($potential_file_path)) {
       // check if the file exists
       if (file_exists($potential_file_path) && is_readable($potential_file_path)) {
