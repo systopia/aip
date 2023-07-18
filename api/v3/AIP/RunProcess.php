@@ -26,7 +26,7 @@ use CRM_AIP_ExtensionUtil as E;
  * @return array
  *   API3 response
  */
-function civicrm_api3_a_i_processor_run($params)
+function civicrm_api3_a_i_p_run_process($params)
 {
   // verify pid parameter
   if (empty($params['pid']) || !is_int($params['pid'])) {
