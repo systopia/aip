@@ -338,7 +338,7 @@ class Process extends \Civi\AIP\AbstractComponent
         throw new \Exception("Error while loading process [{$id}]");
       }
     } else {
-      throw new \Exception("Couldn't find process [{$id}]");
+      throw new \Exception("Couldn't find or restore process [{$id}]");
     }
   }
 
