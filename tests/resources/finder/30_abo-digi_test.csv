@@ -1,0 +1,4 @@
+abonummer;plz;ort;land;g_datum;beginn;ende;preis;email;kundenart
+     123476;"28759";"Bremen";"Deutschland";13.07.2023;11.03.2019;31.12.9999;                      20.90;"someguy@gmail.com";"1"
+     123479;"58239";"Schwerte";"Deutschland";13.07.2023;15.03.2019;31.12.9999;                      37.90;"otherdude@placeholder.de";"8"
+     123498;"74080";"Heilbronn";"Deutschland";13.07.2023;11.03.2019;31.12.9999;                      37.90;"thirdone@online.de";"8"
