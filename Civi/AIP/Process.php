@@ -81,6 +81,7 @@ class Process extends \Civi\AIP\AbstractComponent
    */
   public function __construct($finder, $reader, $processor, $id = 0)
   {
+    parent::__construct();
     $this->id = $id;
     $this->finder = $finder;
     $this->finder->process = $this;
