@@ -43,7 +43,6 @@ abstract class AbstractComponent
   protected static $log_files = [];
 
   public function __construct() {
-    $this->setConfigValue("log/file", "/home/bjoern/aip_logs/test.log");
   }
 
   /**

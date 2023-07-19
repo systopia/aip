@@ -16,6 +16,7 @@
 require_once 'aip.civix.php';
 
 use CRM_AIP_ExtensionUtil as E;
+use Civi\AIP\Process;
 
 /**
  * AIProcessor.run implementation
@@ -29,12 +30,15 @@ use CRM_AIP_ExtensionUtil as E;
 function civicrm_api3_a_i_p_run_process($params)
 {
   // verify pid parameter
-  if (empty($params['pid']) || !is_int($params['pid'])) {
-    throw new CiviCRM_API3_Exception("Invalid pid.");
+  if (empty($params['pid'])) {
+    throw new CiviCRM_API3_Exception("Missing pid.");
+  }
+  $pid = (int) $params['pid'];
+  if (!$pid) {
+    throw new CiviCRM_API3_Exception("Invalid pid");
   }
 
-  $pid = (int) $params['pid'];
-  $process = \Civi\AIP\Process::restore($pid);
+  $process = Process::restore($pid);
   $process->run();
 
   // create reply

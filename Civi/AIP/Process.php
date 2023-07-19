@@ -292,8 +292,8 @@ class Process extends \Civi\AIP\AbstractComponent
   /**
    * Store the given component
    *
-   * @param int id
-   *   component ID
+   * @param int $id
+   *   component ID (in database)
    */
   public static function restore(int $id) : Process
   {
@@ -325,13 +325,15 @@ class Process extends \Civi\AIP\AbstractComponent
         $processor->state = $state['processor'] ?? [];
 
         // finally, reconstruct the process
-        $process = new $data_query->class($finder, $reader, $processor, $id);
+        $process_class = $data_query->class;
+        \Civi::log()->debug("Loading class {$process_class}");
+        $process = new $process_class($finder, $reader, $processor, $id);
         $process->name = $data_query->name;
         $process->configuration = $config['process'] ?? [];
         $process->state = $state['process'] ?? [];
 
         $process_id = $process->getId();
-        $process->log("Process [{$id}] restored.");
+        $process->log("Process [{$process_id}] restored.");
         return $process;
 
       } catch (\Exception $ex) {
