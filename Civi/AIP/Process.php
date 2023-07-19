@@ -261,6 +261,9 @@ class Process extends \Civi\AIP\AbstractComponent
         'processor' => $this->processor->configuration + ['class' => get_class($this->processor)],
         'process'   => $this->configuration,
      ]);
+
+    \Civi::log()->debug("to update in DB:\nUPDATE civicrm_aip_process SET config='" . str_replace('\\', '\\\\' , $serialised_config) . "' WHERE id=X;");
+
     $serialised_state = json_encode([
        'finder'    => $this->finder->state,
        'reader'    => $this->reader->state,

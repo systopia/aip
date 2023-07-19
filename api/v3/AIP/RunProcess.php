@@ -44,6 +44,6 @@ function civicrm_api3_a_i_p_run_process($params)
   // create reply
   return civicrm_api3_create_success([
           'total_processed' => $process->getReader()->getProcessedRecordCount(),
-          '$session_processed' => $process->getReader()->getSessionProcessedRecordCount(),
+          'session_processed' => $process->getReader()->getSessionProcessedRecordCount(),
   ]);
 }
