@@ -254,31 +254,35 @@ abstract class AbstractComponent
    */
   public function log($message, $log_level = 'debug')
   {
+    //\Civi::log()->debug($message);
+
     // find out if we should log this.
     $min_log_level = strtolower($this->getConfigValue('log/level', 'debug'));
 
-    // todo: add timestamp and process ID to log
-    // todo: harmonise logging
+    // add timestamp and process ID to log
+    $pid = $this->getProcess()->getID();
+    $message = "[$pid] {$message}";
+
     switch ($log_level) {
-      case 'debug':
+      case 'error':
         $this->writeLogMessage($message, $log_level);
         break;
 
       default:
-      case 'info':
-        if (in_array($min_log_level, ['info', 'warning', 'error'])) {
-          $this->writeLogMessage($message, $log_level);
-        }
-        break;
-
       case 'warning':
-        if (in_array($min_log_level, ['warning', 'error'])) {
+        if (in_array($min_log_level, ['debug', 'info', 'warning'])) {
           $this->writeLogMessage($message, $log_level);
         }
         break;
 
-      case 'error':
-        if (in_array($min_log_level, ['error'])) {
+      case 'info':
+        if (in_array($min_log_level, ['info', 'debug'])) {
+          $this->writeLogMessage($message, $log_level);
+        }
+        break;
+
+      case 'debug':
+        if (in_array($min_log_level, ['debug'])) {
           $this->writeLogMessage($message, $log_level);
         }
         break;

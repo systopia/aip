@@ -116,7 +116,7 @@ class DropFolderFinder extends Base
           $this->log(E::ts("File %1 could not be read.", [1 => $file_path]), 'warning');
         }
       } else {
-        $this->log(E::ts("File '%1' doesn't match the filter '%1'", [1 => $file_name_filter]));
+        $this->log(E::ts("File '%1' doesn't match the filter '%2'", [1 => $file_path, 2 => $file_name_filter]));
       }
     }
     return null;
