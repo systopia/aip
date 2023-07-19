@@ -83,6 +83,7 @@ class Process extends \Civi\AIP\AbstractComponent
   {
     parent::__construct();
     $this->id = $id;
+    $this->process = $this;
     $this->finder = $finder;
     $this->finder->process = $this;
     $this->reader = $reader;
@@ -327,14 +328,14 @@ class Process extends \Civi\AIP\AbstractComponent
 
         // finally, reconstruct the process
         $process_class = $data_query->class;
-        \Civi::log()->debug("Loading class {$process_class}");
+        \Civi::log()->debug("Loading class {$process_class} with process ID [{$id}]");
         $process = new $process_class($finder, $reader, $processor, $id);
         $process->name = $data_query->name;
         $process->configuration = $config['process'] ?? [];
         $process->state = $state['process'] ?? [];
 
         $process_id = $process->getId();
-        $process->log("Process [{$process_id}] restored.");
+        // don't do this here: $process->log("Process [{$process_id}] restored.");
         return $process;
 
       } catch (\Exception $ex) {

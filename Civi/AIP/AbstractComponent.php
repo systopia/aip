@@ -23,9 +23,9 @@ use CRM_Aip_ExtensionUtil as E;
 abstract class AbstractComponent
 {
   /**
-   * @var Process the process this component belongs to
+   * @var ?Process the process this component belongs to
    */
-  protected Process $process;
+  protected ?Process $process = null;
 
   /**
    * @var array $configuration
@@ -40,7 +40,7 @@ abstract class AbstractComponent
   protected array $state = [];
 
   /** @var array file_name => handle  */
-  protected static $log_files = [];
+  protected static array $log_files = [];
 
   public function __construct() {
   }
