@@ -107,6 +107,7 @@ class DropFolderFinder extends Base
       $file_path = $inbox_folder . DIRECTORY_SEPARATOR . $file;
 
       // only investigate files we can access
+      $this->log(E::ts("Investigating file '%1'...", [1 => $file_path]));
       if (empty($file_name_filter) || preg_match($file_name_filter, $file_path)) {
         // this could be a file for us...
         if (is_file($file_path) && is_readable($file_path)) {
@@ -114,6 +115,8 @@ class DropFolderFinder extends Base
         } else {
           $this->log(E::ts("File %1 could not be read.", [1 => $file_path]), 'warning');
         }
+      } else {
+        $this->log(E::ts("File '%1' doesn't match the filter '%1'", [1 => $file_name_filter]));
       }
     }
     return null;
