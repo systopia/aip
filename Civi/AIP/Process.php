@@ -140,7 +140,10 @@ class Process extends \Civi\AIP\AbstractComponent
           }
         }
       }
-      $this->finder->markSourceProcessed($source_url);
+      // mark source as processed, if we're done with this file
+      if (!$this->reader->hasMoreRecords()) {
+        $this->finder->markSourceProcessed($source_url);
+      }
     }
 
     // store current state

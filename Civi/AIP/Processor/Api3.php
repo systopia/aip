@@ -39,8 +39,9 @@ class Api3 extends Base
     $call_parameters = $record;
     $call_parameters = $this->filterCallParameters($call_parameters);
 
-    // 2) map the parameters
+    // 2) map and prepare the parameters
     $call_parameters = $this->mapCallParameters($call_parameters);
+    $call_parameters = $this->trimCallParameters($call_parameters);
 
     // 3) compile the API parameters
     $entity = $this->getConfigValue('api_entity');
@@ -50,7 +51,7 @@ class Api3 extends Base
     $call_hash = sha1(json_encode($call_parameters));
 
     // 4) Run the API call
-    $this->log("Call API {$entity}.{$action} with {$call_hash}", 'debug');
+    $this->log("Call API {$entity}.{$action} with parameters hash {$call_hash}", 'debug');
     \civicrm_api3($entity, $action, $call_parameters);
 
     // do nothing here, override in implementation
@@ -128,6 +129,32 @@ class Api3 extends Base
       }
     }
 
+    return $parameters;
+  }
+
+  /**
+   * Trim the input parameters - either all of them, or selected columns
+   *
+   * @param array $parameters
+   *   the current call parameters
+   *
+   * @return array
+   */
+  protected function trimCallParameters(array $parameters) : array
+  {
+    // trim/truncate parameters
+    $parameter_trimming = $this->getConfigValue('trim_parameters');
+    if ($parameter_trimming == 'all') {
+      foreach ($parameters as $key => &$value) {
+        $value = trim($value);
+      }
+    } elseif (is_array($parameter_trimming)) {
+      foreach ($parameter_trimming as $key) {
+        if (isset($parameters[$key])) {
+          $parameters[$key] = trim($parameters[$key]);
+        }
+      }
+    }
     return $parameters;
   }
 
