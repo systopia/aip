@@ -309,8 +309,8 @@ class Process extends \Civi\AIP\AbstractComponent
         // restore finder
         $finder = new $config['finder']['class']();
         unset($config['finder']['class']);
-        $finder->configuration = $config['finder']['config'] ?? [];
-        $finder->state = $state['finder']['state'] ?? [];
+        $finder->configuration = $config['finder'] ?? [];
+        $finder->state = $state['finder'] ?? [];
 
         // restore reader
         $reader = new $config['reader']['class']();
@@ -318,7 +318,7 @@ class Process extends \Civi\AIP\AbstractComponent
         $reader->configuration = $config['reader'] ?? [];
         $reader->state = $state['reader'] ?? [];
 
-        // restore reader
+        // restore processor
         $processor = new $config['processor']['class']();
         unset($config['processor']['class']);
         $processor->configuration = $config['processor'] ?? [];
