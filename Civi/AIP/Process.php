@@ -194,7 +194,7 @@ class Process extends \Civi\AIP\AbstractComponent
   {
     // check processing count limit
     $processing_record_limit = (int) $this->getConfigValue('processing_limit/record_count');
-    if ($processing_record_limit && $this->reader->getSessionProcessedRecordCount() >= $processing_record_limit) {
+    if ($processing_record_limit && $this->reader->getSessionProcessedRecordCount() > $processing_record_limit) {
       $this->log("Processing record limit of {$processing_record_limit} hit.", 'info');
       return false;
     }
@@ -253,7 +253,7 @@ class Process extends \Civi\AIP\AbstractComponent
    * @return int
    *   component ID
    */
-  public function store() : int
+  public function store($debug_output = false) : int
   {
     $serialised_config = json_encode([
         'finder'    => $this->finder->configuration    + ['class' => get_class($this->finder)],
@@ -261,8 +261,6 @@ class Process extends \Civi\AIP\AbstractComponent
         'processor' => $this->processor->configuration + ['class' => get_class($this->processor)],
         'process'   => $this->configuration,
      ]);
-
-    \Civi::log()->debug("to update in DB:\nUPDATE civicrm_aip_process SET config='" . str_replace('\\', '\\\\' , $serialised_config) . "' WHERE id=X;");
 
     $serialised_state = json_encode([
        'finder'    => $this->finder->state,
@@ -281,6 +279,7 @@ class Process extends \Civi\AIP\AbstractComponent
                       4 => [$serialised_state, 'String']
               ]);
       $this->id = \CRM_Core_DAO::singleValueQuery("SELECT LAST_INSERT_ID()");
+      $this->log("Process [{$this->id}] created.", 'debug');
 
     } else {
       \CRM_Core_DAO::executeQuery(
@@ -293,7 +292,13 @@ class Process extends \Civi\AIP\AbstractComponent
                       5 => [$this->id, 'Integer'],
               ]);
     }
-    $this->log("Process [{$this->id}] suspended.", 'debug');
+    $this->log("Process [{$this->id}] stored/suspended.", 'debug');
+
+    if ($debug_output) {
+      \Civi::log()->debug("to update config in DB:\nUPDATE civicrm_aip_process SET config='" . str_replace('\\', '\\\\' , $serialised_config) . "' WHERE id=?{$this->id};");
+      \Civi::log()->debug("to update state in DB: \nUPDATE civicrm_aip_process SET  state='" . str_replace('\\', '\\\\' , $serialised_state)  . "' WHERE id=?{$this->id};");
+    }
+
     return $this->id;
   }
 

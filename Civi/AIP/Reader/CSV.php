@@ -260,9 +260,20 @@ class CSV extends Base
     $record = fgetcsv($this->current_file_handle, null, $separator, $enclosure, $escape);
 
     if ($record) {
-      // encode record
+      // apply the encoding
+      // encode record using utf8_encode helper
       if ($encoding != 'UTF8') {
-        $record = mb_convert_encoding($record, 'UTF8', $encoding);
+        if ($encoding == 'utf8_encode') {
+          // use the utf8_encode function
+          $new_record = [];
+          foreach ($record as $key => $value) {
+            $new_record[$key] = utf8_encode($value);
+          }
+          $record = $new_record;
+        } else {
+          // use mb_convert
+          $record = mb_convert_encoding($record, 'UTF8', $encoding);
+        }
       }
     } else {
       // this should be the end of the file

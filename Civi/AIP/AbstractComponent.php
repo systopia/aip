@@ -327,6 +327,12 @@ abstract class AbstractComponent
     } else {
       // log to separate log file
       if (!isset(AbstractComponent::$log_files[$log_file])) {
+        if (!is_writeable($log_file)) {
+          // create an alternative file
+          $tmp_log_file = tempnam(sys_get_temp_dir(), date('Y-n-d_H_i_s') . '_aip_log_');
+          error_log("Log file '{$log_file}' not writeable, using '{$tmp_log_file}'!");
+          $log_file = $tmp_log_file;
+        }
         AbstractComponent::$log_files[$log_file] = fopen($log_file, "a");
       }
 
