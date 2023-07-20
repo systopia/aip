@@ -84,10 +84,11 @@ class CSVReaderTest extends TestBase implements HeadlessInterface, HookInterface
     // check results
     $this->assertEquals(1, $reader->getSessionProcessedRecordCount(), "This should've processed the only one record because of the processing_limit/record_count = 1 limit.");
     $this->assertEquals(0, $reader->getFailedRecordCount());
+    $process->store();
+
 
     // revive the process
     $process2 = Process::restore($process->getID());
-    $process2->getReader()->setConfigValue('processing_limit/record_count', 1);
 
     // run the process
     $process2->run();

@@ -194,7 +194,7 @@ class Process extends \Civi\AIP\AbstractComponent
   {
     // check processing count limit
     $processing_record_limit = (int) $this->getConfigValue('processing_limit/record_count');
-    if ($processing_record_limit && $this->reader->getSessionProcessedRecordCount() > $processing_record_limit) {
+    if ($processing_record_limit && $this->reader->getSessionProcessedRecordCount() >= $processing_record_limit) {
       $this->log("Processing record limit of {$processing_record_limit} hit.", 'info');
       return false;
     }

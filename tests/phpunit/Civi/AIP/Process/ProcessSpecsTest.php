@@ -21,7 +21,7 @@ class ProcessSpecsTest extends TestBase implements HeadlessInterface, HookInterf
    */
   public function testSetupClient1ViaCode()
   {
-    //$this->markTestSkipped("Specific configuration example");
+    $this->markTestSkipped("Specific configuration example, needs specific environment");
 
     // create finder
     $finder = new Finder\DropFolderFinder();

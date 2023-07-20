@@ -304,7 +304,12 @@ abstract class AbstractComponent
   {
     $log_file = $this->getConfigValue('log/file');
     if (empty($log_file)) {
-      // log to CiviCRM standard log
+      // use the processor's one
+      $log_file = $this->process->getConfigValue('log/file');
+    }
+
+    if (empty($log_file)) {
+      // if still empty: log to CiviCRM standard log
       switch ($log_level) {
         case 'debug':
           \Civi::log("AIP")->debug($message);

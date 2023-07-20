@@ -347,7 +347,6 @@ class CSV extends Base
   protected function fixHeaderRecordColumnMismatch(array &$file_headers, array &$record)
   {
     // if there are not enough headers, just add some generic ones
-    $counter = 0;
     while (count($file_headers) < count($record)) {
       $file_headers[] = "Column " . (count($file_headers) + 1);
     }
