@@ -144,6 +144,7 @@ class Process extends \Civi\AIP\AbstractComponent
       // mark source as processed, if we're done with this file
       if (!$this->reader->hasMoreRecords()) {
         $this->finder->markSourceProcessed($source_url);
+        $this->reader->resetState();
       }
     }
 
