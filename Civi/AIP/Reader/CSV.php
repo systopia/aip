@@ -169,16 +169,6 @@ class CSV extends Base
     $this->lookahead_record = $this->readNextRecord();
   }
 
-  /**
-   * Get the current record being processed right now
-   *
-   * @return array|bool
-   */
-  public function getCurrentRecord(): array
-  {
-    return $this->current_record;
-  }
-
   public function hasMoreRecords(): bool
   {
     return is_array($this->lookahead_record);
@@ -208,10 +198,12 @@ class CSV extends Base
         if (count($record) != count($file_headers)) {
           $this->fixHeaderRecordColumnMismatch($file_headers, $record);
         }
-        $record = array_combine($file_headers, $this->current_record);
+        $record = array_combine($file_headers, $record);
+      }
 
-      } elseif ($record === false) {
+      if (!is_array($record)){
         // there was an error reading the record
+        $this->log("Failed to read record, data type is: " . gettype($record), 'error');
         throw new \Exception("Couldn't read record.");
       }
 
