@@ -202,7 +202,7 @@ class CSV extends Base
       }
 
       if ($record === true) {
-        $this->log("Skipped empty line.");
+        $this->log("Skipped empty line in CSV.", 'info');
         return $this->getNextRecord();
       }
 
