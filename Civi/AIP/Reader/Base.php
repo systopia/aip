@@ -134,6 +134,22 @@ abstract class Base extends AbstractComponent
   }
 
   /**
+   * Mark the given resource as processed/completed
+   *
+   * @param string $uri
+   *   an URI to marked processed/completed
+   */
+  public abstract function markSourceProcessed(string $uri);
+
+  /**
+   * Mark the given resource as failed
+   *
+   * @param string $uri
+   *   an URI to marked as FAILED
+   */
+  public abstract function markSourceFailed(string $uri);
+
+  /**
    * Number of records failed while processing
    *
    * @param $record_count int the new record count

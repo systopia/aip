@@ -316,13 +316,27 @@ class CSV extends Base
   }
 
   /**
-   * Get the last processed record
+   * Mark the given resource as processed/completed
    *
-   * @return array|null
+   * @param string $uri
+   *   an URI to marked processed/completed
    */
-  public function getLastProcessedRecord(){
-    return $this->last_processed_record;
+  public function markSourceProcessed(string $uri)
+  {
+    $this->setStateValue('current_file', null);
   }
+
+  /**
+   * Mark the given resource as failed
+   *
+   * @param string $uri
+   *   an URI to marked as FAILED
+   */
+  public function markSourceFailed(string $uri)
+  {
+    $this->setStateValue('current_file', null);
+  }
+
 
   /**
    * Fix a mismatch of the column count of the headers,

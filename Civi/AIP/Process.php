@@ -138,7 +138,7 @@ class Process extends \Civi\AIP\AbstractComponent
             $this->log($exception->getMessage(), 'error');
           } else {
             $this->finder->markSourceFailed($source_url);
-            $this->reader->resetState();
+            $this->reader->markSourceFailed($source_url);
             throw new Exception(E::ts("Processing aborted due to an exception: %1", [1 => $exception->getMessage()]));
           }
         }
@@ -146,7 +146,7 @@ class Process extends \Civi\AIP\AbstractComponent
       // mark source as processed, if we're done with this file
       if (!$this->reader->hasMoreRecords()) {
         $this->finder->markSourceProcessed($source_url);
-        $this->reader->resetState();
+        $this->reader->markSourceProcessed($source_url);
       }
     }
 
