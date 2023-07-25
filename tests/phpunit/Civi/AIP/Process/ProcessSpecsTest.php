@@ -45,7 +45,7 @@ class ProcessSpecsTest extends TestBase implements HeadlessInterface, HookInterf
     // create a process
     $process = new Process($finder, $reader, $processor);
     $process->setConfigValue("log/file", "/srv/direktmarketing/aip/processing.log");
-    $process->setConfigValue('processing_limit/record_count', 1000);
+    $process->setConfigValue('processing_limit/record_count', 200);
     $process->store(true); // check log for DB update tips
 
     // run the process
