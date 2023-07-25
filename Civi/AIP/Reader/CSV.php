@@ -201,6 +201,11 @@ class CSV extends Base
         $record = array_combine($file_headers, $record);
       }
 
+      if ($record === true) {
+        $this->log("Skipped empty line.");
+        return $this->getNextRecord();
+      }
+
       if (!is_array($record)){
         // there was an error reading the record
         $this->log("Failed to read record, data type is: " . gettype($record), 'error');
