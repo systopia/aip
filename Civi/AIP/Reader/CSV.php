@@ -32,18 +32,6 @@ use CRM_Aip_ExtensionUtil as E;
  */
 class CSV extends Base
 {
-  /************ CONFIG VALUES ***********************
-   *  csv_separator        (default ';')
-   *  csv_string_enclosure (default '";"')
-   *  csv_string_escape    (default '\')
-   *************************************************/
-
-  /************ STATE VALUES *********************
-   * current_file            file currently working on
-   * processed_record_count  number of records processed
-   * failed_record_count     number of records failed to process
-   **********************************************/
-
   public function __construct() {
     parent::__construct();
   }
@@ -201,6 +189,9 @@ class CSV extends Base
    *
    * @return array|null
    *   a record, or null if there are no more records
+   *
+   * @throws \Exception
+   *   if there is a read error
    */
   public function getNextRecord(): ?array
   {
@@ -218,6 +209,10 @@ class CSV extends Base
           $this->fixHeaderRecordColumnMismatch($file_headers, $record);
         }
         $record = array_combine($file_headers, $this->current_record);
+
+      } elseif ($record === false) {
+        // there was an error reading the record
+        throw new \Exception("Couldn't read record.");
       }
 
       return $record;
