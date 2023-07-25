@@ -136,6 +136,7 @@ class Process extends \Civi\AIP\AbstractComponent
           $this->reader->markLastRecordFailed();
           if (!$this->continueWithFailedRecord()) {
             $this->finder->markSourceFailed($source_url);
+            $this->reader->resetState();
             throw new Exception(E::ts("Processing aborted due to an exception: %1", [1 => $exception->getMessage()]));
           }
         }

@@ -182,5 +182,8 @@ class DropFolderFinder extends Base
     } else {
       throw new \Exception(E::ts("Couldn't mark source '%1' as FAILED.", [1 => $file_path]));
     }
+
+    // reset the state
+    $this->resetState();
   }
 }
