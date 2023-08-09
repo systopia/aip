@@ -54,7 +54,12 @@ class Process extends \Civi\AIP\AbstractComponent
   /**
    * @var float timestamp on when the process was started
    */
-  protected float $timestamp_start;
+  protected float $timeout = 0;
+
+  /**
+   * @var float timestamp on when the entire PHP process was started
+   */
+  protected float $timeout_php_process = 0;
 
   /**
    * @var string process name
@@ -90,7 +95,18 @@ class Process extends \Civi\AIP\AbstractComponent
     $this->reader->process = $this;
     $this->processor = $processor;
     $this->processor->process = $this;
-    $this->timestamp_start = 0.0;
+
+    // set processor timeout
+    $processing_time_limit = (int) $this->getConfigValue('processing_limit/processing_time');
+    if ($processing_time_limit) {
+      $this->timeout = $processing_time_limit + strtotime("now + {$processing_time_limit}");
+    }
+
+    // set total runtime timeout
+    $php_process_time_limit = (int) $this->getConfigValue('processing_limit/php_process_time');
+    if ($php_process_time_limit) {
+      $this->timeout_php_process = $_SERVER["REQUEST_TIME_FLOAT"] + strtotime("now + {$php_process_time_limit}");
+    }
   }
 
   /**
@@ -159,7 +175,7 @@ class Process extends \Civi\AIP\AbstractComponent
             3 => $total_processed_count,
             4 => $source_url,
       ]), 'info');
-   $this->store();
+   $this->store(true);
    $this->flushAllLogs();
   }
 
@@ -204,13 +220,13 @@ class Process extends \Civi\AIP\AbstractComponent
     }
 
     // check processing time limit
-    $processing_time_limit = (int) $this->getConfigValue('processing_limit/processing_time');
-    if ($processing_time_limit) {
-      $elapsed_time = microtime(true) - $this->timestamp_start;
-      if ($elapsed_time > $processing_time_limit) {
-        $this->log("Processing time limit of {$processing_time_limit}s exceeded.", 'info');
-        return false;
-      }
+    $timestamp = microtime(true);
+    if ($this->timeout && $timestamp > $this->timeout) {
+      return false;
+    }
+
+    if ($this->timeout_php_process && $timestamp > $this->timeout_php_process) {
+      return false;
     }
 
     // should the process continue?
