@@ -121,9 +121,22 @@ class Process extends \Civi\AIP\AbstractComponent
     }
 
     // set total runtime timeout
-    $php_process_time_limit = (float) $this->getConfigValue('processing_limit/php_process_time');
+    $php_process_time_limit = $this->getConfigValue('processing_limit/php_process_time');
     if ($php_process_time_limit) {
-      $this->timeout_php_process = $_SERVER["REQUEST_TIME_FLOAT"] + strtotime("now + {$php_process_time_limit}");
+      if (is_numeric($php_process_time_limit)) {
+        // this expressed as a number of seconds
+        $process_time_ms = (float) $php_process_time_limit;
+        $this->timeout_php_process = $_SERVER['REQUEST_TIME_FLOAT'] + $process_time_ms;
+      } else {
+        // this is a strtotime term
+        $timeout_value = strtotime($php_process_time_limit);
+        if (!$timeout_value) {
+          $this->log("Processing time limit invalid: {$php_process_time_limit}. Time limit ignored.");
+        } else {
+          $process_time_ms = (float) $timeout_value;
+          $this->timeout_php_process = $_SERVER['REQUEST_TIME_FLOAT'] + $process_time_ms;
+        }
+      }
     }
   }
 
@@ -236,9 +249,11 @@ class Process extends \Civi\AIP\AbstractComponent
     if ($this->timeout_php_process || $this->timeout) {
       $timestamp = microtime(true);
       if ($this->timeout && $timestamp > $this->timeout) {
+        $this->log("Process time limit hit.");
         return false;
       }
       if ($this->timeout_php_process && $timestamp > $this->timeout_php_process) {
+        $this->log("PHP process time limit hit.");
         return false;
       }
     }
