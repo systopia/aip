@@ -31,7 +31,7 @@ class DelayedTestProcessor extends BaseProcessor
   public function processRecord($record)
   {
     $delay_time_seconds = (double) $this->getConfigValue('test/sleep_time_seconds', 0.0);
-    usleep($delay_time_seconds);
+    usleep($delay_time_seconds * 1000000);
     parent::processRecord($record);
     $this->processed_records++;
   }
