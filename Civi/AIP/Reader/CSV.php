@@ -294,7 +294,7 @@ class CSV extends Base
    *
    * @return string the current file path/url
    */
-  public function getCurrentFile()
+  public function getCurrentFile() : ?string
   {
     return $this->getStateValue('current_file');
   }
