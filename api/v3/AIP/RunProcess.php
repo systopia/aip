@@ -29,21 +29,38 @@ use Civi\AIP\Process;
  */
 function civicrm_api3_a_i_p_run_process($params)
 {
+  // stats
+  $total_processed = 0;
+  $session_processed = 0;
+
   // verify pid parameter
   if (empty($params['pid'])) {
     throw new CiviCRM_API3_Exception("Missing pid.");
   }
-  $pid = (int) $params['pid'];
-  if (!$pid) {
-    throw new CiviCRM_API3_Exception("Invalid pid");
+
+  // extract pIDs
+  $pIDs = [];
+  foreach (explode(',', $params['pid']) as $pid_string) {
+    $pid = (int) $pid_string;
+    if ($pid) {
+      $pIDs[] = $pid;
+    } else {
+      Civi::log()->warning("AIP.run_process: PID '{$pid_string}' invalid. Skipped");
+    }
   }
 
-  $process = Process::restore($pid);
-  $process->run();
+  // execute
+  foreach ($pIDs as $pid) {
+    $process = Process::restore($pid);
+    $process->run();
+
+    $total_processed += $process->getReader()->getProcessedRecordCount();
+    $session_processed += $process->getReader()->getSessionProcessedRecordCount();
+  }
 
   // create reply
   return civicrm_api3_create_success([
-          'total_processed' => $process->getReader()->getProcessedRecordCount(),
-          'session_processed' => $process->getReader()->getSessionProcessedRecordCount(),
+          'total_processed' => $total_processed,
+          'session_processed' => $session_processed,
   ]);
 }
