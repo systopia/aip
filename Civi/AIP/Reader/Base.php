@@ -40,6 +40,13 @@ abstract class Base extends AbstractComponent
   abstract public function getNextRecord() : ?array;
 
   /**
+   * The file this reader is currently working on
+   *
+   * @return string the current file path/url
+   */
+  abstract public function getCurrentFile() : ?string;
+
+  /**
    * Mark the last record as delivered by getNextRecord() as processed
    */
   public function markLastRecordProcessed()

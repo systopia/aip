@@ -21,6 +21,8 @@ use Civi\AIP\Processor\Base as Processor;
 use CRM_Aip_ExtensionUtil   as E;
 use \Exception;
 
+use function GuzzleHttp\Psr7\str;
+
 
 /**
  * A PROCESS will enclose various components
@@ -54,7 +56,12 @@ class Process extends \Civi\AIP\AbstractComponent
   /**
    * @var float timestamp on when the process was started
    */
-  protected float $timestamp_start;
+  protected float $timeout = 0;
+
+  /**
+   * @var float timestamp on when the entire PHP process was started
+   */
+  protected float $timeout_php_process = 0;
 
   /**
    * @var string process name
@@ -65,11 +72,6 @@ class Process extends \Civi\AIP\AbstractComponent
    * @var string documentation
    */
   protected string $documentation = '';
-
-  public static function getProcesses($active = true) : array
-  {
-    // todo
-  }
 
   /**
    * Create a new process with the given finder, reader and processor
@@ -90,7 +92,52 @@ class Process extends \Civi\AIP\AbstractComponent
     $this->reader->process = $this;
     $this->processor = $processor;
     $this->processor->process = $this;
-    $this->timestamp_start = 0.0;
+  }
+
+  /**
+   * Internal function to prepare for the actual RUN.
+   *
+   * Will be called as one of the first things in the the run() function
+   *
+   * @return void
+   */
+  protected function prepareForRun()
+  {
+    // calculate processor timeout (individual processing)
+    $processing_time_limit = $this->getConfigValue('processing_limit/processing_time');
+    if ($processing_time_limit) {
+      if (is_numeric($processing_time_limit)) {
+        // this expressed as a number of seconds
+        $this->timeout = microtime(true) + (float) $processing_time_limit;
+      } else {
+        // this is a strtotime term
+        $timeout_value = strtotime($processing_time_limit);
+        if (!$timeout_value) {
+          $this->log("Processing time limit invalid: {$processing_time_limit}. Time limit ignored.");
+        } else {
+          $this->timeout = (float) $timeout_value;
+        }
+      }
+    }
+
+    // set total runtime timeout
+    $php_process_time_limit = $this->getConfigValue('processing_limit/php_process_time');
+    if ($php_process_time_limit) {
+      if (is_numeric($php_process_time_limit)) {
+        // this expressed as a number of seconds
+        $process_time_ms = (float) $php_process_time_limit;
+        $this->timeout_php_process = $_SERVER['REQUEST_TIME_FLOAT'] + $process_time_ms;
+      } else {
+        // this is a strtotime term
+        $timeout_value = strtotime($php_process_time_limit);
+        if (!$timeout_value) {
+          $this->log("Processing time limit invalid: {$php_process_time_limit}. Time limit ignored.");
+        } else {
+          $process_time_ms = (float) $timeout_value;
+          $this->timeout_php_process = $_SERVER['REQUEST_TIME_FLOAT'] + $process_time_ms;
+        }
+      }
+    }
   }
 
   /**
@@ -102,6 +149,8 @@ class Process extends \Civi\AIP\AbstractComponent
    */
   public function run()
   {
+    $this->prepareForRun();
+
     // find a source
     $this->timestamp_start = microtime(true);
     $this->log("Starting process [" . $this->getID() . "]", 'info');
@@ -159,7 +208,7 @@ class Process extends \Civi\AIP\AbstractComponent
             3 => $total_processed_count,
             4 => $source_url,
       ]), 'info');
-   $this->store();
+   $this->store(true);
    $this->flushAllLogs();
   }
 
@@ -196,21 +245,24 @@ class Process extends \Civi\AIP\AbstractComponent
 
   public function shouldProcessMoreRecords() : bool
   {
+    // check time based restrictions
+    if ($this->timeout_php_process || $this->timeout) {
+      $timestamp = microtime(true);
+      if ($this->timeout && $timestamp > $this->timeout) {
+        $this->log("Process time limit hit.");
+        return false;
+      }
+      if ($this->timeout_php_process && $timestamp > $this->timeout_php_process) {
+        $this->log("PHP process time limit hit.");
+        return false;
+      }
+    }
+
     // check processing count limit
     $processing_record_limit = (int) $this->getConfigValue('processing_limit/record_count');
     if ($processing_record_limit && $this->reader->getSessionProcessedRecordCount() >= $processing_record_limit) {
       $this->log("Processing record limit of {$processing_record_limit} hit.", 'info');
       return false;
-    }
-
-    // check processing time limit
-    $processing_time_limit = (int) $this->getConfigValue('processing_limit/processing_time');
-    if ($processing_time_limit) {
-      $elapsed_time = microtime(true) - $this->timestamp_start;
-      if ($elapsed_time > $processing_time_limit) {
-        $this->log("Processing time limit of {$processing_time_limit}s exceeded.", 'info');
-        return false;
-      }
     }
 
     // should the process continue?
