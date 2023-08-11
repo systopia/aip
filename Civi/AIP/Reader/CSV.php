@@ -244,12 +244,26 @@ class CSV extends Base
     }
 
     // read record
-    // todo: move to class properties
+    // todo: move to class properties?
     $separator = $this->getConfigValue('csv_separator', ';');
     $enclosure = $this->getConfigValue('csv_string_enclosure', '"');
     $escape = $this->getConfigValue('csv_string_escape', '\\');
     $encoding = $this->getConfigValue('csv_string_encoding', 'UTF8');
+    $skip_empty_lines = $this->getConfigValue('skip_empty_lines', false);
+
     $record = fgetcsv($this->current_file_handle, null, $separator, $enclosure, $escape);
+
+    // check for empty lines
+    if ($skip_empty_lines) {
+      if (is_array($record) && is_null(current($record)) && count($record) <= 1) {
+        // this is an empty line, move on to the next one
+        // todo: address recursion issue for files _only_ consisting of line breaks
+        $this->increaseLinesSkipped();
+        return $this->readNextRecord();
+      }
+    }
+
+
 
     if ($record) {
       // apply the encoding
@@ -361,5 +375,15 @@ class CSV extends Base
     while (count($file_headers) > count($record)) {
       $record[] = '';
     }
+  }
+
+  /**
+   * Simply increases the 'lines_skipped' counter
+   */
+  protected function increaseLinesSkipped()
+  {
+    $lines_skipped = (int) $this->getStateValue('lines_skipped');
+    $lines_skipped++;
+    $this->setStateValue('lines_skipped', $lines_skipped);
   }
 }
