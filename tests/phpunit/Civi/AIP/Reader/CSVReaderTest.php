@@ -100,4 +100,34 @@ class CSVReaderTest extends TestBase implements HeadlessInterface, HookInterface
     $this->assertEquals(1, $process2->getReader()->getSessionProcessedRecordCount(), "This should've processed the only one record because of the processing_limit/record_count = 1 limit.");
     $this->assertEquals(0, $process2->getReader()->getFailedRecordCount());
   }
+
+  /**
+   * Test the
+   */
+  public function testSkipEmptyLines()
+  {
+    // create finder
+    $finder = new Finder\UrlRequestFile();
+    $finder->setFile($this->getTestResourcePath('input/CSV/Test04_with_empty_lines.csv'));
+
+    // create reader
+    $reader = new Reader\CSV();
+    $reader->setConfiguration(['csv_string_encoding' => 'UTF-8']);
+    $reader->setConfiguration(['skip_empty_lines' => true]);
+
+    // create processor
+    $processor = new Processor\TestProcessor();
+
+    // create a process
+    $process = new Process($finder, $reader, $processor);
+
+    // run the process
+    $process->run();
+
+    // check results
+    $this->assertEquals(3, $reader->getProcessedRecordCount(), "This should've processed the three records in the file.");
+    $this->assertEquals(3, $reader->getStateValue('lines_skipped'), "This should've skipped three empty lines in the file.");
+    $this->assertEquals(0, $reader->getFailedRecordCount());
+  }
+
 }
