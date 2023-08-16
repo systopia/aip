@@ -51,6 +51,7 @@ class UrlRequestFile extends Base
   public function claimSource(string $uri)
   {
     // TODO: Implement claimSource() method.
+    return $uri;
   }
 
   public function markSourceProcessed(string $uri)

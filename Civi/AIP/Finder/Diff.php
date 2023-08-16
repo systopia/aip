@@ -98,7 +98,7 @@ class Diff extends Base
    */
   public function claimSource(string $file_path)
   {
-    $this->inner_finder->claimSource($file_path);
+    return $this->inner_finder->claimSource($file_path);
   }
 
   /**

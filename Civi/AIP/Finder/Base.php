@@ -37,6 +37,9 @@ abstract class Base extends AbstractComponent
    *
    * @param string $uri
    *   an URI to marked busy/processing
+   *
+   * @return string $uri
+   *   the resulting URI (likely the same)
    */
   public abstract function claimSource(string $uri);
 
