@@ -168,6 +168,7 @@ class Process extends \Civi\AIP\AbstractComponent
     } else {
       // this is a new source
       $source_url = $this->finder->findNextSource();
+      $this->finder->claimSource($source_url);
     }
 
     // check if there is a source for us
