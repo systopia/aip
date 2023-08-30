@@ -195,8 +195,7 @@ class Process extends \Civi\AIP\AbstractComponent
           } else {
             $this->finder->markSourceFailed($source_url);
             $this->reader->markSourceFailed($source_url);
-            $this->log(E::ts("Processing aborted due to an exception: %1", [1 => $exception->getMessage()]), 'warning');
-            break;
+            throw new Exception(E::ts("Processing aborted due to an exception: %1", [1 => $exception->getMessage()]));
           }
         }
       }

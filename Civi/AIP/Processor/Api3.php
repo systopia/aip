@@ -54,7 +54,17 @@ class Api3 extends Base
     $this->log("Call API {$entity}.{$action} with parameters hash {$call_hash}", 'debug');
     \civicrm_api3($entity, $action, $call_parameters);
 
-    parent::processRecord($record);
+    // do nothing here, override in implementation
+    $this->last_processed_record = $record;
+  }
+
+  /**
+   * @return ?array
+   *   get the last record processed by this processor
+   */
+  public function getLastProcessedRecord() : ?array
+  {
+    return $this->last_processed_record;
   }
 
   /**
