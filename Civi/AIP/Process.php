@@ -152,7 +152,6 @@ class Process extends \Civi\AIP\AbstractComponent
     $this->prepareForRun();
 
     // find a source
-    $is_new_source = false;
     $this->timestamp_start = microtime(true);
     $this->log("Starting process [" . $this->getID() . "]", 'info');
 
@@ -169,16 +168,11 @@ class Process extends \Civi\AIP\AbstractComponent
     } else {
       // this is a new source
       $source_url = $this->finder->findNextSource();
-      $is_new_source = true;
+      $source_url = $this->finder->claimSource($source_url);
     }
 
     // check if there is a source for us
     if ($source_url && $this->reader->canReadSource($source_url)) {
-      // claim new source
-      if ($is_new_source) {
-        $source_url = $this->finder->claimSource($source_url);
-      }
-
       // read and process
       $this->log('Reading source ' . $source_url, 'info');
       $this->reader->initialiseWithSource($source_url);
