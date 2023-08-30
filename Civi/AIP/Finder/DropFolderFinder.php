@@ -127,6 +127,9 @@ class DropFolderFinder extends Base
    *
    * @param string $file_path
    *   this should be the file path
+   *
+   * @return string $uri
+   *    the resulting URI (likely the same)
    */
   public function claimSource(string $file_path)
   {
@@ -134,11 +137,12 @@ class DropFolderFinder extends Base
 
     // claiming the source means moving it to the
     $processing_folder = $this->getConfigValue('folder/processing');
-    $target_file = $processing_folder . DIRECTORY_SEPARATOR . basename($file_path);
+    $target_file_name = date('YmdHis') . '_' . bin2hex(random_bytes(10)) . '_' . basename($file_path);
+    $target_file = $processing_folder . DIRECTORY_SEPARATOR .  $target_file_name;
 
     if (rename($file_path, $target_file)) {
       $this->log(E::ts("Moved file from %1 to %2 for processing.,", [1 => $file_path, 2 => $target_file]), 'info');
-      return true;
+      return $target_file;
     } else {
       throw new \Exception(E::ts("Couldn't claim source '%1'", [1 => $file_path]));
     }

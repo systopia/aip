@@ -57,6 +57,7 @@ class InfiniteSources extends Base
    */
   public function claimSource(string $file_path)
   {
+    return $file_path;
   }
 
   /**
