@@ -190,7 +190,7 @@ class Process extends \Civi\AIP\AbstractComponent
           $this->reader->markLastRecordProcessed();
         } catch (\Exception $exception) {
           $this->reader->markLastRecordFailed();
-          $this->storeFailedRecord($record, $exception);
+          $this->handleFailedRecord($record, $exception);
           if ($this->continueWithFailedRecord($exception)) {
             $this->log($exception->getMessage(), 'error');
           } else {
@@ -429,19 +429,31 @@ class Process extends \Civi\AIP\AbstractComponent
    * @param array $record the record processed
    * @param Exception $exception the exception/error caught
    *
+   * @todo create BAOs and APIv4 for these
    * @return void
    */
-  public function storeFailedRecord($record, $exception)
+  public function handleFailedRecord($record, $exception)
   {
-    // todo: create proper BAOs
-    \CRM_Core_DAO::executeQuery(
-            "INSERT INTO civicrm_aip_error_log (process_id, error_timestamp, error_message, data) VALUES (%1, %2, %3, %4)",
-            [
-                    1 => [$this->id, 'Integer'],
-                    2 => [date('YmdHis'), 'String'],
-                    3 => [$exception->getMessage(), 'String'],
-                    4 => [json_encode($record), 'String']
-            ]);
+    // check setting
+    $store_failed_record = $this->getConfigValue('use_aip_error_log');
+    if (!empty($store_failed_record)) {
+      // we want to store the failed record in the civicrm_aip_error_log table!
+
+      // first, make sure the ID exists:
+      if (empty($this->id)) {
+        $this->store();
+      }
+
+      // then simply write out the error log entry
+      \CRM_Core_DAO::executeQuery(
+              "INSERT INTO civicrm_aip_error_log (process_id, error_timestamp, error_message, data) VALUES (%1, %2, %3, %4)",
+              [
+                      1 => [$this->id, 'Integer'],
+                      2 => [date('YmdHis'), 'String'],
+                      3 => [$exception->getMessage(), 'String'],
+                      4 => [json_encode($record), 'String']
+              ]);
+    }
   }
 
   /**
