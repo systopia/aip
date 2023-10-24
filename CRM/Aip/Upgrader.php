@@ -39,7 +39,7 @@ class CRM_Aip_Upgrader extends CRM_Extension_Upgrader_Base {
   }
 
   /**
-   * Example: Run a couple simple queries.
+   * Update schema
    *
    * @return TRUE on success
    * @throws CRM_Core_Exception
@@ -48,16 +48,6 @@ class CRM_Aip_Upgrader extends CRM_Extension_Upgrader_Base {
      $this->ctx->log->info('Updating DB schema');
      $this->executeSqlFile('sql/auto_install.sql');
      return TRUE;
-   }
-
-  /**
-   * Example: Run an external SQL script when the module is uninstalled.
-   *
-   * Note that if a file is present sql\auto_uninstall that will run regardless of this hook.
-   */
-   public function uninstall(): void {
-     $this->ctx->log->info('Updating DB schema');
-     $this->executeSqlFile('sql/auto_uninstall.sql');
    }
 
   /**
