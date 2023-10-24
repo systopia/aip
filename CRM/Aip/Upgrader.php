@@ -26,7 +26,6 @@ class CRM_Aip_Upgrader extends CRM_Extension_Upgrader_Base {
    * Installer
    */
    public function install(): void {
-     $this->ctx->log->info("Creating DB tables.");
      $this->executeSqlFile('sql/auto_install.sql');
    }
 
@@ -34,7 +33,6 @@ class CRM_Aip_Upgrader extends CRM_Extension_Upgrader_Base {
    * Uninstaller
    */
   public function uninstall(): void {
-    $this->ctx->log->info("Removing DB tables.");
     $this->executeSqlFile('sql/my_install.sql');
   }
 
