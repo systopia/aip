@@ -190,7 +190,8 @@ class Process extends \Civi\AIP\AbstractComponent
           $this->reader->markLastRecordProcessed();
         } catch (\Exception $exception) {
           $this->reader->markLastRecordFailed();
-          if ($this->continueWithFailedRecord()) {
+          $this->storeFailedRecord($record, $exception);
+          if ($this->continueWithFailedRecord($exception)) {
             $this->log($exception->getMessage(), 'error');
           } else {
             $this->finder->markSourceFailed($source_url);
@@ -419,6 +420,28 @@ class Process extends \Civi\AIP\AbstractComponent
     } else {
       throw new \Exception("Couldn't find or restore process [{$id}]");
     }
+  }
+
+  /**
+   * Stores the current state and the exception in the database
+   *   if this feature is enabled. This way, it could later be retried.
+   *
+   * @param array $record the record processed
+   * @param Exception $exception the exception/error caught
+   *
+   * @return void
+   */
+  public function storeFailedRecord($record, $exception)
+  {
+    // todo: create proper BAOs
+    \CRM_Core_DAO::executeQuery(
+            "INSERT INTO civicrm_aip_error_log (process_id, error_timestamp, error_message, data) VALUES (%1, %2, %3, %4)",
+            [
+                    1 => [$this->id, 'Integer'],
+                    2 => [date('YmdHis'), 'String'],
+                    3 => [$exception->getMessage(), 'String'],
+                    4 => [json_encode($record), 'String']
+            ]);
   }
 
   /**
