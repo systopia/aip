@@ -254,7 +254,7 @@ abstract class AbstractComponent
    */
   public function log($message, $log_level = 'debug')
   {
-    //\Civi::log()->debug($message);
+    \Civi::log()->debug($message);
 
     // find out if we should log this.
     $min_log_level = strtolower($this->getConfigValue('log/level', 'debug'));
