@@ -23,6 +23,8 @@ use \Exception;
 
 use function GuzzleHttp\Psr7\str;
 
+/** Default timeout for the process no-parallel-execution lock */
+const DEFAULT_PROCESS_LOCK_TIMEOUT = 600; // 10 minutes
 
 /**
  * A PROCESS will enclose various components
@@ -149,6 +151,18 @@ class Process extends \Civi\AIP\AbstractComponent
    */
   public function run()
   {
+    // locking / parallel execution
+    $parallel_execution = $this->getConfigValue('parallel_execution', 0);
+    $lock = null;
+    if (!$parallel_execution) {
+      $lock = \Civi::lockManager()->create("aip-{$this->id}");
+      $lock_timeout = $this->getConfigValue('lock_timeout', DEFAULT_PROCESS_LOCK_TIMEOUT);
+      $lock->acquire($lock_timeout);
+      if (!$lock->isAcquired()) {
+        throw new \Exception("Timeout while waiting for lock for process [{$this->id}]. Timeout was {$lock_timeout}s.");
+      }
+    }
+
     $this->prepareForRun();
 
     // find a source
@@ -216,8 +230,11 @@ class Process extends \Civi\AIP\AbstractComponent
             3 => $total_processed_count,
             4 => $source_url,
       ]), 'info');
-   $this->store(true);
-   $this->flushAllLogs();
+    $this->store(true);
+    $this->flushAllLogs();
+
+    // release lock (if there is one)
+    if ($lock) $lock->release();
   }
 
   /**
