@@ -12,6 +12,9 @@ use CRM_Aip_ExtensionUtil as E;
  */
 function aip_civicrm_config(&$config): void {
   _aip_civix_civicrm_config($config);
+
+  // register lock
+  \Civi::lockManager()->register('/^aip-[0-9]+$/', ['CRM_Core_Lock', 'createScopedLock']);
 }
 
 /**
