@@ -31,10 +31,8 @@ SET FOREIGN_KEY_CHECKS=1;
 -- *
 -- * civicrm_aip_processor
 -- *
--- * Configuration profiles implemented by config type providers.
--- *
 -- *******************************************************/
-CREATE TABLE `civicrm_aip_process` (
+CREATE TABLE IF NOT EXISTS `civicrm_aip_process` (
   `id`                  INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Unique Process ID.',
   `name`                VARCHAR(96) COMMENT 'name of the process',
   `is_active`           BOOL        COMMENT 'is this process active',
@@ -42,7 +40,23 @@ CREATE TABLE `civicrm_aip_process` (
   `class`               VARCHAR(96) COMMENT 'process implementation class, most likely \\Civi\\AIP\\Process',
   `config`              TEXT        COMMENT 'configuration/state of the process',
   `documentation`       TEXT        COMMENT 'should explain what the process does',
-  `state`  text         COMMENT 'current state of the process',
+  `state`               TEXT        COMMENT 'current state of the process',
   PRIMARY KEY (`id`)
 )
 ENGINE=InnoDB;
+
+-- /*******************************************************
+-- *
+-- * civicrm_aip_error_log
+-- *
+-- *******************************************************/
+CREATE TABLE IF NOT EXISTS `civicrm_aip_error_log` (
+  `id`                  INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Error log ID.',
+  `process_id`          INT UNSIGNED NOT NULL                COMMENT 'Process ID that produced this error',
+  `error_timestamp`     DATETIME                             COMMENT 'When did the error occur.',
+  `error_message`       TEXT                                 COMMENT 'Error message',
+  `data`                TEXT                                 COMMENT 'json-encoded data (e.g. a record)',
+  PRIMARY KEY (`id`),
+  CONSTRAINT `FK_civicrm_aip_error_log_process_id` FOREIGN KEY (`process_id`) REFERENCES `civicrm_aip_process` (`id`) ON DELETE CASCADE,
+  KEY `process_id` (`process_id`)
+) ENGINE=InnoDB;

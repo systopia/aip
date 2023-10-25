@@ -111,4 +111,44 @@ class DropFolderFinderTest extends TestBase implements HeadlessInterface, HookIn
     // make sure the reader's file is cleared
     $this->assertNull($reader->getCurrentFile(), "The current file hasn't been reset after an abortion");
   }
+
+  /**
+   * Create a 'faulty' process (DropFolderFinder, CSV reader, ExceptionTest processor)
+   * AND check if the writing out of records worked
+   */
+  public function testProcessorExceptionLog()
+  {
+    // create finder
+    $finder = new Finder\DropFolderFinder();
+    $finder->setConfigValue('filter/file_name', '#[a-z0-9]+.csv#');
+    $finder->setConfigValue('folder/inbox', $this->createTempDir());
+    $finder->setConfigValue('folder/processing', $this->createTempDir());
+    $finder->setConfigValue('folder/processed', $this->createTempDir());
+    $finder->setConfigValue('folder/uploading', $this->createTempDir());
+    $finder->setConfigValue('folder/failed', $this->createTempDir());
+
+    // create reader + put I file there
+    $reader = new Reader\CSV();
+    $reader->setConfiguration(['csv_string_encoding' => 'UTF-8']);
+    $file = $this->getTestResourcePath('input/CSV/Test03.csv');
+    copy($file, $finder->getConfigValue('folder/inbox') . DIRECTORY_SEPARATOR . 'sdasoi3423.csv');
+
+    // create processor
+    $processor = new Processor\ExceptionTestProcessor();
+
+    // create a process
+    $process = new Process($finder, $reader, $processor);
+    $process->setConfigValue('use_aip_error_log', 1);
+
+    // run the process
+    $process->run();
+
+    // check the record
+    $record = \CRM_Core_DAO::executeQuery("SELECT * FROM civicrm_aip_error_log WHERE process_id = %1;", [1 => [$process->getID(), 'Integer']]);
+    $record->fetch();
+    $this->assertEquals('oh-oh', $record->error_message, "The error messages does not match the exceptions' error message");
+    $this->assertEqualsWithDelta(strtotime('now'), strtotime($record->error_timestamp), 1.0, "The error messages timestamp is off.");
+    $this->assertIsArray(json_decode($record->data, true), "The data was not stored as a JSON array");
+    $this->assertNotEmpty(json_decode($record->data, true), "The data was not stored as a JSON array");
+  }
 }
