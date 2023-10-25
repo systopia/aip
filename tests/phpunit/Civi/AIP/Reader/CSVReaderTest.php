@@ -102,7 +102,7 @@ class CSVReaderTest extends TestBase implements HeadlessInterface, HookInterface
   }
 
   /**
-   * Test the
+   * Test the skip_empty_lines feature
    */
   public function testSkipEmptyLines()
   {
@@ -127,6 +127,64 @@ class CSVReaderTest extends TestBase implements HeadlessInterface, HookInterface
     // check results
     $this->assertEquals(3, $reader->getProcessedRecordCount(), "This should've processed the three records in the file.");
     $this->assertEquals(3, $reader->getStateValue('lines_skipped'), "This should've skipped three empty lines in the file.");
+    $this->assertEquals(0, $reader->getFailedRecordCount());
+  }
+
+  /**
+   * Test the skip_empty_lines feature, if the skipped lines are at the end
+   */
+  public function testSkipEmptyLinesAtTheEnd()
+  {
+    // create finder
+    $finder = new Finder\UrlRequestFile();
+    $finder->setFile($this->getTestResourcePath('input/CSV/Test04_with_empty_lines_at_the_end.csv'));
+
+    // create reader
+    $reader = new Reader\CSV();
+    $reader->setConfiguration(['csv_string_encoding' => 'UTF-8']);
+    $reader->setConfiguration(['skip_empty_lines' => true]);
+
+    // create processor
+    $processor = new Processor\TestProcessor();
+
+    // create a process
+    $process = new Process($finder, $reader, $processor);
+
+    // run the process
+    $process->run();
+
+    // check results
+    $this->assertEquals(3, $reader->getProcessedRecordCount(), "This should've processed the three records in the file.");
+    $this->assertEquals(2, $reader->getStateValue('lines_skipped'), "This should've skipped three empty lines in the file.");
+    $this->assertEquals(0, $reader->getFailedRecordCount());
+  }
+
+  /**
+   * Test the skip_empty_lines feature, if the skipped lines are at the end
+   */
+  public function testSkipEmptyLinesInBetween()
+  {
+    // create finder
+    $finder = new Finder\UrlRequestFile();
+    $finder->setFile($this->getTestResourcePath('input/CSV/Test05_with_empty_lines_in_between.csv'));
+
+    // create reader
+    $reader = new Reader\CSV();
+    $reader->setConfiguration(['csv_string_encoding' => 'UTF-8']);
+    $reader->setConfiguration(['skip_empty_lines' => true]);
+
+    // create processor
+    $processor = new Processor\TestProcessor();
+
+    // create a process
+    $process = new Process($finder, $reader, $processor);
+
+    // run the process
+    $process->run();
+
+    // check results
+    $this->assertEquals(3, $reader->getProcessedRecordCount(), "This should've processed the three records in the file.");
+    $this->assertEquals(8, $reader->getStateValue('lines_skipped'), "This should've skipped three empty lines in the file.");
     $this->assertEquals(0, $reader->getFailedRecordCount());
   }
 
