@@ -56,6 +56,7 @@ CREATE TABLE IF NOT EXISTS `civicrm_aip_error_log` (
   `error_timestamp`     DATETIME                             COMMENT 'When did the error occur.',
   `error_message`       TEXT                                 COMMENT 'Error message',
   `data`                TEXT                                 COMMENT 'json-encoded data (e.g. a record)',
+  `is_resolved`         BOOL                                 COMMENT 'has this error been resolved?',
   PRIMARY KEY (`id`),
   CONSTRAINT `FK_civicrm_aip_error_log_process_id` FOREIGN KEY (`process_id`) REFERENCES `civicrm_aip_process` (`id`) ON DELETE CASCADE,
   KEY `process_id` (`process_id`)
