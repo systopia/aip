@@ -13,9 +13,9 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
-use CRM_Remoteevent_ExtensionUtil as E;
+use CRM_Aip_ExtensionUtil as E;
 
-class CRM_Aip_BAO_AipProcess extends CRM_Aip_DAO_AipProcess
+class CRM_Aip_BAO_AipErrorLog extends CRM_Aip_DAO_AipErrorLog
 {
 
 }

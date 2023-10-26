@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="iso-8859-1" ?>
+<table>
+  <base>CRM/Aip</base>
+  <class>AipProcess</class>
+  <name>civicrm_aip_process</name>
+  <comment>AIP Process</comment>
+  <log>false</log>
+
+  <field>
+    <name>id</name>
+    <type>int unsigned</type>
+    <uniqueName>aip_id</uniqueName>
+    <required>true</required>
+    <comment>Process ID</comment>
+  </field>
+  <primaryKey>
+    <name>id</name>
+    <autoincrement>true</autoincrement>
+  </primaryKey>
+
+  <field>
+    <name>name</name>
+    <uniqueName>aip_name</uniqueName>
+    <type>varchar</type>
+    <import>true</import>
+    <title>Name</title>
+    <length>96</length>
+    <localizable>true</localizable>
+    <comment>Process Name</comment>
+    <html>
+      <type>Text</type>
+    </html>
+  </field>
+
+  <field>
+    <name>is_active</name>
+    <title>Is Active</title>
+    <uniqueName>aip_is_active</uniqueName>
+    <type>boolean</type>
+    <default>0</default>
+    <comment>Is this process enabled for scheduled runs?</comment>
+    <html>
+      <type>CheckBox</type>
+    </html>
+  </field>
+
+  <field>
+    <name>last_run</name>
+    <type>datetime</type>
+    <uniqueName>aip_last_run</uniqueName>
+    <title>Last execution of this process</title>
+    <import>true</import>
+    <comment>Date and time that sessions starts.</comment>
+    <html>
+      <type>Select Date</type>
+      <formatType>activityDateTime</formatType>
+    </html>
+  </field>
+
+  <field>
+    <name>class</name>
+    <uniqueName>aip_class</uniqueName>
+    <type>varchar</type>
+    <import>true</import>
+    <title>Implementation Class Name</title>
+    <length>96</length>
+    <localizable>true</localizable>
+    <comment>Process Class Name</comment>
+    <html>
+      <type>Text</type>
+    </html>
+  </field>
+
+  <field>
+    <name>config</name>
+    <type>text</type>
+    <uniqueName>aip_config</uniqueName>
+    <title>Process Configuration</title>
+    <serialize>JSON</serialize>
+    <localizable>false</localizable>
+    <comment>JSON configuration for the process configuration</comment>
+  </field>
+
+  <field>
+    <name>state</name>
+    <type>text</type>
+    <uniqueName>aip_state</uniqueName>
+    <title>Process State</title>
+    <serialize>JSON</serialize>
+    <localizable>false</localizable>
+    <comment>JSON state of the process</comment>
+  </field>
+
+  <field>
+    <name>documentation</name>
+    <type>text</type>
+    <uniqueName>aip_documentation</uniqueName>
+    <title>Process Documentation</title>
+    <html>
+      <type>RichTextEditor</type>
+      <rows>8</rows>
+      <cols>60</cols>
+    </html>
+    <localizable>false</localizable>
+    <comment>Human-readable documentation of what the process does.</comment>
+  </field>
+</table>
