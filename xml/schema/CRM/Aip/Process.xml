@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="iso-8859-1" ?>
 <table>
   <base>CRM/Aip</base>
-  <class>Process</class>
+  <class>AipProcess</class>
   <name>civicrm_aip_process</name>
   <comment>AIP Process</comment>
   <log>false</log>

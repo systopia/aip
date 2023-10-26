@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="iso-8859-1" ?>
 <table>
   <base>CRM/Aip</base>
-  <class>ErrorLog</class>
+  <class>AipErrorLog</class>
   <name>civicrm_aip_error_log</name>
   <comment>AIP Process</comment>
   <log>false</log>
