@@ -35,6 +35,20 @@ function aip_civicrm_enable(): void {
   _aip_civix_civicrm_enable();
 }
 
+function aip_civicrm_entityTypes(&$entityTypes)
+{
+  $entityTypes['CRM_Aip_BAO_AipErrorLog'] = [
+          'name' => 'AipErrorLog',
+          'class' => 'CRM_Aip_BAO_AipErrorLog',
+          'table' => 'civicrm_aip_error_log'
+  ];
+  $entityTypes['CRM_Aip_BAO_AipProcess'] = [
+          'name' => 'AipProcess',
+          'class' => 'CRM_Aip_BAO_AipProcess',
+          'table' => 'civicrm_aip_process'
+  ];
+}
+
 // --- Functions below this ship commented out. Uncomment as required. ---
 
 /**
