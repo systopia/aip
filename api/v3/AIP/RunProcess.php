@@ -21,6 +21,8 @@ use Civi\AIP\Process;
 /**
  * AIProcessor.run implementation
  *
+ * @todo refactor
+ *
  * @param array $params
  *   API call parameters
  *

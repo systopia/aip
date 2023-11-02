@@ -10,4 +10,12 @@ namespace Civi\Api4;
  */
 class AipProcess extends Generic\DAOEntity {
 
+  public static function permissions() {
+    return [
+            'meta' => ['administer CiviCRM'],
+            'default' => ['administer CiviCRM'],
+            'create' => ['administer CiviCRM'],
+            'run' => ['administer CiviCRM'],
+    ];
+  }
 }
