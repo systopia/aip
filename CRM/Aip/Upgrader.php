@@ -33,11 +33,11 @@ class CRM_Aip_Upgrader extends CRM_Extension_Upgrader_Base {
    * Uninstaller
    */
   public function uninstall(): void {
-    $this->executeSqlFile('sql/my_install.sql');
+    $this->executeSqlFile('sql/auto_uninstall.sql');
   }
 
   /**
-   * Update schema
+   * Drop schema
    *
    * @return TRUE on success
    * @throws CRM_Core_Exception
@@ -49,6 +49,28 @@ class CRM_Aip_Upgrader extends CRM_Extension_Upgrader_Base {
      $this->executeSqlFile('sql/auto_install.sql');
      return TRUE;
    }
+
+  /**
+   * Update to version 1.1
+   *
+   * @return TRUE on success
+   * @throws Exception
+   */
+  public function upgrade_0002() {
+    $this->ctx->log->info('Updating "AIP" schema to version 1.1...');
+
+    // add column: category
+    $column_exists = CRM_Core_DAO::singleValueQuery("SHOW COLUMNS FROM `civicrm_aip_error_log` LIKE 'is_resolved';");
+    if (!$column_exists) {
+      CRM_Core_DAO::executeQuery("ALTER TABLE `civicrm_aip_error_log` ADD COLUMN `is_resolved` BOOL COMMENT 'has this error been resolved?';");
+    }
+
+    // update rebuild log tables
+    $logging = new CRM_Logging_Schema();
+    $logging->fixSchemaDifferences();
+
+    return TRUE;
+  }
 
   /**
    * Example: Work with entities usually not available during the install step.
