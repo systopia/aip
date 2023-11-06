@@ -21,7 +21,8 @@ namespace Civi\Api4\Action\AipProcess;
 
 use \Civi\Api4\Generic\AbstractAction;
 use \Civi\Api4\Generic\Result;
-use \API_Exception;
+use CiviCRM_API3_Exception;
+use CRM_Core_Exception;
 
 /**
  * Generate a security checksum for anonymous access to CiviCRM.
@@ -45,14 +46,14 @@ class Run extends AbstractAction {
    *
    * @param Result $result
    *
-   * @throws API_Exception
+   * @throws CRM_Core_Exception
    */
   public function _run(Result $result) {
     try {
       // todo refactor RUN implementation
       $api3_result = civicrm_api3('AIP', 'run_process', ['pid' => $this->process_id]);
-    } catch (\CiviCRM_API3_Exception $exception) {
-      throw new API_Exception($exception->getMessage());
+    } catch (CiviCRM_API3_Exception $exception) {
+      throw new CRM_Core_Exception($exception->getMessage());
     }
     $result[] = $api3_result;
   }
