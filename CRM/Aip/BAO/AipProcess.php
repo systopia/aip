@@ -11,8 +11,5 @@ use CRM_Aip_ExtensionUtil as E;
  */
 class CRM_Aip_BAO_AipProcess extends CRM_Aip_DAO_AipProcess
 {
-  public static function run()
-  {
-    Civi::log()->debug("test");
-  }
+  
 }

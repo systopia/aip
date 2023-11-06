@@ -3,7 +3,7 @@
   <base>CRM/Aip</base>
   <class>AipErrorLog</class>
   <name>civicrm_aip_error_log</name>
-  <comment>AIP Process</comment>
+  <comment>AIP Error Log</comment>
   <log>false</log>
 
   <field>
