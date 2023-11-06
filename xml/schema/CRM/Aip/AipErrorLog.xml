@@ -9,7 +9,6 @@
   <field>
     <name>id</name>
     <type>int unsigned</type>
-    <uniqueName>aip_error_log_id</uniqueName>
     <required>true</required>
     <comment>Process ID</comment>
   </field>
@@ -20,7 +19,6 @@
 
   <field>
     <name>process_id</name>
-    <uniqueName>aip_error_log_process_id</uniqueName>
     <type>int unsigned</type>
     <comment>FK to AIP Process</comment>
     <foreignKey>
@@ -43,7 +41,6 @@
   <field>
     <name>error_timestamp</name>
     <type>datetime</type>
-    <uniqueName>aip_error_log_error_timestamp</uniqueName>
     <title>Last execution of this process</title>
     <import>true</import>
     <comment>Timestamp when the error was recorded</comment>
@@ -56,7 +53,6 @@
   <field>
     <name>error_message</name>
     <type>text</type>
-    <uniqueName>aip_error_log_error_message</uniqueName>
     <title>Error Message</title>
     <localizable>false</localizable>
     <comment>The error message that was recorded with the processing failure</comment>
@@ -65,7 +61,6 @@
   <field>
     <name>data</name>
     <type>text</type>
-    <uniqueName>aip_error_log_error_data</uniqueName>
     <title>Data/Record</title>
     <serialize>JSON</serialize>
     <localizable>false</localizable>
@@ -75,7 +70,6 @@
   <field>
     <name>is_resolved</name>
     <title>Is Resolved</title>
-    <uniqueName>aip_error_log_is_resolved</uniqueName>
     <type>boolean</type>
     <default>0</default>
     <comment>Is this process enabled for scheduled runs?</comment>
