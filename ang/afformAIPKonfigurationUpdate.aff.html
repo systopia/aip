@@ -1,0 +1,10 @@
+<af-form ctrl="afform">
+  <af-entity url-autofill="1" type="AipProcess" name="AipProcess1" label="AIP Configuration 1" actions="{create: true, update: true}" security="RBAC" data="{}" />
+  <fieldset af-fieldset="AipProcess1" class="af-container" af-title="AIP Configuration">
+    <af-field name="name" defn="{help_post: '\u00a0', input_attrs: {}}" />
+    <af-field name="class" defn="{help_pre: 'This must be a valid CiviCRM Classname. Default: Civi\\AIP\\Process', input_attrs: {}, help_post: '\u00a0'}" />
+    <af-field name="is_active" defn="{help_post: '\u00a0'}" />
+    <af-field name="config" defn="{help_pre: 'This must be a valid json. Better check with\u00a0 json-formatter first', help_post: '\u00a0'}" />
+  </fieldset>
+  <button class="af-button btn btn-primary" crm-icon="fa-check" ng-click="afform.submit()">Submit</button>
+</af-form>
