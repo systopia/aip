@@ -12,7 +12,7 @@
     "summary_contact_type": null,
     "summary_weight": null,
     "icon": "fa-list-alt",
-    "server_route": "civicrm/aip_configuration/update",
+    "server_route": "civicrm/aip_configuration_update",
     "permission": [
         "access CiviCRM"
     ],
