@@ -31,7 +31,7 @@ SET FOREIGN_KEY_CHECKS=1;
 -- *
 -- * civicrm_aip_error_log
 -- *
--- * AIP Process
+-- * AIP Error Log
 -- *
 -- *******************************************************/
 CREATE TABLE `civicrm_aip_error_log` (
