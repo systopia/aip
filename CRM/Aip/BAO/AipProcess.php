@@ -26,8 +26,7 @@ class CRM_Aip_BAO_AipProcess extends CRM_Aip_DAO_AipProcess
      * @see \Civi\AfformAdmin\AfformAdminMeta::getMetadata().
      */
     public static function afformAdminMetadata(GenericHookEvent $event): void {
-        $entity = pathinfo(__FILE__, PATHINFO_FILENAME);
-        #$entity = "AipProcess";
+        $entity = 'AipProcess';
         $event->entities[$entity] = [
             'entity' => $entity,
             'label' => $entity,
