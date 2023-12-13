@@ -4,15 +4,15 @@ use CRM_Aip_ExtensionUtil as E;
 
 return [
     [
-        'name' => 'SavedSearch_AIP_Konfiguration',
+        'name' => 'SavedSearch_AIP_Configuration',
         'entity' => 'SavedSearch',
         'cleanup' => 'always',
         'update' => 'unmodified',
         'params' => [
             'version' => 4,
             'values' => [
-                'name' => 'AIP_Konfiguration',
-                'label' => E::ts('AIP Konfiguration'),
+                'name' => 'AIP_Configuration',
+                'label' => E::ts('AIP Configuration'),
                 'api_entity' => 'AipProcess',
                 'api_params' => [
                     'version' => 4,
@@ -39,16 +39,16 @@ return [
         ],
     ],
     [
-        'name' => 'SavedSearch_AIP_Konfiguration_SearchDisplay_AIP_Konfiguration_Table',
+        'name' => 'SavedSearch_AIP_Configuration_SearchDisplay_AIP_Configuration_Table',
         'entity' => 'SearchDisplay',
         'cleanup' => 'always',
         'update' => 'unmodified',
         'params' => [
             'version' => 4,
             'values' => [
-                'name' => 'AIP_Konfiguration_Table',
-                'label' => E::ts('AIP Konfiguration Table'),
-                'saved_search_id.name' => 'AIP_Konfiguration',
+                'name' => 'AIP_Configuration_Table',
+                'label' => E::ts('AIP Configuration Table'),
+                'saved_search_id.name' => 'AIP_Configuration',
                 'type' => 'table',
                 'settings' => [
                     'description' => NULL,

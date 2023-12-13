@@ -1,9 +1,9 @@
 {
-    "type": "form",
+    "type": "search",
     "requires": [],
     "entity_type": null,
     "join_entity": null,
-    "title": "AIP Konfiguration Update",
+    "title": "AIP Configuration List",
     "description": "",
     "is_dashlet": false,
     "is_public": false,
@@ -12,7 +12,7 @@
     "summary_contact_type": null,
     "summary_weight": null,
     "icon": "fa-list-alt",
-    "server_route": "civicrm/aip_configuration_update",
+    "server_route": "civicrm/aip_configuration",
     "permission": [
         "access CiviCRM"
     ],
@@ -20,6 +20,10 @@
     "redirect": null,
     "submit_enabled": true,
     "submit_limit": null,
-    "create_submission": true,
-    "navigation": null
+    "create_submission": false,
+    "navigation": {
+        "parent": "Administer",
+        "label": "AIP Configuration",
+        "weight": 100
+    }
 }
