@@ -70,7 +70,6 @@
     <name>config</name>
     <type>text</type>
     <title>Process Configuration</title>
-
     <localizable>false</localizable>
     <html>
       <type>TextArea</type>
