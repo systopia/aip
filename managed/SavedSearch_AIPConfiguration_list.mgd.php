@@ -61,7 +61,7 @@ return [
                             'type' => 'field',
                             'key' => 'id',
                             'dataType' => 'Integer',
-                            'label' => E::ts('id'),
+                            'label' => E::ts('ID'),
                             'sortable' => TRUE,
                         ],
                         [
@@ -75,7 +75,7 @@ return [
                             'type' => 'field',
                             'key' => 'is_active',
                             'dataType' => 'Boolean',
-                            'label' => E::ts('ist Aktiv'),
+                            'label' => E::ts('is active'),
                             'sortable' => TRUE,
                         ],
                         [
