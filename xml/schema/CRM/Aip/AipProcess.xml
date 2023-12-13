@@ -70,8 +70,13 @@
     <name>config</name>
     <type>text</type>
     <title>Process Configuration</title>
-    <serialize>JSON</serialize>
     <localizable>false</localizable>
+    <html>
+      <type>TextArea</type>
+      <rows>8</rows>
+      <cols>60</cols>
+    </html>
+
     <comment>JSON configuration for the process configuration</comment>
   </field>
 
