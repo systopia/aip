@@ -75,6 +75,11 @@ To enable scheduled import-jobs go to `/civicrm/admin/job?action=add&reset=1`:
 - API-Call: `AIP.run_process`
 - Parameters: list of process-ids (id of mysql-column civicrm_aip_process) eg.: `pid=1` or `pid=1,2,3`
 
+## Configuration with UI
+
+comming soon. 
+An User Interface is under development.
+
 
 ## Troubleshooting
 
