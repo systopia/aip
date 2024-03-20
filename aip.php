@@ -37,14 +37,14 @@ function aip_civicrm_enable(): void {
 
 function aip_civicrm_entityTypes(&$entityTypes)
 {
-  $entityTypes['CRM_Aip_BAO_AipErrorLog'] = [
+  $entityTypes['CRM_Aip_DAO_AipErrorLog'] = [
           'name' => 'AipErrorLog',
-          'class' => 'CRM_Aip_BAO_AipErrorLog',
+          'class' => 'CRM_Aip_DAO_AipErrorLog',
           'table' => 'civicrm_aip_error_log'
   ];
-  $entityTypes['CRM_Aip_BAO_AipProcess'] = [
+  $entityTypes['CRM_Aip_DAO_AipProcess'] = [
           'name' => 'AipProcess',
-          'class' => 'CRM_Aip_BAO_AipProcess',
+          'class' => 'CRM_Aip_DAO_AipProcess',
           'table' => 'civicrm_aip_process'
   ];
 }
