@@ -4,7 +4,7 @@
 return [
   [
     'name' => 'AipErrorLog',
-    'class' => 'AipErrorLog',
+    'class' => 'CRM_Aip_DAO_AipErrorLog',
     'table' => 'civicrm_aip_error_log',
   ],
 ];
