@@ -87,11 +87,12 @@ class JSON extends Base
       // reset processed record index
       $this->resetState();
       $this->setCurrentFile($source);
-      $this->setStateValue('last_record_index', 0);
       $this->log("Started processing file '{$source}'.", 'debug');
+
     } else {
-      $last_record_index = $this->getStateValue('last_record_index', 0);
-      $this->log("Resumed processing file '{$source}' at record {$last_record_index}", 'debug');
+      // resume the file
+      $this->next_record_index = $this->getProcessedRecordCount() + $this->getFailedRecordCount();
+      if ($this->next_record_index) $this->log("Resume: skipped {$this->next_record_index} previously processed record(s).", 'info');
     }
 
     // try and open the file

@@ -19,6 +19,8 @@ use Civi\Test\HeadlessInterface;
 use Civi\Test\HookInterface;
 use Civi\Test\TransactionalInterface;
 
+use function GuzzleHttp\Psr7\parse_request;
+
 /**
  * Basic CVS Reader tests
  *
@@ -27,6 +29,16 @@ use Civi\Test\TransactionalInterface;
  */
 class JSONOnlineReaderTest extends TestBase implements HeadlessInterface, HookInterface, TransactionalInterface
 {
+  public function setUp(): void
+  {
+    parent::setUp();
+  }
+
+  protected function getJsonFileUrl($path = null)
+  {
+    return \Civi::paths()->getPath('[civicrm.files]/ext/aip/tests/resources/finder/termine.json');
+  }
+
   /**
    * Create a simple process (UrlRequestFile, CSV reader, TestProcessor)
    */
@@ -34,7 +46,7 @@ class JSONOnlineReaderTest extends TestBase implements HeadlessInterface, HookIn
   {
     // create finder
     $finder = new Finder\StaticUrlFileFinder();
-    $finder->setConfigValue('url', 'https://termine.ekir.de/json?vid=2083');
+    $finder->setConfigValue('url', $this->getJsonFileUrl());
     $finder->setConfigValue('detect_changes', 'true');
 
     // create reader
@@ -52,7 +64,7 @@ class JSONOnlineReaderTest extends TestBase implements HeadlessInterface, HookIn
     $process->run();
 
     // check results
-    $this->assertEquals(30, $reader->getProcessedRecordCount(), "This should've processed the two records in the file.");
+    $this->assertEquals(2, $reader->getProcessedRecordCount(), "This should've processed the two records in the file.");
     $this->assertEquals(0, $reader->getFailedRecordCount());
   }
 
@@ -61,27 +73,26 @@ class JSONOnlineReaderTest extends TestBase implements HeadlessInterface, HookIn
    * But then process one record, suspend,
    *      revive, process the remaining record
    */
-  public function testReadWithStopAndRestore()
+  public function testReadWithStopAndRestart()
   {
     // create finder
-    $finder = new Finder\UrlRequestFile();
-    $finder->setFile($this->getTestResourcePath('input/CSV/Test01.csv'));
+    $finder = new Finder\StaticUrlFileFinder();
+    $finder->setConfigValue('url', $this->getJsonFileUrl());
+    $finder->setConfigValue('detect_changes', 'true');
 
     // create reader
-    $reader = new Reader\CSV();
-    $reader->setConfiguration(['csv_string_encoding' => 'ISO-8859-15']);
+    $reader = new Reader\JSON();
+    $reader->setConfiguration(['path' => 'Veranstaltung']);
 
     // create processor
     $processor = new Processor\TestProcessor();
 
-    // create a process
+    // run the process
     $process = new Process($finder, $reader, $processor);
     $process->setConfigValue('processing_limit/record_count', 1);
-
-    // run the process
     $process->run();
     $last_processed_record = $process->getProcessor()->getLastProcessedRecord();
-    $this->assertEquals("25120510", reset($last_processed_record), "This should've read the first record of the file");
+    $this->assertEquals("470580", $last_processed_record['_event_ID'] ?? null, "This should've processed the first record of the file");
 
     // check results
     $this->assertEquals(1, $reader->getSessionProcessedRecordCount(), "This should've processed the only one record because of the processing_limit/record_count = 1 limit.");
@@ -91,103 +102,16 @@ class JSONOnlineReaderTest extends TestBase implements HeadlessInterface, HookIn
 
     // revive the process
     $process2 = Process::restore($process->getID());
+    $process2->setConfigValue('processing_limit/record_count', 2); // there should only be one left
 
     // run the process
     $process2->run();
 
     // check results
-    $processor = $process2->getProcessor();
     $last_processed_record = $process2->getProcessor()->getLastProcessedRecord();
-    $this->assertEquals("25120511", $last_processed_record['BLZ'], "This should've read the *second* record of the file");
+    $this->assertEquals("470581", $last_processed_record['_event_ID'], "This should've read the *second* record of the file");
     $this->assertEquals(1, $process2->getReader()->getSessionProcessedRecordCount(), "This should've processed the only one record because of the processing_limit/record_count = 1 limit.");
     $this->assertEquals(0, $process2->getReader()->getFailedRecordCount());
-  }
-
-  /**
-   * Test the skip_empty_lines feature
-   */
-  public function testSkipEmptyLines()
-  {
-    // create finder
-    $finder = new Finder\UrlRequestFile();
-    $finder->setFile($this->getTestResourcePath('input/CSV/Test04_with_empty_lines.csv'));
-
-    // create reader
-    $reader = new Reader\CSV();
-    $reader->setConfiguration(['csv_string_encoding' => 'UTF-8']);
-    $reader->setConfiguration(['skip_empty_lines' => true]);
-
-    // create processor
-    $processor = new Processor\TestProcessor();
-
-    // create a process
-    $process = new Process($finder, $reader, $processor);
-
-    // run the process
-    $process->run();
-
-    // check results
-    $this->assertEquals(3, $reader->getProcessedRecordCount(), "This should've processed the three records in the file.");
-    $this->assertEquals(3, $reader->getStateValue('lines_skipped'), "This should've skipped three empty lines in the file.");
-    $this->assertEquals(0, $reader->getFailedRecordCount());
-  }
-
-  /**
-   * Test the skip_empty_lines feature, if the skipped lines are at the end
-   */
-  public function testSkipEmptyLinesAtTheEnd()
-  {
-    // create finder
-    $finder = new Finder\UrlRequestFile();
-    $finder->setFile($this->getTestResourcePath('input/CSV/Test04_with_empty_lines_at_the_end.csv'));
-
-    // create reader
-    $reader = new Reader\CSV();
-    $reader->setConfiguration(['csv_string_encoding' => 'UTF-8']);
-    $reader->setConfiguration(['skip_empty_lines' => true]);
-
-    // create processor
-    $processor = new Processor\TestProcessor();
-
-    // create a process
-    $process = new Process($finder, $reader, $processor);
-
-    // run the process
-    $process->run();
-
-    // check results
-    $this->assertEquals(3, $reader->getProcessedRecordCount(), "This should've processed the three records in the file.");
-    $this->assertEquals(2, $reader->getStateValue('lines_skipped'), "This should've skipped three empty lines in the file.");
-    $this->assertEquals(0, $reader->getFailedRecordCount());
-  }
-
-  /**
-   * Test the skip_empty_lines feature, if the skipped lines are at the end
-   */
-  public function testSkipEmptyLinesInBetween()
-  {
-    // create finder
-    $finder = new Finder\UrlRequestFile();
-    $finder->setFile($this->getTestResourcePath('input/CSV/Test05_with_empty_lines_in_between.csv'));
-
-    // create reader
-    $reader = new Reader\CSV();
-    $reader->setConfiguration(['csv_string_encoding' => 'UTF-8']);
-    $reader->setConfiguration(['skip_empty_lines' => true]);
-
-    // create processor
-    $processor = new Processor\TestProcessor();
-
-    // create a process
-    $process = new Process($finder, $reader, $processor);
-
-    // run the process
-    $process->run();
-
-    // check results
-    $this->assertEquals(3, $reader->getProcessedRecordCount(), "This should've processed the three records in the file.");
-    $this->assertEquals(8, $reader->getStateValue('lines_skipped'), "This should've skipped three empty lines in the file.");
-    $this->assertEquals(0, $reader->getFailedRecordCount());
   }
 
 }
