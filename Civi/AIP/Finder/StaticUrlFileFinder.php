@@ -54,7 +54,6 @@ class StaticUrlFileFinder extends Base
   public function findNextSource(): ?string
   {
     $file_url = $this->getConfigValue('url');
-    $should_process = true;
     if (empty($file_url)) {
       throw new \Exception("No 'url' set");
     }
@@ -63,52 +62,28 @@ class StaticUrlFileFinder extends Base
     try {
       // todo: check if this can process URLs, including credentials
       $data = file_get_contents($file_url);
+      $data_checksum = hash('sha256', $data);
 
-      // check if it has changed
+      // check if source has changed
       $detect_changes = $this->getConfigValue('detect_changes');
-      if (!$detect_changes) {
-        // MODE: DON'T detect changes, just store as a new file
-        $local_file = $this->getStateValue('local_copy');
-        if (empty($local_file)) {
-          $local_file = tempnam(sys_get_temp_dir(), "aip-" . $this->getProcess()->getID() . '-local-');
-          $this->setStateValue('local_copy', $local_file);
-        }
-        // write the data anyway
-        file_put_contents($local_file, $data);
-
-      } else {
-        // MODE: DETECT CHANGES, just store as a new file
-        $last_checksum = $this->getStateValue('last_file_checksum');
-        $current_checksum = hash('sha256', $data);
-        $has_changed = ($last_checksum != $current_checksum);
-
-        if ($has_changed) {
-          // the version has changed,
-          $this->log("New (version of) source file detected.", 'debug');
-          $local_file = tempnam(sys_get_temp_dir(), "aip-" . $this->getProcess()->getID() . '-local');
-          file_put_contents($local_file, $data);
-
-          $this->setStateValue('last_file_checksum', $current_checksum);
-          $this->setStateValue('last_file_local_copy', $local_file);
-
-        } else { // file has not changed
-          $this->log("No new version of source file detected.", 'debug');
-          // make sure the local file is still there...
-          $local_file = $this->getStateValue('last_file_local_copy');
-        }
-
-        // make sure the file exists
-        if (!file_exists($local_file)) {
-          // file has gone missing, we'll just re-create it
-          file_put_contents($local_file, $data);
+      if ($detect_changes) {
+        $previously_processed_checksum = $this->getStateValue('previous_file_checksum');
+        if ($data_checksum && $data_checksum == $previously_processed_checksum) {
+          $this->log("The source '{$file_url}' had already been processed");
+          return null;
         }
       }
 
-      if ($local_file) {
-        return $local_file;
-      } else {
-        return null;
+      // first: create a local temp file
+      $local_file = $this->getStateValue('local_copy');
+      if (empty($local_file)) {
+        $local_file = tempnam(sys_get_temp_dir(), "aip-" . $this->getProcess()->getID() . '-local-');
+        $this->setStateValue('local_copy', $local_file);
       }
+      file_put_contents($local_file, $data);
+      $this->setStateValue('previous_file_checksum', $data_checksum);
+
+      return $local_file;
 
     } catch (Exception $ex) {
       $this->log('Error encountered: ' . $ex->getMessage(), 'warn');
@@ -140,6 +115,7 @@ class StaticUrlFileFinder extends Base
   public function markSourceProcessed(string $file_path)
   {
     // nothing to do here
+    $this->removeLocalFileCopy();
     return true;
   }
 
@@ -152,16 +128,24 @@ class StaticUrlFileFinder extends Base
   public function markSourceFailed(string $file_path)
   {
     // nothing to do here
+    $this->removeLocalFileCopy();
+    return true;
   }
 
   /**
-   * This will maintain and return a local copy of the given data
-   *
-   * @param string $file_data
+   * Make sure that any local copy of the file is deleted
    * @return void
    */
-  protected function createLocalFileCopy($file_data)
+  public function removeLocalFileCopy()
   {
-
+    $local_copy = $this->getStateValue('local_copy');
+    if ($local_copy) {
+      $this->setStateValue('local_copy', null);
+      if (file_exists($local_copy)) {
+        $this->log("Removed local file copy '{$local_copy}'.");
+        unlink($local_copy);
+      }
+    }
   }
+
 }

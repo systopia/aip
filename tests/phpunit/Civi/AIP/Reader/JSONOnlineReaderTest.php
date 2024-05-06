@@ -114,4 +114,41 @@ class JSONOnlineReaderTest extends TestBase implements HeadlessInterface, HookIn
     $this->assertEquals(0, $process2->getReader()->getFailedRecordCount());
   }
 
+  /**
+   * Create a simple process (UrlRequestFile, CSV reader, TestProcessor),
+   * But then process one record, suspend,
+   *      revive, process the remaining record
+   */
+  public function testSkipIdenticalFiles()
+  {
+    // create finder
+    $finder = new Finder\StaticUrlFileFinder();
+    $finder->setConfigValue('url', $this->getJsonFileUrl());
+    $finder->setConfigValue('detect_changes', false);
+
+    // create reader
+    $reader = new Reader\JSON();
+    $reader->setConfiguration(['path' => 'Veranstaltung']);
+
+    // create processor
+    $processor = new Processor\TestProcessor();
+
+    // run the process -> should process all (2) records
+    $process = new Process($finder, $reader, $processor);
+    $process->getFinder()->setConfigValue('detect_changes', false);
+    $process->run();
+    $this->assertEquals(2, $processor->getProcessedRecordCount(),
+                        "Should have processed two records.");
+
+    $process->getFinder()->setConfigValue('detect_changes', true);
+    $process->run();
+    $this->assertEquals(2, $processor->getProcessedRecordCount(),
+                        "Should NOT have processed two more records from the identical source: detect_changes is on.");
+
+    $process->getFinder()->setConfigValue('detect_changes', false);
+    $process->run();
+    $this->assertEquals(4, $processor->getProcessedRecordCount(),
+                        "SHOULD have processed two more records from the identical source: detect_changes is off.");
+
+  }
 }
