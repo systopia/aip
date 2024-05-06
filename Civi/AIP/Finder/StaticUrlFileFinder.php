@@ -26,7 +26,7 @@ use PHPUnit\Exception;
  *  detect_changes - discard the source file if it has already been processed
  *                     (using checksum)
  **/
-class StaticFileFinder extends Base
+class StaticUrlFileFinder extends Base
 {
   /**
    * Check if the component is ready,
@@ -54,6 +54,7 @@ class StaticFileFinder extends Base
   public function findNextSource(): ?string
   {
     $file_url = $this->getConfigValue('url');
+    $should_process = true;
     if (empty($file_url)) {
       throw new \Exception("No 'url' set");
     }
@@ -65,26 +66,50 @@ class StaticFileFinder extends Base
 
       // check if it has changed
       $detect_changes = $this->getConfigValue('detect_changes');
-      $should_process = true;
-      if ($detect_changes) {
+      if (!$detect_changes) {
+        // MODE: DON'T detect changes, just store as a new file
+        $local_file = $this->getStateValue('local_copy');
+        if (empty($local_file)) {
+          $local_file = tempnam(sys_get_temp_dir(), "aip-" . $this->getProcess()->getID() . '-local-');
+          $this->setStateValue('local_copy', $local_file);
+        }
+        // write the data anyway
+        file_put_contents($local_file, $data);
+
+      } else {
+        // MODE: DETECT CHANGES, just store as a new file
         $last_checksum = $this->getStateValue('last_file_checksum');
         $current_checksum = hash('sha256', $data);
-        $has_changed = $last_checksum != $current_checksum;
+        $has_changed = ($last_checksum != $current_checksum);
 
         if ($has_changed) {
+          // the version has changed,
+          $this->log("New (version of) source file detected.", 'debug');
+          $local_file = tempnam(sys_get_temp_dir(), "aip-" . $this->getProcess()->getID() . '-local');
+          file_put_contents($local_file, $data);
+
           $this->setStateValue('last_file_checksum', $current_checksum);
-        } else {
-          $should_process = false;
+          $this->setStateValue('last_file_local_copy', $local_file);
+
+        } else { // file has not changed
+          $this->log("No new version of source file detected.", 'debug');
+          // make sure the local file is still there...
+          $local_file = $this->getStateValue('last_file_local_copy');
+        }
+
+        // make sure the file exists
+        if (!file_exists($local_file)) {
+          // file has gone missing, we'll just re-create it
+          file_put_contents($local_file, $data);
         }
       }
 
-      if ($should_process) {
-        // this should be processed
-        return $file_url;
+      if ($local_file) {
+        return $local_file;
       } else {
-        // no (new) file
         return null;
       }
+
     } catch (Exception $ex) {
       $this->log('Error encountered: ' . $ex->getMessage(), 'warn');
       return null;
@@ -127,5 +152,16 @@ class StaticFileFinder extends Base
   public function markSourceFailed(string $file_path)
   {
     // nothing to do here
+  }
+
+  /**
+   * This will maintain and return a local copy of the given data
+   *
+   * @param string $file_data
+   * @return void
+   */
+  protected function createLocalFileCopy($file_data)
+  {
+
   }
 }

@@ -33,15 +33,17 @@ class JSONOnlineReaderTest extends TestBase implements HeadlessInterface, HookIn
   public function testReadOnlineJSON()
   {
     // create finder
-    $finder = new Finder\StaticFileFinder();
+    $finder = new Finder\StaticUrlFileFinder();
     $finder->setConfigValue('url', 'https://termine.ekir.de/json?vid=2083');
     $finder->setConfigValue('detect_changes', 'true');
 
     // create reader
     $reader = new Reader\JSON();
+    $reader->setConfiguration(['path' => 'Veranstaltung']);
 
     // create processor
     $processor = new Processor\TestProcessor();
+
 
     // create a process
     $process = new Process($finder, $reader, $processor);
@@ -50,7 +52,7 @@ class JSONOnlineReaderTest extends TestBase implements HeadlessInterface, HookIn
     $process->run();
 
     // check results
-    $this->assertEquals(2, $reader->getProcessedRecordCount(), "This should've processed the two records in the file.");
+    $this->assertEquals(30, $reader->getProcessedRecordCount(), "This should've processed the two records in the file.");
     $this->assertEquals(0, $reader->getFailedRecordCount());
   }
 

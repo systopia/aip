@@ -71,12 +71,6 @@ class CSV extends Base
    */
   protected ?array $last_processed_record = null;
 
-  /**
-   * @var int timestamp since this component was created
-   */
-  protected int $running_since = 0;
-
-
   public function canReadSource(string $source): bool
   {
     if (parent::canReadSource($source)) {
