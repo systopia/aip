@@ -484,4 +484,26 @@ class Process extends \Civi\AIP\AbstractComponent
       fflush($log_file);
     }
   }
+
+  /**
+   * The number of records already processed
+   *
+   * @return integer processed
+   */
+  public function getProcessedRecordCount()
+  {
+    return (int) $this->getReader()->getStateValue('processed_record_count', 0);
+  }
+
+  /**
+   * Number of records failed while processing
+   *
+   * @return integer failed
+   */
+  public function getFailedRecordCount()
+  {
+    return (int) $this->getReader()->getStateValue('failed_record_count', 0);
+  }
+
+
 }
