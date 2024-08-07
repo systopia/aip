@@ -37,10 +37,6 @@ class DummyFinder extends Base
 {
     public static string $connection_label = "dummy";
 
-    public function __construct()
-    {
-        $this->connection = null;
-    }
 
     /**
      * Check if the component is ready,

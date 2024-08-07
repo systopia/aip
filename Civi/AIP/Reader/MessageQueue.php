@@ -20,15 +20,11 @@ use Cassandra\Exception\TimeoutException;
 use Civi\FormProcessor\API\Exception;
 use CRM_Aip_ExtensionUtil as E;
 use PhpAmqpLib\Channel\AMQPChannel;
-use PhpAmqpLib\Connection\AMQPStreamConnection;
+use PhpAmqpLib\Connection\AMQPSSLConnection;
 
 class MessageQueue extends Base
 {
-    public $exchange = 'router';
-    public $queue = 'msgs';
-    public $consumerTag = 'consumer';
     public AMQPChannel $channel;
-    public $timeout = 1000;
     public array $receivedMessages = [];
     public AMQPMessage $currentMessage;
     public AMQPStreamConnection $connection;
@@ -83,7 +79,7 @@ class MessageQueue extends Base
     public function verifyConfiguration()
     {
         # read config values
-        $requiredConfigParams = ['host', 'port', 'vhost'];
+        $requiredConfigParams = ['host', 'port', 'vhost', 'queue'];
         $optionalConfigParams = ['user', 'pass'];
         $sslConfigParams = ['cafile', 'local_cert', 'local_pk', 'verify_peer', 'verify_peer_name'];
         // get required config params
@@ -94,8 +90,10 @@ class MessageQueue extends Base
             }
         }
         // get optional params
-        foreach ($sslConfigParams as $param)
+        foreach ($optionalConfigParams as $param)
             $this->config[$param] = $this->getConfigValue($param);
+            if (!array_key_exists($param,$this->config))
+                $this->config[$param] = '';
         // get optional ssl config params
         $sslOptions = [];
         foreach ($sslConfigParams as $param)
@@ -109,7 +107,7 @@ class MessageQueue extends Base
         // try to create connection
         try {
             // connect to AMQP
-            $this->connection = new AMQPStreamConnection(
+            $this->connection = new AMQPSSLConnection(
                 $this->config['host'],
                 $this->config['port'],
                 $this->config['user'],
@@ -121,38 +119,42 @@ class MessageQueue extends Base
             return $this->connection;
         } catch (AMQPRuntimeException $e) {
             $this->log('AMQPRuntimeException Error encountered: ' . $e->getMessage(), 'error');
-            cleanup_connection();
+            $this->cleanup_connection();
             return null;
         } catch (\RuntimeException $e) {
             $this->log('RuntimeException Error encountered: ' . $e->getMessage(), 'error');
-            cleanup_connection();
+            $this->cleanup_connection();
             return null;
         } catch (\ErrorException $e) {
             $this->log('ErrorException Error encountered: ' . $e->getMessage(), 'error');
-            cleanup_connection();
+            $this->cleanup_connection();
             return null;
         }
     }
 
     public function canReadSource(string $source): bool
     {
-        $connection = $this->connect();
         // connect to the AMQP Message Queue
-        try {
-            // declare and bind queue
-            $this->channel = $connection->channel();
-            $this->channel->queue_declare($this->queue, false, true, false, false);
-            $this->channel->exchange_declare($this->exchange, AMQPExchangeType::DIRECT, false, true, false);
-            $this->channel->queue_bind($this->queue, $this->exchange);
-        }catch(AMQPTimeoutException $ex){
-            $this->log('AMQPTimeoutException encountered: ' . $ex->getMessage(), 'error');
+        $connection = $this->connect();
+        if (!$connection){
             return false;
-        } catch (Exception $ex) {
-            $this->log('Error encountered: ' . $ex->getMessage(), 'error');
-            return false;
+        }else {
+            try {
+                // declare and bind queue
+                $this->channel = $connection->channel();
+                $this->channel->queue_declare($this->config['queue'], false, true, false, false);
+                $this->channel->exchange_declare($this->exchange, AMQPExchangeType::DIRECT, false, true, false);
+                $this->channel->queue_bind($this->queue, $this->exchange);
+            } catch (AMQPTimeoutException $ex) {
+                $this->log('AMQPTimeoutException encountered: ' . $ex->getMessage(), 'error');
+                return false;
+            } catch (Exception $ex) {
+                $this->log('Error encountered: ' . $ex->getMessage(), 'error');
+                return false;
+            }
+            // Conection was successful
+            return true;
         }
-        // Conection was successful
-        return true;
     }
 
     function process_message($message)
@@ -471,7 +473,7 @@ class MessageQueue extends Base
         // Connection might already be closed.
         // Ignoring exceptions.
         try {
-            if($this->connection !== null) {
+            if(isset($this->connection)) {
                 $this->connection->close();
             }
         } catch (\ErrorException $e) {
