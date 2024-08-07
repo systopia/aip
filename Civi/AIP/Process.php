@@ -15,6 +15,7 @@
 
 namespace Civi\AIP;
 
+use Cassandra\Exception\TimeoutException;
 use Civi\AIP\Finder\Base    as Finder;
 use Civi\AIP\Reader\Base    as Reader;
 use Civi\AIP\Processor\Base as Processor;
@@ -198,10 +199,12 @@ class Process extends \Civi\AIP\AbstractComponent
       $this->reader->initialiseWithSource($source_url);
       $this->log('Reader initialised with source: ' . $source_url, 'info');
       while ($this->shouldProcessMoreRecords() && $this->reader->hasMoreRecords()) {
-        $record = $this->reader->getNextRecord();
         try {
+          $record = $this->reader->getNextRecord();
           $this->processor->processRecord($record);
           $this->reader->markLastRecordProcessed();
+        } catch (TimeoutException $exception) {
+            $this->log(E::ts("reader.getNextrecord Timed Out: %1", [1 => $exception->getMessage()]), 'warning');
         } catch (\Exception $exception) {
           $this->reader->markLastRecordFailed();
           $this->handleFailedRecord($record, $exception);

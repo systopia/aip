@@ -1,6 +1,7 @@
 <?php
 
 require_once 'aip.civix.php';
+require_once(__DIR__.'/vendor/autoload.php');
 // phpcs:disable
 use CRM_Aip_ExtensionUtil as E;
 // phpcs:enable
