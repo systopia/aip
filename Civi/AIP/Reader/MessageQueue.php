@@ -20,7 +20,9 @@ use Cassandra\Exception\TimeoutException;
 use Civi\FormProcessor\API\Exception;
 use CRM_Aip_ExtensionUtil as E;
 use PhpAmqpLib\Channel\AMQPChannel;
-use PhpAmqpLib\Connection\AMQPSSLConnection;
+use PhpAmqpLib\Connection\AMQPStreamConnection;
+use PhpAmqpLib\Exchange\AMQPExchangeType;
+use PhpAmqpLib\Message\AMQPMessage;
 
 class MessageQueue extends Base
 {
@@ -79,8 +81,8 @@ class MessageQueue extends Base
     public function verifyConfiguration()
     {
         # read config values
-        $requiredConfigParams = ['host', 'port', 'vhost', 'queue'];
-        $optionalConfigParams = ['user', 'pass'];
+        $requiredConfigParams = ['host', 'port', 'vhost', 'queue', 'exchange'];
+        $optionalConfigParams = ['user', 'pass', 'consumerTag'];
         $sslConfigParams = ['cafile', 'local_cert', 'local_pk', 'verify_peer', 'verify_peer_name'];
         // get required config params
         foreach ($requiredConfigParams as $param){
@@ -105,18 +107,17 @@ class MessageQueue extends Base
     protected function connect(): ?AMQPStreamConnection
     {
         // try to create connection
+        $this->log('connect to AMQP', 'info');
         try {
             // connect to AMQP
-            $this->connection = new AMQPSSLConnection(
+            $this->connection = new AMQPStreamConnection(
                 $this->config['host'],
                 $this->config['port'],
                 $this->config['user'],
                 $this->config['pass'],
-                $this->config['vhost'],
-                $this->config['sslOptions']
+                $this->config['vhost']
             );
             // return connection so Reader can work with  it.
-            return $this->connection;
         } catch (AMQPRuntimeException $e) {
             $this->log('AMQPRuntimeException Error encountered: ' . $e->getMessage(), 'error');
             $this->cleanup_connection();
@@ -130,46 +131,36 @@ class MessageQueue extends Base
             $this->cleanup_connection();
             return null;
         }
+
+        try {
+            // declare and bind queue
+            $this->channel = $this->connection->channel();
+            $this->channel->queue_declare($this->config['queue'], false, true, false, false);
+            $this->channel->exchange_declare($this->config['exchange'], AMQPExchangeType::DIRECT, false, true, false);
+            $this->channel->queue_bind($this->queue, $this->config['exchange']);
+        } catch (AMQPTimeoutException $ex) {
+            $this->log('AMQPTimeoutException encountered: ' . $ex->getMessage(), 'error');
+            return null;
+        } catch (Exception $ex) {
+            $this->log('Error encountered: ' . $ex->getMessage(), 'error');
+            return null;
+        }
+        return $this->connection;
     }
 
     public function canReadSource(string $source): bool
     {
+        return true; //test
         // connect to the AMQP Message Queue
-        $connection = $this->connect();
+        $this->connection = $this->connect();
         if (!$connection){
             return false;
         }else {
-            try {
-                // declare and bind queue
-                $this->channel = $connection->channel();
-                $this->channel->queue_declare($this->config['queue'], false, true, false, false);
-                $this->channel->exchange_declare($this->exchange, AMQPExchangeType::DIRECT, false, true, false);
-                $this->channel->queue_bind($this->queue, $this->exchange);
-            } catch (AMQPTimeoutException $ex) {
-                $this->log('AMQPTimeoutException encountered: ' . $ex->getMessage(), 'error');
-                return false;
-            } catch (Exception $ex) {
-                $this->log('Error encountered: ' . $ex->getMessage(), 'error');
-                return false;
-            }
             // Conection was successful
             return true;
         }
     }
 
-    function process_message($message)
-    {
-        echo "\n--------\n";
-        echo $message->body;
-        echo "\n--------\n";
-
-        $message->ack();
-
-        // Send a message with the string "quit" to cancel the consumer.
-        if ($message->body === 'quit') {
-            $message->getChannel()->basic_cancel($message->getConsumerTag());
-        }
-    }
 
     function shutdown($channel, $connection)
     {
@@ -177,10 +168,19 @@ class MessageQueue extends Base
         $connection->close();
     }
 
-    public function process(AMQPMessage $msg)
+    public function process_message(AMQPMessage $msg)
     {
         // push message to internal Queue
+        $this->log("MessageQueue received message ".$msg->getBody());
+
+        //TODO: TEST: early ACK message
+        $msg->ack();
+
         array_push($this->receivedMessages,$msg);
+    }
+
+    public function get_process_function() {
+        return [$this, 'process_message'];
     }
 
     /**
@@ -192,70 +192,11 @@ class MessageQueue extends Base
     public function initialiseWithSource($source)
     {
         parent::initialiseWithSource($source);
-
-        // connect to Queue and register Callback
-        // register process message callback
-        $this->channel->basic_consume($this->queue, $this->consumerTag, false, false, false, false, array($this, 'process'));
-        // register shutdown callback
-        register_shutdown_function('shutdown', $this->channel, $this->connection);
-        // Loop as long as the channel has callbacks registered
-        // $this->channel->consume();
-    }
-
-
-    /**
-     * Open the given source
-     *
-     * @param string $source
-     *
-     * @return void
-     *
-     * @throws \Exception
-     *   if the file couldn't be opened
-     */
-    protected function openFile(string $source)
-    {
-        if ($this->current_file_handle) {
-            $this->raiseException(E::ts("There is already an open file", [1 => $source]));
-        }
-
-        // check if accessible
-        if (!$this->canReadSource($source)) {
-            $this->raiseException(E::ts("Cannot open source '%1'.", [1 => $source]));
-        }
-
-        // open the file
-        $this->current_file_handle = fopen($source, 'r');
-        if (empty($this->current_file_handle)) {
-            $this->raiseException(E::ts("Cannot read source '%1'.", [1 => $source]));
-        }
-
-        // update state
-        $this->setCurrentFile($source);
-
-        // read first record
-        $this->lookahead_record = $this->readNextRecord();
     }
 
     public function hasMoreRecords(): bool
     {
         // always true because we want the reader to listen to the queue all the time
-        return true;
-    }
-
-    protected function setTimeout(): void
-    {
-        $processing_time_limit = $this->getConfigValue('processing_limit/processing_time');
-        $this->timeout = microtime(true) + (float) $processing_time_limit;
-    }
-
-    protected function shouldWait(): bool
-    {
-        $timestamp = microtime(true);
-        if ($this->timeout && $timestamp > $this->timeout) {
-            $this->log("Process time limit hit.");
-            return false;
-        }
         return true;
     }
 
@@ -270,22 +211,34 @@ class MessageQueue extends Base
      */
     public function getNextRecord(): ?array
     {
-        $this->setTimeout();
-        while($this->shouldWait()){
-            if (count($this->receivedMessages)) {
+        // create connection right here
+        $this->connection = $this->connect();
+
+        // consume
+        $callback = $this->get_process_function();
+        $this->channel->basic_consume($this->config['queue'], $this->config['consumerTag'], false, false, false, false, $callback);
+        // register shutdown callback
+        register_shutdown_function('shutdown', $this->channel, $this->connection);
+
+        $timeout = $this->getConfigValue('timeout');
+        while(count($this->channel->callbacks)) {
+            // Todo: Wait only until callback function was called
+            // Currently this is processing only one Message
+            $this->channel->wait(null, false, $timeout);
+            $this->log("****TEST****");
+
+            if (count($this->receivedMessages)>0) {
                 // get received message
                 $this->currentMessage = array_shift($this->receivedMessages);
 
-                // Todo: refactor message format
-                $this->current_file_handle = $this->currentMessage;
+                // decode Message
+                $this->current_record = json_decode($this->currentMessage->getBody(), true);
 
                 // return record
                 return $this->current_record;
-            }else{
-                // wait for message
-                usleep(30000);
             }
         }
+
         // if timed out throw TimeOutException
         throw new TimeoutException("Listening to Messages timed out.");
     }
@@ -296,73 +249,7 @@ class MessageQueue extends Base
      * @todo needed?
      */
     public function skipNextRecord() {
-        /*
-        if (empty($this->current_file_handle)) {
-            throw new \Exception("No file handle!");
-        }
 
-        // read record
-        $separator = $this->getConfigValue('csv_separator', ';');
-        $enclosure = $this->getConfigValue('csv_string_enclosure', '"');
-        $escape = $this->getConfigValue('csv_string_escape', '\\');
-        fgetcsv($this->current_file_handle, $separator, $enclosure, $escape);
-        */
-    }
-
-    /**
-     * Read the next record from the open file
-     */
-    public function readNextRecord() {
-        /*
-        if (empty($this->current_file_handle)) {
-            throw new \Exception("No file opened.");
-        }
-
-        // read record
-        // todo: move to class properties?
-        $separator = $this->getConfigValue('csv_separator', ';');
-        $enclosure = $this->getConfigValue('csv_string_enclosure', '"');
-        $escape = $this->getConfigValue('csv_string_escape', '\\');
-        $encoding = $this->getConfigValue('csv_string_encoding', 'UTF8');
-        $skip_empty_lines = $this->getConfigValue('skip_empty_lines', false);
-
-        $record = fgetcsv($this->current_file_handle, null, $separator, $enclosure, $escape);
-
-        // check for empty lines
-        if ($skip_empty_lines) {
-            if (is_array($record) && is_null(current($record)) && count($record) <= 1) {
-                // this is an empty line, move on to the next one
-                // todo: address recursion issue for files _only_ consisting of line breaks
-                $this->increaseLinesSkipped();
-                return $this->readNextRecord();
-            }
-        }
-
-
-
-        if ($record) {
-            // apply the encoding
-            // encode record using utf8_encode helper
-            if ($encoding != 'UTF8') {
-                if ($encoding == 'utf8_encode') {
-                    // use the utf8_encode function
-                    $new_record = [];
-                    foreach ($record as $key => $value) {
-                        $new_record[$key] = utf8_encode($value);
-                    }
-                    $record = $new_record;
-                } else {
-                    // use mb_convert
-                    $record = mb_convert_encoding($record, 'UTF8', $encoding);
-                }
-            }
-        } else {
-            // this should be the end of the file
-            $record = null;
-        }
-
-        return $record;
-        */
     }
 
     public function markLastRecordProcessed()
@@ -431,52 +318,21 @@ class MessageQueue extends Base
         $this->setStateValue('current_file', null);
     }
 
-
     /**
-     * Fix a mismatch of the column count of the headers,
-     *  and the number of entries in the record
+     * Mark the given resource as failed
      *
-     * @param array $file_headers
-     *   the column headers
-     *
-     * @param array $record
-     *   the record
-     *
-     * @return void
-     */
-    protected function fixHeaderRecordColumnMismatch(array &$file_headers, array &$record)
-    {
-        // if there are not enough headers, just add some generic ones
-        while (count($file_headers) < count($record)) {
-            $file_headers[] = "Column " . (count($file_headers) + 1);
-        }
-
-        // if there are not enough values, just add some empty ones
-        while (count($file_headers) > count($record)) {
-            $record[] = '';
-        }
-    }
-
-    /**
-     * Simply increases the 'lines_skipped' counter
-     */
-    protected function increaseLinesSkipped()
-    {
-        $lines_skipped = (int) $this->getStateValue('lines_skipped');
-        $lines_skipped++;
-        $this->setStateValue('lines_skipped', $lines_skipped);
-    }
-
-
-
+     **/
     public function cleanup_connection() {
         // Connection might already be closed.
-        // Ignoring exceptions.
         try {
             if(isset($this->connection)) {
                 $this->connection->close();
             }
         } catch (\ErrorException $e) {
+            $this->log('Error closing connection: ' . $e->getMessage(), 'error');
         }
     }
 }
+
+
+
