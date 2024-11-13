@@ -56,7 +56,7 @@ class CRM_Aip_Upgrader extends CRM_Extension_Upgrader_Base {
    * @return TRUE on success
    * @throws Exception
    */
-  public function upgrade_0002() {
+  public function upgrade_0002() : bool {
     $this->ctx->log->info('Updating "AIP" schema to version 1.1...');
 
     // add column: category
