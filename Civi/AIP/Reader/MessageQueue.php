@@ -175,7 +175,9 @@ class MessageQueue extends Base
 
         //TODO: TEST: early ACK message
         $msg->ack();
-
+        //Todo: Maybe a requirement will come up, that one message can contain several records.
+        // in this case we could decode message already here
+        // and then create several records from the received message
         array_push($this->receivedMessages,$msg);
     }
 
@@ -224,6 +226,9 @@ class MessageQueue extends Base
         while(count($this->channel->callbacks)) {
             // Todo: Wait only until callback function was called
             // Currently this is processing only one Message
+            // maybe this is ok, because getNextRecord is supposed to deliver only one record
+            // But maybe we should check if there are already messages in receiveMessages before we wait for new messages and after waiting for new messages
+
             $this->channel->wait(null, false, $timeout);
             $this->log("****TEST****");
 
