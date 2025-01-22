@@ -15,7 +15,6 @@
 
 namespace Civi\AIP;
 
-use Cassandra\Exception\TimeoutException;
 use Civi\AIP\Finder\Base    as Finder;
 use Civi\AIP\Reader\Base    as Reader;
 use Civi\AIP\Processor\Base as Processor;
@@ -26,6 +25,8 @@ use function GuzzleHttp\Psr7\str;
 
 /** Default timeout for the process no-parallel-execution lock */
 const DEFAULT_PROCESS_LOCK_TIMEOUT = 600; // 10 minutes
+
+class TimeoutException extends Exception {}
 
 /**
  * A PROCESS will enclose various components
