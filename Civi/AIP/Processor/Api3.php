@@ -35,12 +35,12 @@ class Api3 extends Base
   public function processRecord($record)
   {
     // we're going to do three steps:
-    // 1) filter the parameters
+    // 1) map the parameters
     $call_parameters = $record;
-    $call_parameters = $this->filterCallParameters($call_parameters);
-
-    // 2) map and prepare the parameters
     $call_parameters = $this->mapCallParameters($call_parameters);
+
+    // 2) filter and prepare the parameters
+    $call_parameters = $this->filterCallParameters($call_parameters);
     $call_parameters = $this->trimCallParameters($call_parameters);
 
     // 3) compile the API parameters
