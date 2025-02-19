@@ -70,8 +70,10 @@ class Api3 extends Base
     // restrict record to allowed parameters
     $positive_parameter_list = $this->getConfigValue('positive_parameter_list');
     if (is_array($positive_parameter_list)) {
-      foreach ($positive_parameter_list as $field_name) {
+      foreach ($parameters as $field_name => $field_value) {
+        $this->log("parameter:".$field_name, 'debug');
         if (!in_array($field_name, $positive_parameter_list)) {
+          $this->log("unset parameter:".$field_name, 'debug');
           unset($parameters[$field_name]);
         }
       }
