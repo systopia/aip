@@ -35,12 +35,12 @@ class Api3 extends Base
   public function processRecord($record)
   {
     // we're going to do three steps:
-    // 1) filter the parameters
+    // 1) map the parameters
     $call_parameters = $record;
-    $call_parameters = $this->filterCallParameters($call_parameters);
-
-    // 2) map and prepare the parameters
     $call_parameters = $this->mapCallParameters($call_parameters);
+
+    // 2) filter and prepare the parameters
+    $call_parameters = $this->filterCallParameters($call_parameters);
     $call_parameters = $this->trimCallParameters($call_parameters);
 
     // 3) compile the API parameters
@@ -70,8 +70,10 @@ class Api3 extends Base
     // restrict record to allowed parameters
     $positive_parameter_list = $this->getConfigValue('positive_parameter_list');
     if (is_array($positive_parameter_list)) {
-      foreach ($positive_parameter_list as $field_name) {
+      foreach ($parameters as $field_name => $field_value) {
+        $this->log("parameter:".$field_name, 'debug');
         if (!in_array($field_name, $positive_parameter_list)) {
+          $this->log("unset parameter:".$field_name, 'debug');
           unset($parameters[$field_name]);
         }
       }
