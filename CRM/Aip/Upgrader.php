@@ -72,6 +72,15 @@ class CRM_Aip_Upgrader extends CRM_Extension_Upgrader_Base {
     return TRUE;
   }
 
+    /**
+     * Upgrade to version 1.3
+     * @return TRUE on success
+     */
+  public function upgrade_0003() : bool {
+      CRM_Core_Session::setStatus("AIP does map parameters before filtering parameter now. Please check if your AIP Configuration needs changes");
+      return TRUE;
+  }
+
   /**
    * Example: Work with entities usually not available during the install step.
    *
