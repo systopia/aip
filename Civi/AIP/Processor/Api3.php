@@ -106,7 +106,7 @@ class Api3 extends Base
       foreach ($parameter_mapping as $old_field_name => $new_field_name) {
         if ($old_field_name == $new_field_name) continue;
 
-        if (is_null($this->getArrayValue($parameters,$old_field_name))) {
+        if (!is_null($this->getArrayValue($parameters,$old_field_name))) {
           $parameters[$new_field_name] = $this->getArrayValue($parameters,$old_field_name);
           unset($parameters[$old_field_name]);
         }
