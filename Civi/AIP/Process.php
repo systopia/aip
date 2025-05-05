@@ -205,7 +205,7 @@ class Process extends \Civi\AIP\AbstractComponent
           $this->processor->processRecord($record);
           $this->reader->markLastRecordProcessed();
         } catch (TimeoutException $exception) {
-            $this->log(E::ts("reader.getNextrecord Timed Out: %1", [1 => $exception->getMessage()]), 'warning');
+            $this->log(E::ts("reader.getNextrecord Timed Out: %1", [1 => $exception->getMessage()]), 'info');
         } catch (\Exception $exception) {
           $this->reader->markLastRecordFailed();
           $this->handleFailedRecord($record, $exception);
