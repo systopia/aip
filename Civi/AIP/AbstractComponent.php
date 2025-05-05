@@ -157,7 +157,25 @@ abstract class AbstractComponent
     // look for the value in the path
     $path = explode('/', $path);
     foreach ($path as $index => $key) {
-      $array = $array[$key] ?? null;
+      // Handle filter syntax like @type=Special
+      if ($key[0] == '@') {
+        preg_match('/^@(\w+)=(.+)$/', $key, $matches);
+        $filterKey = $matches[1];      // "type"
+        $filterValue = $matches[2];    // "Special"
+
+        // Find the first element in the array where $filterKey == $filterValue
+        $found = null;
+        foreach ($array as $item) {
+          if (is_array($item) && isset($item[$filterKey]) && $item[$filterKey] == $filterValue) {
+            $found = $item;
+            break;
+          }
+        }
+        $array = $found;
+      } else {
+        // Standard key access
+        $array = $array[$key] ?? null;
+      }
       if ($index == (count($path) - 1)) {
         return $array;
       }
