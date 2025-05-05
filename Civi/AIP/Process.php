@@ -26,6 +26,8 @@ use function GuzzleHttp\Psr7\str;
 /** Default timeout for the process no-parallel-execution lock */
 const DEFAULT_PROCESS_LOCK_TIMEOUT = 600; // 10 minutes
 
+class TimeoutException extends Exception {}
+
 /**
  * A PROCESS will enclose various components
  **/
@@ -198,10 +200,12 @@ class Process extends \Civi\AIP\AbstractComponent
       $this->reader->initialiseWithSource($source_url);
       $this->log('Reader initialised with source: ' . $source_url, 'info');
       while ($this->shouldProcessMoreRecords() && $this->reader->hasMoreRecords()) {
-        $record = $this->reader->getNextRecord();
         try {
+          $record = $this->reader->getNextRecord();
           $this->processor->processRecord($record);
           $this->reader->markLastRecordProcessed();
+        } catch (TimeoutException $exception) {
+            $this->log(E::ts("reader.getNextrecord Timed Out: %1", [1 => $exception->getMessage()]), 'info');
         } catch (\Exception $exception) {
           $this->reader->markLastRecordFailed();
           $this->handleFailedRecord($record, $exception);
