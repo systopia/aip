@@ -52,7 +52,11 @@ class Api3 extends Base
 
     // 4) Run the API call
     $this->log("Call API {$entity}.{$action} with parameters hash {$call_hash}", 'debug');
-    \civicrm_api3($entity, $action, $call_parameters);
+    $result = \civicrm_api3($entity, $action, $call_parameters);
+    if (!empty($this->getConfigValue('log/apicall'))) {
+      $this->log("Call API {$entity}.{$action} with parameters: ".var_export($call_parameters,true), 'debug');
+      $this->log("Call API {$entity}.{$action} response: ".var_export($result,true), 'debug');
+    }
 
     parent::processRecord($record);
   }
@@ -71,9 +75,7 @@ class Api3 extends Base
     $positive_parameter_list = $this->getConfigValue('positive_parameter_list');
     if (is_array($positive_parameter_list)) {
       foreach ($parameters as $field_name => $field_value) {
-        $this->log("parameter:".$field_name, 'debug');
         if (!in_array($field_name, $positive_parameter_list)) {
-          $this->log("unset parameter:".$field_name, 'debug');
           unset($parameters[$field_name]);
         }
       }
