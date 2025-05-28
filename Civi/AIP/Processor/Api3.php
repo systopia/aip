@@ -53,7 +53,7 @@ class Api3 extends Base
     // 4) Run the API call
     $this->log("Call API {$entity}.{$action} with parameters hash {$call_hash}", 'debug');
     $result = \civicrm_api3($entity, $action, $call_parameters);
-    if($this->getConfigValue('log/apicall') == '1') {
+    if (!empty($this->getConfigValue('log/apicall'))) {
       $this->log("Call API {$entity}.{$action} with parameters: ".var_export($call_parameters,true), 'debug');
       $this->log("Call API {$entity}.{$action} response: ".var_export($result,true), 'debug');
     }
