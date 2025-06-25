@@ -260,8 +260,11 @@ class Process extends \Civi\AIP\AbstractComponent
    */
   public function continueWithFailedRecord() : bool
   {
-    // todo: setting?
-    return false;
+    if(!is_null($this->getConfigValue('continue_with_failed_record'))){
+      return true;
+    }else{
+      return false;
+    }
   }
 
   public function getTypeName() : string
