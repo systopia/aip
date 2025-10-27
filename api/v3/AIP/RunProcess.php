@@ -37,7 +37,7 @@ function civicrm_api3_a_i_p_run_process($params)
 
   // verify pid parameter
   if (empty($params['pid'])) {
-    throw new CiviCRM_API3_Exception("Missing pid.");
+    throw new CRM_Core_Exception("Missing pid.");
   }
 
   // extract pIDs

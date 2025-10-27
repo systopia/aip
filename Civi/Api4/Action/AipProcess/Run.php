@@ -21,7 +21,6 @@ namespace Civi\Api4\Action\AipProcess;
 
 use \Civi\Api4\Generic\AbstractAction;
 use \Civi\Api4\Generic\Result;
-use CiviCRM_API3_Exception;
 use CRM_Core_Exception;
 
 /**
@@ -52,7 +51,7 @@ class Run extends AbstractAction {
     try {
       // todo refactor RUN implementation
       $api3_result = civicrm_api3('AIP', 'run_process', ['pid' => $this->process_id]);
-    } catch (CiviCRM_API3_Exception $exception) {
+    } catch (CRM_Core_Exception $exception) {
       throw new CRM_Core_Exception($exception->getMessage());
     }
     $result[] = $api3_result;

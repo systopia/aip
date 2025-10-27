@@ -63,7 +63,7 @@ class ProcessorExceptionTest extends TestBase implements HeadlessInterface, Hook
       \civicrm_api3('Contact', 'getsingle', ['email' => 'anto@exis.ts']);
       \civicrm_api3('Contact', 'getsingle', ['email' => 'berty@exis.ts']);
       \civicrm_api3('Contact', 'getsingle', ['email' => 'cc@exis.ts']);
-    } catch (\CiviCRM_API3_Exception $ex) {
+    } catch (\CRM_Core_Exception $ex) {
       $this->fail("Contacts not created, the API calls probably didn't go through!");
     }
   }
