@@ -13,7 +13,7 @@ The existing Implementation enables you to search for new csv-files with a regex
   - current impolemenation of APIv3-Processor calls an CiviCRM-APIv3-API with one element to import it (eg. calls an FormProcessor)
 - These import-Tasks can be scheduled with a Scheduled Job in CiviCRM to be performed on a regularly basis (eg. 1x per day / week/ ..)
 - to avoid running into php-timeouts AIP can be configured with a time-limit and store (remember) where it stopped processing an input source (eg. which line of a file).
-- offers an User-Interface to configure new and edit existing Input-Processing-Tasks
+- offers a User-Interface to configure new and edit existing Input-Processing-Tasks
 
  
 ## Requirements
@@ -38,7 +38,7 @@ cv en aip
 
 to configure AIP to read a csv-file from a folder, process every line and perform an API-Call to the Formprocessor perform the following steps:
 
-You have to create a inbox, processing, processed, uploading and failed folder:
+You have to create an inbox, processing, processed, uploading and failed folder:
 ```
 cd /path/to/folder
 mkdir inbox
@@ -77,8 +77,8 @@ To enable scheduled import-jobs go to `/civicrm/admin/job?action=add&reset=1`:
 
 ## Configuration with UI
 
-comming soon. 
-An User Interface is under development.
+Coming soon. 
+A User Interface is under development.
 
 
 ## Troubleshooting
