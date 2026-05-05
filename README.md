@@ -49,12 +49,39 @@ mkdir uploading
 touch processing.log
 ```
 
-then connect to the database of your civicrm-environment and enter the following SQL-Command to create a new AIP Process:
-```
-INSERT INTO civicrm_aip_process SET name="DigiAbo Importer",is_active=1,class="Civi\\AIP\\Process", config='{"finder":{"filter":{"file_name":"#your_input_file_pattern.*[.]csv#"},"folder":{"inbox":"\\/path\\/to\\/folder\\/inbox","processing":"\\/path\\/to\\/folder\\/processing","processed":"\\/path\\/to\\/folder\\/processed","uploading":"\\/path\\/to\\/folder\\/uploading","failed":"\\/path\\/to\\/folder\\/failed"},"class":"Civi\\\\AIP\\\\Finder\\\\DropFolderFinder"},"reader":{"csv_string_encoding":"UTF8","class":"Civi\\\\AIP\\\\Reader\\\\CSV","skip_empty_lines":1},"processor":{"api_entity":"FormProcessor", "api_action":"your_formprocessor","trim_parameters":"all","class":"Civi\\\\AIP\\\\Processor\\\\Api3"},"process":{"log":{"file":"\\/path\\/to\\/folder\\/processing.log", "level":"info"},"processing_limit":{"php_process_time":590}}}';
+then create a new AIP Process under **Administer → AIP Configuration** (`civicrm/aip_configuration`) and paste the following JSON into its `config` field:
+```json
+{
+  "finder": {
+    "class": "Civi\\AIP\\Finder\\DropFolderFinder",
+    "filter": { "file_name": "#your_input_file_pattern.*[.]csv#" },
+    "folder": {
+      "inbox":      "/path/to/folder/inbox",
+      "processing": "/path/to/folder/processing",
+      "processed":  "/path/to/folder/processed",
+      "uploading":  "/path/to/folder/uploading",
+      "failed":     "/path/to/folder/failed"
+    }
+  },
+  "reader": {
+    "class": "Civi\\AIP\\Reader\\CSV",
+    "csv_string_encoding": "UTF8",
+    "skip_empty_lines": 1
+  },
+  "processor": {
+    "class": "Civi\\AIP\\Processor\\Api3",
+    "api_entity": "FormProcessor",
+    "api_action": "your_formprocessor",
+    "trim_parameters": "all"
+  },
+  "process": {
+    "log": { "file": "/path/to/folder/processing.log", "level": "info" },
+    "processing_limit": { "php_process_time": 590 }
+  }
+}
 ```
 
-You have to adjust the configuration in the SQL-Statement to your needs. Here is a short explaination of the most important configuration options:
+You have to adjust the configuration to your needs. Here is a short explaination of the most important configuration options:
 - `finder.filter.file_name`: a regex pattern of the filenames to import
 - `finder.folder.inbox`: the folder to search for files to process (inbox)
 - `finder.folder.processing`: the folder AIP moves files to for processing
