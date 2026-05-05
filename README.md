@@ -19,7 +19,7 @@ The existing Implementation enables you to search for new csv-files with a regex
 ## Requirements
 
 * PHP v7.4+
-* CiviCRM (*FIXME: Version number*)
+* CiviCRM 5.50+
 
 
 ## Installation
@@ -51,7 +51,7 @@ touch processing.log
 
 then connect to the database of your civicrm-environment and enter the following SQL-Command to create a new AIP Process:
 ```
-INSERT INTO civicrm_aip_process SET name="DigiAbo Importer",is_active=1,class="Civi\\AIP\\Process", config='{"finder":{"filter":{"file_name":"#your_input_file_pattern.*[.]csv#"},"folder":{"inbox":"\\/path\\/to\\/folder\\/inbox","processing":"\\/path\\/to\\/folder\\/processing","processed":"\\/path\\/to\\/folder\\/processed","uploading":"\\/path\\/to\\/folder\\/uploading","failed":"mkdir failed/failed"},"class":"Civi\\\\AIP\\\\Finder\\\\DropFolderFinder"},"reader":{"csv_string_encoding":"UTF8","class":"Civi\\\\AIP\\\\Reader\\\\CSV","skip_empty_lines":1},"processor":{"api_entity":"FormProcessor", "api_action":"your_formprocessor","trim_parameters":"all","class":"Civi\\\\AIP\\\\Processor\\\\Api3"},"process":{"log":{"file":"\\/path\\/to\\/folder\\/processing.log", "level":"info"},"processing_limit":{"php_process_time":590}}}';
+INSERT INTO civicrm_aip_process SET name="DigiAbo Importer",is_active=1,class="Civi\\AIP\\Process", config='{"finder":{"filter":{"file_name":"#your_input_file_pattern.*[.]csv#"},"folder":{"inbox":"\\/path\\/to\\/folder\\/inbox","processing":"\\/path\\/to\\/folder\\/processing","processed":"\\/path\\/to\\/folder\\/processed","uploading":"\\/path\\/to\\/folder\\/uploading","failed":"\\/path\\/to\\/folder\\/failed"},"class":"Civi\\\\AIP\\\\Finder\\\\DropFolderFinder"},"reader":{"csv_string_encoding":"UTF8","class":"Civi\\\\AIP\\\\Reader\\\\CSV","skip_empty_lines":1},"processor":{"api_entity":"FormProcessor", "api_action":"your_formprocessor","trim_parameters":"all","class":"Civi\\\\AIP\\\\Processor\\\\Api3"},"process":{"log":{"file":"\\/path\\/to\\/folder\\/processing.log", "level":"info"},"processing_limit":{"php_process_time":590}}}';
 ```
 
 You have to adjust the configuration in the SQL-Statement to your needs. Here is a short explaination of the most important configuration options:
@@ -77,8 +77,8 @@ To enable scheduled import-jobs go to `/civicrm/admin/job?action=add&reset=1`:
 
 ## Configuration with UI
 
-Coming soon. 
-A User Interface is under development.
+Available under **Administer → AIP Configuration** (route `civicrm/aip_configuration`).
+The `config` field expects the same JSON as in the SQL example above. Folders still have to be created manually.
 
 
 ## Troubleshooting
