@@ -54,12 +54,12 @@ class DropFolderFinder extends Base {
       $folder_path = $this->getConfigValue($folder_setting);
 
       // folders have to be set
-      if (empty($folder_path)) {
+      if ($folder_path === NULL || $folder_path === '') {
         throw new \Exception(E::ts("Folder '%1' is not configured.", [1 => $folder_path]));
       }
 
       // folders have to be different
-      if (in_array($folder_path, $all_folder_paths)) {
+      if (in_array($folder_path, $all_folder_paths, TRUE)) {
         throw new \Exception(E::ts("Folder '%1' is used for multiple stages.", [1 => $folder_path]));
       }
 
@@ -104,7 +104,7 @@ class DropFolderFinder extends Base {
     // find the files
     foreach ($files as $file) {
       // exclude directory links
-      if (in_array($file, ['.', '..'])) {
+      if (in_array($file, ['.', '..'], TRUE)) {
         continue;
       }
 
@@ -113,7 +113,7 @@ class DropFolderFinder extends Base {
 
       // only investigate files we can access
       $this->log(E::ts("Investigating file '%1'...", [1 => $file_path]));
-      if (empty($file_name_filter) || preg_match($file_name_filter, $file_path)) {
+      if ($file_name_filter === NULL || $file_name_filter === '' || preg_match($file_name_filter, $file_path)) {
         // this could be a file for us...
         if (is_file($file_path) && is_readable($file_path)) {
           return $file_path;

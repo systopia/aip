@@ -58,7 +58,7 @@ class JSON extends Base {
       // file exists and is readable, check for the file type
       $file_type = mime_content_type($source);
 
-      if (!in_array($file_type, ['application/json'])) {
+      if (!in_array($file_type, ['application/json'], TRUE)) {
         $this->log(E::ts("Cannot process files of type '%1'.", [1 => $file_type]), 'warning');
         return FALSE;
       }
@@ -84,7 +84,7 @@ class JSON extends Base {
 
     // check if we're working on the same file
     $previous_file = $this->getCurrentFile();
-    if ($previous_file != $source) {
+    if ($previous_file !== $source) {
       // reset processed record index
       $this->resetState();
       $this->setCurrentFile($source);
@@ -172,7 +172,7 @@ class JSON extends Base {
 
       // apply path
       $path = $this->getConfigValue('path');
-      if ($path) {
+      if ((bool) $path) {
         $path = explode('/', $path);
         foreach ($path as $path_element) {
           $record = $record[$path_element] ?? NULL;

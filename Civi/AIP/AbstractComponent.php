@@ -151,7 +151,7 @@ abstract class AbstractComponent {
     $path = explode('/', $path);
     foreach ($path as $index => $key) {
       // Handle filter syntax like @type=Special
-      if ($key[0] == '@') {
+      if ($key[0] === '@') {
         preg_match('/^@(\w+)=(.+)$/', $key, $matches);
         // "type"
         $filterKey = $matches[1];
@@ -161,7 +161,7 @@ abstract class AbstractComponent {
         // Find the first element in the array where $filterKey == $filterValue
         $found = NULL;
         foreach ($array as $item) {
-          if (is_array($item) && isset($item[$filterKey]) && $item[$filterKey] == $filterValue) {
+          if (is_array($item) && isset($item[$filterKey]) && (string) $item[$filterKey] === $filterValue) {
             $found = $item;
             break;
           }
@@ -172,7 +172,7 @@ abstract class AbstractComponent {
         // Standard key access
         $array = $array[$key] ?? NULL;
       }
-      if ($index == (count($path) - 1)) {
+      if ($index === (count($path) - 1)) {
         return $array;
       }
     }
@@ -199,7 +199,7 @@ abstract class AbstractComponent {
     // iterate through the path
     $path = explode('/', $path);
     foreach ($path as $index => $key) {
-      if ($index == (count($path) - 1)) {
+      if ($index === (count($path) - 1)) {
         // this is the element we're looking for
         $array[$key] = $value;
         break;
@@ -278,19 +278,19 @@ abstract class AbstractComponent {
 
       default:
       case 'warning':
-        if (in_array($min_log_level, ['debug', 'info', 'warning'])) {
+        if (in_array($min_log_level, ['debug', 'info', 'warning'], TRUE)) {
           $this->writeLogMessage($message, $log_level);
         }
         break;
 
       case 'info':
-        if (in_array($min_log_level, ['info', 'debug'])) {
+        if (in_array($min_log_level, ['info', 'debug'], TRUE)) {
           $this->writeLogMessage($message, $log_level);
         }
         break;
 
       case 'debug':
-        if (in_array($min_log_level, ['debug'])) {
+        if (in_array($min_log_level, ['debug'], TRUE)) {
           $this->writeLogMessage($message, $log_level);
         }
         break;
@@ -311,12 +311,12 @@ abstract class AbstractComponent {
   // phpcs:ignore Generic.Metrics.CyclomaticComplexity.TooHigh
   protected function writeLogMessage(string $message, $log_level) {
     $log_file = $this->getConfigValue('log/file');
-    if (empty($log_file)) {
+    if ($log_file === NULL || $log_file === '') {
       // use the processor's one
       $log_file = $this->process->getConfigValue('log/file');
     }
 
-    if (empty($log_file)) {
+    if ($log_file === NULL || $log_file === '') {
       // if still empty: log to CiviCRM standard log
       switch ($log_level) {
         case 'debug':
@@ -380,7 +380,7 @@ abstract class AbstractComponent {
     // todo: harmonise logging
     switch ($log_level) {
       case 'info':
-        if (in_array($max_log_level, ['debug', 'info'])) {
+        if (in_array($max_log_level, ['debug', 'info'], TRUE)) {
           \Civi::log()->info($message);
         }
         break;

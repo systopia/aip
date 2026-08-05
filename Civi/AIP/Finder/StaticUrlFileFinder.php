@@ -53,7 +53,7 @@ class StaticUrlFileFinder extends Base {
    */
   public function findNextSource(): ?string {
     $file_url = $this->getConfigValue('url');
-    if (empty($file_url)) {
+    if ($file_url === NULL || $file_url === '') {
       throw new \Exception("No 'url' set");
     }
 
@@ -65,9 +65,9 @@ class StaticUrlFileFinder extends Base {
 
       // check if source has changed
       $detect_changes = $this->getConfigValue('detect_changes');
-      if ($detect_changes) {
+      if ((bool) $detect_changes) {
         $previously_processed_checksum = $this->getStateValue('previous_file_checksum');
-        if ($data_checksum && $data_checksum == $previously_processed_checksum) {
+        if ($data_checksum && $data_checksum === $previously_processed_checksum) {
           $this->log("The source '{$file_url}' had already been processed");
           return NULL;
         }
@@ -75,7 +75,7 @@ class StaticUrlFileFinder extends Base {
 
       // first: create a local temp file
       $local_file = $this->getStateValue('local_copy');
-      if (empty($local_file)) {
+      if ($local_file === NULL || $local_file === '') {
         $local_file = tempnam(sys_get_temp_dir(), 'aip-' . $this->getProcess()->getID() . '-local-');
         $this->setStateValue('local_copy', $local_file);
       }
@@ -135,7 +135,7 @@ class StaticUrlFileFinder extends Base {
    */
   public function removeLocalFileCopy() {
     $local_copy = $this->getStateValue('local_copy');
-    if ($local_copy) {
+    if ((bool) $local_copy) {
       $this->setStateValue('local_copy', NULL);
       if (file_exists($local_copy)) {
         $this->log("Removed local file copy '{$local_copy}'.");

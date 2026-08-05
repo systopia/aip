@@ -109,7 +109,7 @@ class Process extends \Civi\AIP\AbstractComponent {
   protected function prepareForRun() {
     // calculate processor timeout (individual processing)
     $processing_time_limit = $this->getConfigValue('processing_limit/processing_time');
-    if ($processing_time_limit) {
+    if ((bool) $processing_time_limit) {
       if (is_numeric($processing_time_limit)) {
         // this expressed as a number of seconds
         $this->timeout = microtime(TRUE) + (float) $processing_time_limit;
@@ -128,7 +128,7 @@ class Process extends \Civi\AIP\AbstractComponent {
 
     // set total runtime timeout
     $php_process_time_limit = $this->getConfigValue('processing_limit/php_process_time');
-    if ($php_process_time_limit) {
+    if ((bool) $php_process_time_limit) {
       if (is_numeric($php_process_time_limit)) {
         // this expressed as a number of seconds
         $process_time_ms = (float) $php_process_time_limit;
@@ -471,11 +471,11 @@ class Process extends \Civi\AIP\AbstractComponent {
   public function handleFailedRecord($record, $exception) {
     // check setting
     $store_failed_record = $this->getConfigValue('use_aip_error_log');
-    if (!empty($store_failed_record)) {
+    if ((bool) $store_failed_record) {
       // we want to store the failed record in the civicrm_aip_error_log table!
 
       // first, make sure the ID exists:
-      if (empty($this->id)) {
+      if ($this->id === 0) {
         $this->store();
       }
 

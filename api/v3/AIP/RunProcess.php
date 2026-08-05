@@ -38,7 +38,7 @@ function civicrm_api3_a_i_p_run_process($params) {
   $session_processed = 0;
 
   // verify pid parameter
-  if (empty($params['pid'])) {
+  if (!isset($params['pid']) || $params['pid'] === '') {
     throw new CRM_Core_Exception('Missing pid.');
   }
 

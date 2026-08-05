@@ -52,7 +52,7 @@ class Api3 extends Base {
     // 4) Run the API call
     $this->log("Call API {$entity}.{$action} with parameters hash {$call_hash}", 'debug');
     $result = \civicrm_api3($entity, $action, $call_parameters);
-    if (!empty($this->getConfigValue('log/apicall'))) {
+    if ((bool) $this->getConfigValue('log/apicall')) {
       $this->log("Call API {$entity}.{$action} with parameters: " . var_export($call_parameters, TRUE), 'debug');
       $this->log("Call API {$entity}.{$action} response: " . var_export($result, TRUE), 'debug');
     }
@@ -73,7 +73,7 @@ class Api3 extends Base {
     $positive_parameter_list = $this->getConfigValue('positive_parameter_list');
     if (is_array($positive_parameter_list)) {
       foreach ($parameters as $field_name => $field_value) {
-        if (!in_array($field_name, $positive_parameter_list)) {
+        if (!in_array($field_name, $positive_parameter_list, TRUE)) {
           unset($parameters[$field_name]);
         }
       }
@@ -103,7 +103,7 @@ class Api3 extends Base {
     $parameter_mapping = $this->getConfigValue('parameter_mapping');
     if (is_array($parameter_mapping)) {
       foreach ($parameter_mapping as $old_field_name => $new_field_name) {
-        if ($old_field_name == $new_field_name) {
+        if ((string) $old_field_name === (string) $new_field_name) {
           continue;
         }
 
@@ -136,7 +136,7 @@ class Api3 extends Base {
   protected function trimCallParameters(array $parameters) : array {
     // trim/truncate parameters
     $parameter_trimming = $this->getConfigValue('trim_parameters');
-    if ($parameter_trimming == 'all') {
+    if ($parameter_trimming === 'all') {
       foreach ($parameters as $key => &$value) {
         $value = trim($value);
       }

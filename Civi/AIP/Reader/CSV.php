@@ -78,7 +78,7 @@ class CSV extends Base {
       // file exists and is readable, check for the file type
       $file_type = mime_content_type($source);
 
-      if (!in_array($file_type, ['text/csv', 'text/plain'])) {
+      if (!in_array($file_type, ['text/csv', 'text/plain'], TRUE)) {
         $this->log(E::ts("Cannot process files of type '%1'.", [1 => $file_type]), 'warning');
         return FALSE;
       }
@@ -105,7 +105,7 @@ class CSV extends Base {
     // check if we're working on another file
     $this->current_record = NULL;
     $current_file = $this->getCurrentFile();
-    if ($current_file == $source) {
+    if ($current_file === $source) {
       // same file: we should restart/resume where we left off:
       // 1) open file
       $this->openFile($current_file);
@@ -154,7 +154,7 @@ class CSV extends Base {
 
     // open the file
     $this->current_file_handle = fopen($source, 'r');
-    if (empty($this->current_file_handle)) {
+    if ($this->current_file_handle === NULL || $this->current_file_handle === FALSE) {
       $this->raiseException(E::ts("Cannot read source '%1'.", [1 => $source]));
     }
 
@@ -189,7 +189,7 @@ class CSV extends Base {
         // todo: setting to disable labelling?
 
         $file_headers = $this->current_file_headers;
-        if (count($record) != count($file_headers)) {
+        if (count($record) !== count($file_headers)) {
           $this->fixHeaderRecordColumnMismatch($file_headers, $record);
         }
         $record = array_combine($file_headers, $record);
@@ -219,7 +219,7 @@ class CSV extends Base {
    * @todo needed?
    */
   public function skipNextRecord() {
-    if (empty($this->current_file_handle)) {
+    if ($this->current_file_handle === NULL || $this->current_file_handle === FALSE) {
       throw new \Exception('No file handle!');
     }
 
@@ -234,7 +234,7 @@ class CSV extends Base {
    * Read the next record from the open file
    */
   public function readNextRecord() {
-    if (empty($this->current_file_handle)) {
+    if ($this->current_file_handle === NULL || $this->current_file_handle === FALSE) {
       throw new \Exception('No file opened.');
     }
 
@@ -249,7 +249,7 @@ class CSV extends Base {
     $record = fgetcsv($this->current_file_handle, NULL, $separator, $enclosure, $escape);
 
     // check for empty lines
-    if ($skip_empty_lines) {
+    if ((bool) $skip_empty_lines) {
       if (is_array($record) && current($record) === NULL && count($record) <= 1) {
         // this is an empty line, move on to the next one
         // todo: address recursion issue for files _only_ consisting of line breaks
@@ -261,8 +261,8 @@ class CSV extends Base {
     if ($record) {
       // apply the encoding
       // encode record using utf8_encode helper
-      if ($encoding != 'UTF8') {
-        if ($encoding == 'utf8_encode') {
+      if ($encoding !== 'UTF8') {
+        if ($encoding === 'utf8_encode') {
           // utf8_encode() is deprecated as of PHP 8.2; it only ever converted
           // ISO-8859-1 to UTF-8, so mb_convert_encoding() is the direct replacement.
           $new_record = [];
