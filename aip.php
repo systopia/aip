@@ -1,4 +1,5 @@
 <?php
+// phpcs:disable PSR1.Files.SideEffects.FoundWithSymbols
 
 require_once 'aip.civix.php';
 // phpcs:disable
@@ -35,17 +36,16 @@ function aip_civicrm_enable(): void {
   _aip_civix_civicrm_enable();
 }
 
-function aip_civicrm_entityTypes(&$entityTypes)
-{
+function aip_civicrm_entityTypes(&$entityTypes) {
   $entityTypes['CRM_Aip_DAO_AipErrorLog'] = [
-          'name' => 'AipErrorLog',
-          'class' => 'CRM_Aip_DAO_AipErrorLog',
-          'table' => 'civicrm_aip_error_log'
+    'name' => 'AipErrorLog',
+    'class' => 'CRM_Aip_DAO_AipErrorLog',
+    'table' => 'civicrm_aip_error_log',
   ];
   $entityTypes['CRM_Aip_DAO_AipProcess'] = [
-          'name' => 'AipProcess',
-          'class' => 'CRM_Aip_DAO_AipProcess',
-          'table' => 'civicrm_aip_process'
+    'name' => 'AipProcess',
+    'class' => 'CRM_Aip_DAO_AipProcess',
+    'table' => 'civicrm_aip_process',
   ];
 }
 

@@ -20,14 +20,14 @@ use CRM_Aip_ExtensionUtil as E;
 /**
  * This is a simple JSON file reader
  *
-  ************ STATE VALUES ************************
+ * *********** STATE VALUES ************************
  * current_file            file currently working on
  * last_processed_index    index number, null for none
  * processed_record_count  number of records processed
  * failed_record_count     number of records failed to process
  */
-class JSON extends Base
-{
+class JSON extends Base {
+
   public function __construct() {
     parent::__construct();
   }
@@ -35,9 +35,9 @@ class JSON extends Base
   /**
    * The file this is working on
    *
-   * @var string $current_file;
+   * @var string
    */
-  protected $current_file = null;
+  protected $current_file = NULL;
 
   /**
    * @var int index of the next record to be returned
@@ -47,27 +47,27 @@ class JSON extends Base
   /**
    * All records contained by the JSON source
    *
-   * @var ?array $all_records
+   * @var ?array
    */
-  protected ?array $all_records = null;
+  protected ?array $all_records = NULL;
 
-  public function canReadSource(string $source): bool
-  {
+  public function canReadSource(string $source): bool {
     if (parent::canReadSource($source)) {
       // file exists and is readable, check for the file type
       $file_type = mime_content_type($source);
 
       if (!in_array($file_type, ['application/json'])) {
         $this->log(E::ts("Cannot process files of type '%1'.", [1 => $file_type]), 'warning');
-        return false;
+        return FALSE;
       }
 
       // looks good
-      return true;
+      return TRUE;
 
-    } else {
+    }
+    else {
       // parent class check already says: cannot access
-      return false;
+      return FALSE;
     }
   }
 
@@ -77,8 +77,7 @@ class JSON extends Base
    * @throws \Exception
    *   any issues with opening/reading the file
    */
-  public function initialiseWithSource($source)
-  {
+  public function initialiseWithSource($source) {
     parent::initialiseWithSource($source);
 
     // check if we're working on the same file
@@ -89,33 +88,37 @@ class JSON extends Base
       $this->setCurrentFile($source);
       $this->log("Started processing file '{$source}'.", 'debug');
 
-    } else {
+    }
+    else {
       // resume the file
       $this->next_record_index = $this->getProcessedRecordCount() + $this->getFailedRecordCount();
-      if ($this->next_record_index) $this->log("Resume: skipped {$this->next_record_index} previously processed record(s).", 'info');
+      if ($this->next_record_index) {
+        $this->log("Resume: skipped {$this->next_record_index} previously processed record(s).", 'info');
+      }
     }
 
     // try and open the file
     try {
       // todo: check if 'file_get_contents' can process URLs, including credentials?
       $current_file_content = file_get_contents($source);
-    } catch (\Exception $ex) {
+    }
+    catch (\Exception $ex) {
       $this->log("Couldn't open file '{$source}' for reading", 'error');
       throw $ex;
     }
 
     // parse the JSON
     try {
-      $this->all_records = json_decode($current_file_content, true);
+      $this->all_records = json_decode($current_file_content, TRUE);
       $record_count = count($this->all_records);
       $this->log("JSON file '{$source}' contains {$record_count} records.");
-    } catch (\Exception $exception) {
+    }
+    catch (\Exception $exception) {
       $this->log("Couldn't parse JSON file '{$source}'", 'error');
       $this->markSourceFailed($source);
       $this->all_records = [];
     }
   }
-
 
   /**
    * Open the given source
@@ -127,10 +130,9 @@ class JSON extends Base
    * @throws \Exception
    *   if the file couldn't be opened
    */
-  protected function openFile(string $source)
-  {
+  protected function openFile(string $source) {
     if ($this->current_file_handle) {
-      $this->raiseException(E::ts("There is already an open file", [1 => $source]));
+      $this->raiseException(E::ts('There is already an open file', [1 => $source]));
     }
 
     // check if accessible
@@ -142,8 +144,7 @@ class JSON extends Base
     $this->setCurrentFile($source);
   }
 
-  public function hasMoreRecords(): bool
-  {
+  public function hasMoreRecords(): bool {
     return count($this->all_records) > $this->next_record_index;
   }
 
@@ -156,15 +157,14 @@ class JSON extends Base
    * @throws \Exception
    *   if there is a read error
    */
-  public function getNextRecord(): ?array
-  {
+  public function getNextRecord(): ?array {
     if ($this->hasMoreRecords()) {
-      $record = $this->all_records[$this->next_record_index] ?? null;
+      $record = $this->all_records[$this->next_record_index] ?? NULL;
       $this->next_record_index++;
 
-      if (!is_array($record)){
+      if (!is_array($record)) {
         // there was an error reading the record
-        $this->log("Failed to read record, data type is: " . gettype($record), 'error');
+        $this->log('Failed to read record, data type is: ' . gettype($record), 'error');
         throw new \Exception("Couldn't read record.");
       }
 
@@ -173,24 +173,23 @@ class JSON extends Base
       if ($path) {
         $path = explode('/', $path);
         foreach ($path as $path_element) {
-          $record = $record[$path_element] ?? null;
+          $record = $record[$path_element] ?? NULL;
         }
       }
 
       return $record;
-    } else {
-      return null;
+    }
+    else {
+      return NULL;
     }
   }
 
-  public function markLastRecordProcessed()
-  {
+  public function markLastRecordProcessed() {
     $this->records_processed_in_this_session++;
     $this->setProcessedRecordCount($this->getProcessedRecordCount() + 1);
   }
 
-  public function markLastRecordFailed()
-  {
+  public function markLastRecordFailed() {
     $this->records_processed_in_this_session++;
     $this->setFailedRecordCount($this->getFailedRecordCount() + 1);
   }
@@ -200,8 +199,7 @@ class JSON extends Base
    *
    * @return string the current file path/url
    */
-  public function getCurrentFile() : ?string
-  {
+  public function getCurrentFile() : ?string {
     return $this->getStateValue('current_file');
   }
 
@@ -210,15 +208,13 @@ class JSON extends Base
    *
    * @param $file string the current file path/url
    */
-  protected function setCurrentFile($file)
-  {
+  protected function setCurrentFile($file) {
     return $this->setStateValue('current_file', $file);
   }
 
-  public function resetState()
-  {
-    $this->setStateValue('current_file', null);
-    $this->all_records = null;
+  public function resetState() {
+    $this->setStateValue('current_file', NULL);
+    $this->all_records = NULL;
     $this->next_record_index = 0;
     parent::resetState();
   }
@@ -229,9 +225,8 @@ class JSON extends Base
    * @param string $uri
    *   an URI to marked processed/completed
    */
-  public function markSourceProcessed(string $uri)
-  {
-    $this->setStateValue('current_file', null);
+  public function markSourceProcessed(string $uri) {
+    $this->setStateValue('current_file', NULL);
   }
 
   /**
@@ -240,8 +235,8 @@ class JSON extends Base
    * @param string $uri
    *   an URI to marked as FAILED
    */
-  public function markSourceFailed(string $uri)
-  {
-    $this->setStateValue('current_file', null);
+  public function markSourceFailed(string $uri) {
+    $this->setStateValue('current_file', NULL);
   }
+
 }

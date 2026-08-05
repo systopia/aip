@@ -18,7 +18,6 @@ namespace Civi\AIP;
 use Civi\Test\HeadlessInterface;
 use Civi\Test\HookInterface;
 use Civi\Test\TransactionalInterface;
-use \Civi\Test\Api3TestTrait;
 
 /**
  * Basic DropFolder Finder
@@ -26,13 +25,12 @@ use \Civi\Test\Api3TestTrait;
  * @group headless
  *
  */
-class DropFolderFinderTest extends TestBase implements HeadlessInterface, HookInterface, TransactionalInterface
-{
+class DropFolderFinderTest extends TestBase implements HeadlessInterface, HookInterface, TransactionalInterface {
+
   /**
    * Create a simple process (DropFolderFinder, CSV reader, Api3 processor)
    */
-  public function testSetup()
-  {
+  public function testSetup() {
     // create finder
     $finder = new Finder\DropFolderFinder();
     $finder->setConfigValue('filter/file_name', '#[a-z0-9]+.csv#');
@@ -70,7 +68,8 @@ class DropFolderFinderTest extends TestBase implements HeadlessInterface, HookIn
       \civicrm_api3('Contact', 'getsingle', ['email' => 'anto@exis.ts']);
       \civicrm_api3('Contact', 'getsingle', ['email' => 'berty@exis.ts']);
       \civicrm_api3('Contact', 'getsingle', ['email' => 'cc@exis.ts']);
-    } catch (\CRM_Core_Exception $ex) {
+    }
+    catch (\CRM_Core_Exception $ex) {
       $this->fail("Contacts not created, the API calls probably didn't go through!");
     }
   }
@@ -78,8 +77,7 @@ class DropFolderFinderTest extends TestBase implements HeadlessInterface, HookIn
   /**
    * Create a 'faulty' process (DropFolderFinder, CSV reader, ExceptionTest processor)
    */
-  public function testProcessorException()
-  {
+  public function testProcessorException() {
     // create finder
     $finder = new Finder\DropFolderFinder();
     $finder->setConfigValue('filter/file_name', '#[a-z0-9]+.csv#');
@@ -116,8 +114,7 @@ class DropFolderFinderTest extends TestBase implements HeadlessInterface, HookIn
    * Create a 'faulty' process (DropFolderFinder, CSV reader, ExceptionTest processor)
    * AND check if the writing out of records worked
    */
-  public function testProcessorExceptionLog()
-  {
+  public function testProcessorExceptionLog() {
     // create finder
     $finder = new Finder\DropFolderFinder();
     $finder->setConfigValue('filter/file_name', '#[a-z0-9]+.csv#');
@@ -144,11 +141,12 @@ class DropFolderFinderTest extends TestBase implements HeadlessInterface, HookIn
     $process->run();
 
     // check the record
-    $record = \CRM_Core_DAO::executeQuery("SELECT * FROM civicrm_aip_error_log WHERE process_id = %1;", [1 => [$process->getID(), 'Integer']]);
+    $record = \CRM_Core_DAO::executeQuery('SELECT * FROM civicrm_aip_error_log WHERE process_id = %1;', [1 => [$process->getID(), 'Integer']]);
     $record->fetch();
     $this->assertEquals('oh-oh', $record->error_message, "The error messages does not match the exceptions' error message");
-    $this->assertEqualsWithDelta(strtotime('now'), strtotime($record->error_timestamp), 1.0, "The error messages timestamp is off.");
-    $this->assertIsArray(json_decode($record->data, true), "The data was not stored as a JSON array");
-    $this->assertNotEmpty(json_decode($record->data, true), "The data was not stored as a JSON array");
+    $this->assertEqualsWithDelta(strtotime('now'), strtotime($record->error_timestamp), 1.0, 'The error messages timestamp is off.');
+    $this->assertIsArray(json_decode($record->data, TRUE), 'The data was not stored as a JSON array');
+    $this->assertNotEmpty(json_decode($record->data, TRUE), 'The data was not stored as a JSON array');
   }
+
 }

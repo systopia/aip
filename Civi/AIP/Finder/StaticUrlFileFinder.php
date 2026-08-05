@@ -26,8 +26,8 @@ use PHPUnit\Exception;
  *  detect_changes - discard the source file if it has already been processed
  *                     (using checksum)
  **/
-class StaticUrlFileFinder extends Base
-{
+class StaticUrlFileFinder extends Base {
+
   /**
    * Check if the component is ready,
    *   i.e. configured correctly.
@@ -36,14 +36,12 @@ class StaticUrlFileFinder extends Base
    *   an exception will be thrown if something's wrong with the
    *     configuration or state
    */
-  public function verifyConfiguration()
-  {
+  public function verifyConfiguration() {
     // looks good.
   }
 
-  public function getTypeName() : string
-  {
-    return E::ts("File Finder");
+  public function getTypeName() : string {
+    return E::ts('File Finder');
   }
 
   /**
@@ -51,8 +49,7 @@ class StaticUrlFileFinder extends Base
    *
    * @return ?string
    */
-  public function findNextSource(): ?string
-  {
+  public function findNextSource(): ?string {
     $file_url = $this->getConfigValue('url');
     if (empty($file_url)) {
       throw new \Exception("No 'url' set");
@@ -70,14 +67,14 @@ class StaticUrlFileFinder extends Base
         $previously_processed_checksum = $this->getStateValue('previous_file_checksum');
         if ($data_checksum && $data_checksum == $previously_processed_checksum) {
           $this->log("The source '{$file_url}' had already been processed");
-          return null;
+          return NULL;
         }
       }
 
       // first: create a local temp file
       $local_file = $this->getStateValue('local_copy');
       if (empty($local_file)) {
-        $local_file = tempnam(sys_get_temp_dir(), "aip-" . $this->getProcess()->getID() . '-local-');
+        $local_file = tempnam(sys_get_temp_dir(), 'aip-' . $this->getProcess()->getID() . '-local-');
         $this->setStateValue('local_copy', $local_file);
       }
       file_put_contents($local_file, $data);
@@ -85,9 +82,10 @@ class StaticUrlFileFinder extends Base
 
       return $local_file;
 
-    } catch (Exception $ex) {
+    }
+    catch (Exception $ex) {
       $this->log('Error encountered: ' . $ex->getMessage(), 'warn');
-      return null;
+      return NULL;
     }
   }
 
@@ -97,11 +95,10 @@ class StaticUrlFileFinder extends Base
    * @param string $file_path
    *   this should be the file path
    *
-   * @return string $uri
-   *    the resulting URI (likely the same)
+   * @return string
+   *   the resulting URI (likely the same)
    */
-  public function claimSource(string $file_path)
-  {
+  public function claimSource(string $file_path) {
     // nothing to do here
     return $file_path;
   }
@@ -112,11 +109,10 @@ class StaticUrlFileFinder extends Base
    * @param string $file_path
    *   this should be the file path
    */
-  public function markSourceProcessed(string $file_path)
-  {
+  public function markSourceProcessed(string $file_path) {
     // nothing to do here
     $this->removeLocalFileCopy();
-    return true;
+    return TRUE;
   }
 
   /**
@@ -125,22 +121,20 @@ class StaticUrlFileFinder extends Base
    * @param string $file_path
    *   this should be the file path
    */
-  public function markSourceFailed(string $file_path)
-  {
+  public function markSourceFailed(string $file_path) {
     // nothing to do here
     $this->removeLocalFileCopy();
-    return true;
+    return TRUE;
   }
 
   /**
    * Make sure that any local copy of the file is deleted
    * @return void
    */
-  public function removeLocalFileCopy()
-  {
+  public function removeLocalFileCopy() {
     $local_copy = $this->getStateValue('local_copy');
     if ($local_copy) {
-      $this->setStateValue('local_copy', null);
+      $this->setStateValue('local_copy', NULL);
       if (file_exists($local_copy)) {
         $this->log("Removed local file copy '{$local_copy}'.");
         unlink($local_copy);

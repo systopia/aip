@@ -18,9 +18,9 @@ namespace Civi\AIP\Reader;
 use Civi\AIP\AbstractComponent;
 use CRM_Aip_ExtensionUtil as E;
 
-abstract class Base extends AbstractComponent
-{
-  /** @var int counting the records processed in this session */
+abstract class Base extends AbstractComponent {
+  /**
+   * @var int counting the records processed in this session */
   protected int $records_processed_in_this_session = 0;
 
   /**
@@ -49,8 +49,7 @@ abstract class Base extends AbstractComponent
   /**
    * Mark the last record as delivered by getNextRecord() as processed
    */
-  public function markLastRecordProcessed()
-  {
+  public function markLastRecordProcessed() {
     $this->records_processed_in_this_session++;
     $processed_record_count = $this->getProcessedRecordCount();
     $this->setProcessedRecordCount($processed_record_count + 1);
@@ -60,16 +59,14 @@ abstract class Base extends AbstractComponent
    * Get the
    * @return int
    */
-  public function getSessionProcessedRecordCount() : int
-  {
+  public function getSessionProcessedRecordCount() : int {
     return $this->records_processed_in_this_session;
   }
 
   /**
    * Mark the last record as delivered by getNextRecord() as failed
    */
-  public function markLastRecordFailed()
-  {
+  public function markLastRecordFailed() {
     $this->records_processed_in_this_session++;
     $failed_record_count = $this->getFailedRecordCount();
     $this->setFailedRecordCount($failed_record_count + 1);
@@ -84,29 +81,27 @@ abstract class Base extends AbstractComponent
    * @return bool
    *   can the given source be read
    */
-  public function canReadSource(string $source): bool
-  {
+  public function canReadSource(string $source): bool {
     // check if the source exists
     if (!file_exists($source)) {
       $this->log(E::ts("Couldn't find source '%1'.", [1 => $source]), 'warning');
-      return false;
+      return FALSE;
     }
 
     // check if the source is readable
     if (!is_readable($source)) {
       $this->log(E::ts("Couldn't open source '%1'.", [1 => $source]), 'warning');
-      return false;
+      return FALSE;
     }
 
     // from the abstract point of view, this is it
-    return true;
+    return TRUE;
   }
 
   /**
    * @param string $source
    */
-  public function initialiseWithSource($source)
-  {
+  public function initialiseWithSource($source) {
     // anything?
   }
 
@@ -115,9 +110,8 @@ abstract class Base extends AbstractComponent
    *
    * @return string
    */
-  public function getTypeName() : string
-  {
-    return E::ts("Reader");
+  public function getTypeName() : string {
+    return E::ts('Reader');
   }
 
   /**
@@ -125,8 +119,7 @@ abstract class Base extends AbstractComponent
    *
    * @return integer processed
    */
-  public function getProcessedRecordCount()
-  {
+  public function getProcessedRecordCount() {
     return (int) $this->getStateValue('processed_record_count', 0);
   }
 
@@ -135,8 +128,7 @@ abstract class Base extends AbstractComponent
    *
    * @param $record_count int the new record count
    */
-  protected function setProcessedRecordCount(int $record_count)
-  {
+  protected function setProcessedRecordCount(int $record_count) {
     return $this->setStateValue('processed_record_count', $record_count);
   }
 
@@ -146,7 +138,7 @@ abstract class Base extends AbstractComponent
    * @param string $uri
    *   an URI to marked processed/completed
    */
-  public abstract function markSourceProcessed(string $uri);
+  abstract public function markSourceProcessed(string $uri);
 
   /**
    * Mark the given resource as failed
@@ -154,15 +146,14 @@ abstract class Base extends AbstractComponent
    * @param string $uri
    *   an URI to marked as FAILED
    */
-  public abstract function markSourceFailed(string $uri);
+  abstract public function markSourceFailed(string $uri);
 
   /**
    * Number of records failed while processing
    *
    * @param $record_count int the new record count
    */
-  protected function setFailedRecordCount(int $record_count)
-  {
+  protected function setFailedRecordCount(int $record_count) {
     return $this->setStateValue('failed_record_count', $record_count);
   }
 
@@ -171,8 +162,7 @@ abstract class Base extends AbstractComponent
    *
    * @return integer failed
    */
-  public function getFailedRecordCount()
-  {
+  public function getFailedRecordCount() {
     return (int) $this->getStateValue('failed_record_count');
   }
 
@@ -181,8 +171,7 @@ abstract class Base extends AbstractComponent
    *
    * @return int
    */
-  public function getRecordCount()
-  {
+  public function getRecordCount() {
     return $this->getProcessedRecordCount() + $this->getFailedRecordCount();
   }
 
@@ -191,10 +180,10 @@ abstract class Base extends AbstractComponent
    *
    * @return void
    */
-  public function resetState()
-  {
+  public function resetState() {
     $this->setProcessedRecordCount(0);
     $this->setFailedRecordCount(0);
     parent::resetState();
   }
+
 }

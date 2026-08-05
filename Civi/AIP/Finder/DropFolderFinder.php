@@ -28,8 +28,8 @@ use CRM_Aip_ExtensionUtil   as E;
  *  folder/failed     - folder in which this module will keep files after processing failed (with r/w permissions)
  *  folder/uploading - folder for processed to upload files into, before mv'ing them to the inbox (r/w permissions)
  **/
-class DropFolderFinder extends Base
-{
+class DropFolderFinder extends Base {
+
   /**
    * Check if the component is ready,
    *   i.e. configured correctly.
@@ -38,8 +38,7 @@ class DropFolderFinder extends Base
    *   an exception will be thrown if something's wrong with the
    *     configuration or state
    */
-  public function verifyConfiguration()
-  {
+  public function verifyConfiguration() {
     // check if all the folders are there
     $all_folder_paths = [];
     foreach (['folder/uploading', 'folder/inbox', 'folder/processing', 'folder/processed', 'folder/failed'] as $folder_setting) {
@@ -74,19 +73,16 @@ class DropFolderFinder extends Base
     // looks good.
   }
 
-  public function getTypeName() : string
-  {
-    return E::ts("Dropbox File Finder");
+  public function getTypeName() : string {
+    return E::ts('Dropbox File Finder');
   }
-
 
   /**
    * See if there is a new file in the dropbox
    *
    * @return ?string
    */
-  public function findNextSource(): ?string
-  {
+  public function findNextSource(): ?string {
     $file_name_filter = $this->getConfigValue('filter/file_name');
     $inbox_folder = $this->getConfigValue('folder/inbox');
     $files = scandir($inbox_folder, SCANDIR_SORT_ASCENDING);
@@ -99,7 +95,7 @@ class DropFolderFinder extends Base
     // find the files
     foreach ($files as $file) {
       // exclude directory links
-      if (in_array($file, [".", ".."])) {
+      if (in_array($file, ['.', '..'])) {
         continue;
       }
 
@@ -112,14 +108,16 @@ class DropFolderFinder extends Base
         // this could be a file for us...
         if (is_file($file_path) && is_readable($file_path)) {
           return $file_path;
-        } else {
-          $this->log(E::ts("File %1 could not be read.", [1 => $file_path]), 'warning');
         }
-      } else {
+        else {
+          $this->log(E::ts('File %1 could not be read.', [1 => $file_path]), 'warning');
+        }
+      }
+      else {
         $this->log(E::ts("File '%1' doesn't match the filter '%2'", [1 => $file_path, 2 => $file_name_filter]));
       }
     }
-    return null;
+    return NULL;
   }
 
   /**
@@ -128,22 +126,22 @@ class DropFolderFinder extends Base
    * @param string $file_path
    *   this should be the file path
    *
-   * @return string $uri
-   *    the resulting URI (likely the same)
+   * @return string
+   *   the resulting URI (likely the same)
    */
-  public function claimSource(string $file_path)
-  {
+  public function claimSource(string $file_path) {
     // todo: check if this path makes sense, and is in the inbox folder
 
     // claiming the source means moving it to the
     $processing_folder = $this->getConfigValue('folder/processing');
     $target_file_name = date('YmdHis') . '_' . bin2hex(random_bytes(10)) . '_' . basename($file_path);
-    $target_file = $processing_folder . DIRECTORY_SEPARATOR .  $target_file_name;
+    $target_file = $processing_folder . DIRECTORY_SEPARATOR . $target_file_name;
 
     if (rename($file_path, $target_file)) {
-      $this->log(E::ts("Moved file from %1 to %2 for processing.,", [1 => $file_path, 2 => $target_file]), 'info');
+      $this->log(E::ts('Moved file from %1 to %2 for processing.,', [1 => $file_path, 2 => $target_file]), 'info');
       return $target_file;
-    } else {
+    }
+    else {
       throw new \Exception(E::ts("Couldn't claim source '%1'", [1 => $file_path]));
     }
   }
@@ -154,16 +152,16 @@ class DropFolderFinder extends Base
    * @param string $file_path
    *   this should be the file path
    */
-  public function markSourceProcessed(string $file_path)
-  {
+  public function markSourceProcessed(string $file_path) {
     // mark the source means moving it to the processed folder
     $processed_folder = $this->getConfigValue('folder/processed');
     $target_file = $processed_folder . DIRECTORY_SEPARATOR . basename($file_path);
 
     if (rename($file_path, $target_file)) {
-      $this->log(E::ts("Moved file from %1 to %2 to mark as processed.,", [1 => $file_path, 2 => $target_file]), 'info');
-      return true;
-    } else {
+      $this->log(E::ts('Moved file from %1 to %2 to mark as processed.,', [1 => $file_path, 2 => $target_file]), 'info');
+      return TRUE;
+    }
+    else {
       throw new \Exception(E::ts("Couldn't mark source '%1' as processed.", [1 => $file_path]));
     }
   }
@@ -174,20 +172,21 @@ class DropFolderFinder extends Base
    * @param string $file_path
    *   this should be the file path
    */
-  public function markSourceFailed(string $file_path)
-  {
+  public function markSourceFailed(string $file_path) {
     // mark the source means moving it to the processed folder
     $processed_folder = $this->getConfigValue('folder/failed');
     $target_file = $processed_folder . DIRECTORY_SEPARATOR . basename($file_path);
 
     if (rename($file_path, $target_file)) {
-      $this->log(E::ts("Moved file from %1 to %2 to mark as FAILED.,", [1 => $file_path, 2 => $target_file]), 'info');
-      return true;
-    } else {
+      $this->log(E::ts('Moved file from %1 to %2 to mark as FAILED.,', [1 => $file_path, 2 => $target_file]), 'info');
+      return TRUE;
+    }
+    else {
       throw new \Exception(E::ts("Couldn't mark source '%1' as FAILED.", [1 => $file_path]));
     }
 
     // reset the state
     $this->resetState();
   }
+
 }

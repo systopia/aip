@@ -15,23 +15,23 @@
 
 namespace Civi\AIP\Reader;
 
-use Civi\FormProcessor\API\Exception;
 use CRM_Aip_ExtensionUtil as E;
+
 /**
  * This is a simple CVS file reader
  *
- ************ CONFIG VALUES ***********************
+ * *********** CONFIG VALUES ***********************
  *  csv_separator        (default ';')
  *  csv_string_enclosure (default '";"')
  *  csv_string_escape    (default '\')
-
- ************ STATE VALUES ************************
+ *
+ * *********** STATE VALUES ************************
  * current_file            file currently working on
  * processed_record_count  number of records processed
  * failed_record_count     number of records failed to process
  */
-class CSV extends Base
-{
+class CSV extends Base {
+
   public function __construct() {
     parent::__construct();
   }
@@ -39,55 +39,55 @@ class CSV extends Base
   /**
    * The file this is working on
    *
-   * @var resource $current_file_handle
+   * @var resource
    */
-  protected $current_file_handle = null;
+  protected $current_file_handle = NULL;
 
   /**
    * The headers of the current CSV file
    *
-   * @var ?array $current_file_headers
+   * @var ?array
    */
-  protected ?array $current_file_headers = null;
+  protected ?array $current_file_headers = NULL;
 
   /**
    * The record currently being processed
    *
    * @var ?array
    */
-  protected ?array $current_record = null;
+  protected ?array $current_record = NULL;
 
   /**
    * The record to be processed next
    *
    * @var ?array
    */
-  protected ?array $lookahead_record = null;
+  protected ?array $lookahead_record = NULL;
 
   /**
    * The record that was processed last
    *
    * @var ?array
    */
-  protected ?array $last_processed_record = null;
+  protected ?array $last_processed_record = NULL;
 
-  public function canReadSource(string $source): bool
-  {
+  public function canReadSource(string $source): bool {
     if (parent::canReadSource($source)) {
       // file exists and is readable, check for the file type
       $file_type = mime_content_type($source);
 
       if (!in_array($file_type, ['text/csv', 'text/plain'])) {
         $this->log(E::ts("Cannot process files of type '%1'.", [1 => $file_type]), 'warning');
-        return false;
+        return FALSE;
       }
 
       // looks good
-      return true;
+      return TRUE;
 
-    } else {
+    }
+    else {
       // parent class check says: cannot access
-      return false;
+      return FALSE;
     }
   }
 
@@ -97,12 +97,11 @@ class CSV extends Base
    * @throws \Exception
    *   any issues with opening/reading the file
    */
-  public function initialiseWithSource($source)
-  {
+  public function initialiseWithSource($source) {
     parent::initialiseWithSource($source);
 
     // check if we're working on another file
-    $this->current_record = null;
+    $this->current_record = NULL;
     $current_file = $this->getCurrentFile();
     if ($current_file == $source) {
       // same file: we should restart/resume where we left off:
@@ -114,12 +113,15 @@ class CSV extends Base
 
       // 3) skip all already processed rows
       $records_previously_processed = $this->getProcessedRecordCount() + $this->getFailedRecordCount();
-      for ($skip = 0; $skip < $records_previously_processed; $skip ++) {
+      for ($skip = 0; $skip < $records_previously_processed; $skip++) {
         $this->getNextRecord();
       }
-      if ($skip) $this->log("Resume: skipped {$skip} previously processed record(s).", 'info');
+      if ($skip) {
+        $this->log("Resume: skipped {$skip} previously processed record(s).", 'info');
+      }
 
-    } else {
+    }
+    else {
       // this is a NEW file, re-init file
       $this->resetState();
       $this->openFile($source);
@@ -127,7 +129,6 @@ class CSV extends Base
       $this->current_file_headers = $this->getNextRecord();
     }
   }
-
 
   /**
    * Open the given source
@@ -139,10 +140,9 @@ class CSV extends Base
    * @throws \Exception
    *   if the file couldn't be opened
    */
-  protected function openFile(string $source)
-  {
+  protected function openFile(string $source) {
     if ($this->current_file_handle) {
-      $this->raiseException(E::ts("There is already an open file", [1 => $source]));
+      $this->raiseException(E::ts('There is already an open file', [1 => $source]));
     }
 
     // check if accessible
@@ -163,8 +163,7 @@ class CSV extends Base
     $this->lookahead_record = $this->readNextRecord();
   }
 
-  public function hasMoreRecords(): bool
-  {
+  public function hasMoreRecords(): bool {
     return is_array($this->lookahead_record);
   }
 
@@ -177,8 +176,7 @@ class CSV extends Base
    * @throws \Exception
    *   if there is a read error
    */
-  public function getNextRecord(): ?array
-  {
+  public function getNextRecord(): ?array {
     if ($this->hasMoreRecords()) {
       $this->current_record   = $this->lookahead_record;
       $this->lookahead_record = $this->readNextRecord();
@@ -195,20 +193,21 @@ class CSV extends Base
         $record = array_combine($file_headers, $record);
       }
 
-      if ($record === true) {
-        $this->log("Skipped empty line in CSV.", 'info');
+      if ($record === TRUE) {
+        $this->log('Skipped empty line in CSV.', 'info');
         return $this->getNextRecord();
       }
 
-      if (!is_array($record)){
+      if (!is_array($record)) {
         // there was an error reading the record
-        $this->log("Failed to read record, data type is: " . gettype($record), 'error');
+        $this->log('Failed to read record, data type is: ' . gettype($record), 'error');
         throw new \Exception("Couldn't read record.");
       }
 
       return $record;
-    } else {
-      return null;
+    }
+    else {
+      return NULL;
     }
   }
 
@@ -219,7 +218,7 @@ class CSV extends Base
    */
   public function skipNextRecord() {
     if (empty($this->current_file_handle)) {
-      throw new \Exception("No file handle!");
+      throw new \Exception('No file handle!');
     }
 
     // read record
@@ -234,7 +233,7 @@ class CSV extends Base
    */
   public function readNextRecord() {
     if (empty($this->current_file_handle)) {
-      throw new \Exception("No file opened.");
+      throw new \Exception('No file opened.');
     }
 
     // read record
@@ -243,9 +242,9 @@ class CSV extends Base
     $enclosure = $this->getConfigValue('csv_string_enclosure', '"');
     $escape = $this->getConfigValue('csv_string_escape', '\\');
     $encoding = $this->getConfigValue('csv_string_encoding', 'UTF8');
-    $skip_empty_lines = $this->getConfigValue('skip_empty_lines', false);
+    $skip_empty_lines = $this->getConfigValue('skip_empty_lines', FALSE);
 
-    $record = fgetcsv($this->current_file_handle, null, $separator, $enclosure, $escape);
+    $record = fgetcsv($this->current_file_handle, NULL, $separator, $enclosure, $escape);
 
     // check for empty lines
     if ($skip_empty_lines) {
@@ -256,8 +255,6 @@ class CSV extends Base
         return $this->readNextRecord();
       }
     }
-
-
 
     if ($record) {
       // apply the encoding
@@ -270,28 +267,28 @@ class CSV extends Base
             $new_record[$key] = utf8_encode($value);
           }
           $record = $new_record;
-        } else {
+        }
+        else {
           // use mb_convert
           $record = mb_convert_encoding($record, 'UTF8', $encoding);
         }
       }
-    } else {
+    }
+    else {
       // this should be the end of the file
-      $record = null;
+      $record = NULL;
     }
 
     return $record;
   }
 
-  public function markLastRecordProcessed()
-  {
+  public function markLastRecordProcessed() {
     $this->records_processed_in_this_session++;
     $this->setProcessedRecordCount($this->getProcessedRecordCount() + 1);
     $this->current_record = $this->lookahead_record;
   }
 
-  public function markLastRecordFailed()
-  {
+  public function markLastRecordFailed() {
     $this->records_processed_in_this_session++;
     $this->setFailedRecordCount($this->getFailedRecordCount() + 1);
     $this->current_record = $this->lookahead_record;
@@ -302,8 +299,7 @@ class CSV extends Base
    *
    * @return string the current file path/url
    */
-  public function getCurrentFile() : ?string
-  {
+  public function getCurrentFile() : ?string {
     return $this->getStateValue('current_file');
   }
 
@@ -312,14 +308,12 @@ class CSV extends Base
    *
    * @param $file string the current file path/url
    */
-  protected function setCurrentFile($file)
-  {
+  protected function setCurrentFile($file) {
     return $this->setStateValue('current_file', $file);
   }
 
-  public function resetState()
-  {
-    $this->setStateValue('current_file', null);
+  public function resetState() {
+    $this->setStateValue('current_file', NULL);
     parent::resetState();
   }
 
@@ -329,9 +323,8 @@ class CSV extends Base
    * @param string $uri
    *   an URI to marked processed/completed
    */
-  public function markSourceProcessed(string $uri)
-  {
-    $this->setStateValue('current_file', null);
+  public function markSourceProcessed(string $uri) {
+    $this->setStateValue('current_file', NULL);
   }
 
   /**
@@ -340,11 +333,9 @@ class CSV extends Base
    * @param string $uri
    *   an URI to marked as FAILED
    */
-  public function markSourceFailed(string $uri)
-  {
-    $this->setStateValue('current_file', null);
+  public function markSourceFailed(string $uri) {
+    $this->setStateValue('current_file', NULL);
   }
-
 
   /**
    * Fix a mismatch of the column count of the headers,
@@ -358,11 +349,10 @@ class CSV extends Base
    *
    * @return void
    */
-  protected function fixHeaderRecordColumnMismatch(array &$file_headers, array &$record)
-  {
+  protected function fixHeaderRecordColumnMismatch(array &$file_headers, array &$record) {
     // if there are not enough headers, just add some generic ones
     while (count($file_headers) < count($record)) {
-      $file_headers[] = "Column " . (count($file_headers) + 1);
+      $file_headers[] = 'Column ' . (count($file_headers) + 1);
     }
 
     // if there are not enough values, just add some empty ones
@@ -374,10 +364,10 @@ class CSV extends Base
   /**
    * Simply increases the 'lines_skipped' counter
    */
-  protected function increaseLinesSkipped()
-  {
+  protected function increaseLinesSkipped() {
     $lines_skipped = (int) $this->getStateValue('lines_skipped');
     $lines_skipped++;
     $this->setStateValue('lines_skipped', $lines_skipped);
   }
+
 }

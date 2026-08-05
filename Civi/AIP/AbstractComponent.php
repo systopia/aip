@@ -20,26 +20,26 @@ use CRM_Aip_ExtensionUtil as E;
 /**
  * Generic infrastructure for component
  **/
-abstract class AbstractComponent
-{
+abstract class AbstractComponent {
   /**
    * @var ?Process the process this component belongs to
    */
-  protected ?Process $process = null;
+  protected ?Process $process = NULL;
 
   /**
-   * @var array $configuration
+   * @var array
    *   this component's configuration
    */
   protected array $configuration = [];
 
   /**
-   * @var array $state
+   * @var array
    *   this component's current state
    */
   protected array $state = [];
 
-  /** @var array file_name => handle  */
+  /**
+   * @var array file_name => handle  */
   protected static array $log_files = [];
 
   public function __construct() {
@@ -53,8 +53,7 @@ abstract class AbstractComponent
    *   an exception will be thrown if something's wrong with the
    *     configuration or state
    */
-  public function verifyConfiguration()
-  {
+  public function verifyConfiguration() {
     // by default, we're ready :)
   }
 
@@ -66,8 +65,7 @@ abstract class AbstractComponent
    *
    * @return mixed
    */
-  public function getConfigValue(string $path, $default = null)
-  {
+  public function getConfigValue(string $path, $default = NULL) {
     $value = $this->getArrayValue($this->configuration, $path);
     return $value ?? $default;
   }
@@ -80,8 +78,7 @@ abstract class AbstractComponent
    *
    * @return mixed
    */
-  public function getStateValue(string $path, $default = null)
-  {
+  public function getStateValue(string $path, $default = NULL) {
     $value = $this->getArrayValue($this->state, $path);
     return $value ?? $default;
   }
@@ -98,8 +95,7 @@ abstract class AbstractComponent
    * @return mixed
    *   the previous value
    */
-  public function setStateValue(string $path, $value)
-  {
+  public function setStateValue(string $path, $value) {
     return $this->setArrayValue($this->state, $path, $value);
   }
 
@@ -115,19 +111,16 @@ abstract class AbstractComponent
    * @return mixed
    *   the previous value
    */
-  public function setConfigValue(string $path, $value)
-  {
+  public function setConfigValue(string $path, $value) {
     return $this->setArrayValue($this->configuration, $path, $value);
   }
-
 
   /**
    * Reset the state of this module
    *
    * @return void
    */
-  public function resetState()
-  {
+  public function resetState() {
     // anything? $this->state = [];?
   }
 
@@ -136,8 +129,7 @@ abstract class AbstractComponent
    *
    * @return Process
    */
-  public function getProcess()
-  {
+  public function getProcess() {
     return $this->process;
   }
 
@@ -152,19 +144,20 @@ abstract class AbstractComponent
    *
    * @return mixed
    */
-  public function getArrayValue(array $array, string $path)
-  {
+  public function getArrayValue(array $array, string $path) {
     // look for the value in the path
     $path = explode('/', $path);
     foreach ($path as $index => $key) {
       // Handle filter syntax like @type=Special
       if ($key[0] == '@') {
         preg_match('/^@(\w+)=(.+)$/', $key, $matches);
-        $filterKey = $matches[1];      // "type"
-        $filterValue = $matches[2];    // "Special"
+        // "type"
+        $filterKey = $matches[1];
+        // "Special"
+        $filterValue = $matches[2];
 
         // Find the first element in the array where $filterKey == $filterValue
-        $found = null;
+        $found = NULL;
         foreach ($array as $item) {
           if (is_array($item) && isset($item[$filterKey]) && $item[$filterKey] == $filterValue) {
             $found = $item;
@@ -172,16 +165,17 @@ abstract class AbstractComponent
           }
         }
         $array = $found;
-      } else {
+      }
+      else {
         // Standard key access
-        $array = $array[$key] ?? null;
+        $array = $array[$key] ?? NULL;
       }
       if ($index == (count($path) - 1)) {
         return $array;
       }
     }
 
-    return null;
+    return NULL;
   }
 
   /**
@@ -196,8 +190,7 @@ abstract class AbstractComponent
    * @return mixed
    *   the previously used value
    */
-  public function setArrayValue(array &$array, string $path, $value)
-  {
+  public function setArrayValue(array &$array, string $path, $value) {
     // get the current value
     $previous_value = $this->getArrayValue($array, $path);
 
@@ -209,7 +202,8 @@ abstract class AbstractComponent
         $array[$key] = $value;
         break;
 
-      } else {
+      }
+      else {
         if (!isset($array[$key])) {
           $array[$key] = [];
         }
@@ -225,8 +219,7 @@ abstract class AbstractComponent
    *
    * @return array
    */
-  public function getConfiguration()
-  {
+  public function getConfiguration() {
     return $this->configuration;
   }
 
@@ -235,7 +228,7 @@ abstract class AbstractComponent
    *
    * @return string
    */
-  public abstract function getTypeName();
+  abstract public function getTypeName();
 
   /**
    * Set the component's configuration, e.g. when instantiated
@@ -243,8 +236,7 @@ abstract class AbstractComponent
    * @param $configuration array
    *   the given configuration
    */
-  public function setConfiguration($configuration)
-  {
+  public function setConfiguration($configuration) {
     $this->configuration = $configuration;
   }
 
@@ -254,9 +246,8 @@ abstract class AbstractComponent
    * @return null|string
    *   URL to the configuration editor or NULL if no configuration available
    */
-  public function getConfigurationEditorURL()
-  {
-    return null;
+  public function getConfigurationEditorURL() {
+    return NULL;
   }
 
   /**
@@ -270,8 +261,7 @@ abstract class AbstractComponent
    *
    * @return void
    */
-  public function log($message, $log_level = 'debug')
-  {
+  public function log($message, $log_level = 'debug') {
     //\Civi::log()->debug($message);
 
     // find out if we should log this.
@@ -318,8 +308,7 @@ abstract class AbstractComponent
    *
    * @return void
    */
-  protected function writeLogMessage(string $message, $log_level)
-  {
+  protected function writeLogMessage(string $message, $log_level) {
     $log_file = $this->getConfigValue('log/file');
     if (empty($log_file)) {
       // use the processor's one
@@ -330,24 +319,25 @@ abstract class AbstractComponent
       // if still empty: log to CiviCRM standard log
       switch ($log_level) {
         case 'debug':
-          \Civi::log("AIP")->debug($message);
+          \Civi::log('AIP')->debug($message);
           break;
 
         default:
         case 'info':
-          \Civi::log("AIP")->info($message);
+          \Civi::log('AIP')->info($message);
           break;
 
         case 'warning':
-          \Civi::log("AIP")->warning($message);
+          \Civi::log('AIP')->warning($message);
           break;
 
         case 'error':
-          \Civi::log("AIP")->error($message);
+          \Civi::log('AIP')->error($message);
           break;
       }
 
-    } else {
+    }
+    else {
       // log to separate log file
       if (!isset(AbstractComponent::$log_files[$log_file])) {
         if (!is_writeable($log_file)) {
@@ -356,7 +346,7 @@ abstract class AbstractComponent
           error_log("Log file '{$log_file}' not writeable, using '{$tmp_log_file}'!");
           $log_file = $tmp_log_file;
         }
-        AbstractComponent::$log_files[$log_file] = fopen($log_file, "a");
+        AbstractComponent::$log_files[$log_file] = fopen($log_file, 'a');
       }
 
       $log_file_handle = AbstractComponent::$log_files[$log_file];
@@ -382,8 +372,7 @@ abstract class AbstractComponent
    *
    * @return void
    */
-  protected function logToCiviLog($message, $log_level = 'debug')
-  {
+  protected function logToCiviLog($message, $log_level = 'debug') {
     $max_log_level = $this->getConfigValue('log/level', 'debug');
 
     // todo: add timestamp and process ID to log
@@ -417,12 +406,12 @@ abstract class AbstractComponent
    *
    * @return void
    */
-  public function raiseException($message)
-  {
-    throw new \Exception(E::ts("[%1(:%2)] %3", [
-            1 => $this->getTypeName(),
-            2 => $this->getProcess()->getID(),
-            3 => $message]));
+  public function raiseException($message) {
+    throw new \Exception(E::ts('[%1(:%2)] %3', [
+      1 => $this->getTypeName(),
+      2 => $this->getProcess()->getID(),
+      3 => $message,
+    ]));
   }
 
   /**
@@ -431,12 +420,12 @@ abstract class AbstractComponent
    * @return array
    *   serialised state
    */
-  public function serialise() : array
-  {
+  public function serialise() : array {
     return [
-        'class_name' => get_class($this),
-        'config'     => $this->configuration,
-        'state'      => $this->state
+      'class_name' => get_class($this),
+      'config'     => $this->configuration,
+      'state'      => $this->state,
     ];
   }
+
 }

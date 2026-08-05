@@ -25,9 +25,9 @@ class CRM_Aip_Upgrader extends CRM_Extension_Upgrader_Base {
   /**
    * Installer
    */
-   public function install(): void {
-     $this->executeSqlFile('sql/auto_install.sql');
-   }
+  public function install(): void {
+    $this->executeSqlFile('sql/auto_install.sql');
+  }
 
   /**
    * Uninstaller
@@ -42,13 +42,13 @@ class CRM_Aip_Upgrader extends CRM_Extension_Upgrader_Base {
    * @return TRUE on success
    * @throws CRM_Core_Exception
    */
-   public function upgrade_0001(): bool {
-     $this->ctx->log->info('Updating DB schema');
-     // in this case, we actually CAN just run auto_install.sql again,
-     //  because it just does CREATE IF NOT EXISTS on the tables.
-     $this->executeSqlFile('sql/auto_install.sql');
-     return TRUE;
-   }
+  public function upgrade_0001(): bool {
+    $this->ctx->log->info('Updating DB schema');
+    // in this case, we actually CAN just run auto_install.sql again,
+    //  because it just does CREATE IF NOT EXISTS on the tables.
+    $this->executeSqlFile('sql/auto_install.sql');
+    return TRUE;
+  }
 
   /**
    * Update to version 1.1
@@ -72,13 +72,13 @@ class CRM_Aip_Upgrader extends CRM_Extension_Upgrader_Base {
     return TRUE;
   }
 
-    /**
-     * Upgrade to version 1.3
-     * @return TRUE on success
-     */
+  /**
+   * Upgrade to version 1.3
+   * @return TRUE on success
+   */
   public function upgrade_0003() : bool {
-      CRM_Core_Session::setStatus("AIP does map parameters before filtering parameter now. Please check if your AIP Configuration needs changes");
-      return TRUE;
+    CRM_Core_Session::setStatus('AIP does map parameters before filtering parameter now. Please check if your AIP Configuration needs changes');
+    return TRUE;
   }
 
   /**

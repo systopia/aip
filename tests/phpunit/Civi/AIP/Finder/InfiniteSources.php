@@ -20,8 +20,8 @@ use CRM_Aip_ExtensionUtil as E;
 /**
  * A FINDER that will find an infinite amount of sources
  **/
-class InfiniteSources extends Base
-{
+class InfiniteSources extends Base {
+
   /**
    * Check if the component is ready,
    *   i.e. configured correctly.
@@ -32,21 +32,18 @@ class InfiniteSources extends Base
    */
   public function verifyConfiguration() {}
 
-  public function getTypeName() : string
-  {
-    return E::ts("Infinite Dummy Source Finder");
+  public function getTypeName() : string {
+    return E::ts('Infinite Dummy Source Finder');
   }
-
 
   /**
    * See if there is a new file in the dropbox
    *
    * @return ?string
    */
-  public function findNextSource(): ?string
-  {
+  public function findNextSource(): ?string {
     // copied from https://stackoverflow.com/a/13212994
-    return 'example:' . substr(str_shuffle(str_repeat($x='0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ', ceil(16/strlen($x)) )),1,16);
+    return 'example:' . substr(str_shuffle(str_repeat($x = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ', ceil(16 / strlen($x)))), 1, 16);
   }
 
   /**
@@ -55,8 +52,7 @@ class InfiniteSources extends Base
    * @param string $file_path
    *   this should be the file path
    */
-  public function claimSource(string $file_path)
-  {
+  public function claimSource(string $file_path) {
     return $file_path;
   }
 
@@ -66,8 +62,7 @@ class InfiniteSources extends Base
    * @param string $file_path
    *   this should be the file path
    */
-  public function markSourceProcessed(string $file_path)
-  {
+  public function markSourceProcessed(string $file_path) {
   }
 
   /**
@@ -76,7 +71,7 @@ class InfiniteSources extends Base
    * @param string $file_path
    *   this should be the file path
    */
-  public function markSourceFailed(string $file_path)
-  {
+  public function markSourceFailed(string $file_path) {
   }
+
 }

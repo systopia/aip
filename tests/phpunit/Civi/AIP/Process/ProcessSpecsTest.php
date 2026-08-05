@@ -27,14 +27,13 @@ use Civi\Test\TransactionalInterface;
  * @group headless
  *
  */
-class ProcessSpecsTest extends TestBase implements HeadlessInterface, HookInterface, TransactionalInterface
-{
+class ProcessSpecsTest extends TestBase implements HeadlessInterface, HookInterface, TransactionalInterface {
+
   /**
    * Create the Client1 process (DropFolderFinder, CSV reader, Api3Processor)
    */
-  public function testSetupClient1ViaCode()
-  {
-    $this->markTestSkipped("Specific configuration example, needs specific environment");
+  public function testSetupClient1ViaCode() {
+    $this->markTestSkipped('Specific configuration example, needs specific environment');
 
     // create finder
     $finder = new Finder\DropFolderFinder();
@@ -57,11 +56,13 @@ class ProcessSpecsTest extends TestBase implements HeadlessInterface, HookInterf
 
     // create a process
     $process = new Process($finder, $reader, $processor);
-    $process->setConfigValue("log/file", "/srv/direktmarketing/aip/processing.log");
+    $process->setConfigValue('log/file', '/srv/direktmarketing/aip/processing.log');
     $process->setConfigValue('processing_limit/record_count', 200);
-    $process->store(true); // check log for DB update tips
+    // check log for DB update tips
+    $process->store(TRUE);
 
     // run the process
     $process->run();
   }
+
 }

@@ -12,10 +12,11 @@ class AipErrorLog extends Generic\DAOEntity {
 
   public static function permissions() {
     return [
-            'meta' => ['access CiviCRM'],
-            'default' => ['administer CiviCRM'],
-            'create' => ['administer CiviCRM'],
-            'run' => ['administer CiviCRM'],
+      'meta' => ['access CiviCRM'],
+      'default' => ['administer CiviCRM'],
+      'create' => ['administer CiviCRM'],
+      'run' => ['administer CiviCRM'],
     ];
   }
+
 }

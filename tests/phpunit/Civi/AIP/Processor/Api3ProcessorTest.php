@@ -18,7 +18,6 @@ namespace Civi\AIP;
 use Civi\Test\HeadlessInterface;
 use Civi\Test\HookInterface;
 use Civi\Test\TransactionalInterface;
-use \Civi\Test\Api3TestTrait;
 
 /**
  * Basic CVS Reader tests
@@ -26,13 +25,12 @@ use \Civi\Test\Api3TestTrait;
  * @group headless
  *
  */
-class Api3ProcessorTest extends TestBase implements HeadlessInterface, HookInterface, TransactionalInterface
-{
+class Api3ProcessorTest extends TestBase implements HeadlessInterface, HookInterface, TransactionalInterface {
+
   /**
    * Create a simple process (UrlRequestFile, CSV reader, Api3 processor)
    */
-  public function testSimpleApi3()
-  {
+  public function testSimpleApi3() {
     // create finder
     $finder = new Finder\UrlRequestFile();
     $finder->setFile($this->getTestResourcePath('input/CSV/Test03.csv'));
@@ -63,8 +61,10 @@ class Api3ProcessorTest extends TestBase implements HeadlessInterface, HookInter
       \civicrm_api3('Contact', 'getsingle', ['email' => 'anto@exis.ts']);
       \civicrm_api3('Contact', 'getsingle', ['email' => 'berty@exis.ts']);
       \civicrm_api3('Contact', 'getsingle', ['email' => 'cc@exis.ts']);
-    } catch (\CRM_Core_Exception $ex) {
+    }
+    catch (\CRM_Core_Exception $ex) {
       $this->fail("Contacts not created, the API calls probably didn't go through!");
     }
   }
+
 }

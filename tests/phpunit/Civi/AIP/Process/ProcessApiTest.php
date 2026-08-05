@@ -28,13 +28,12 @@ use Civi\Test\TransactionalInterface;
  * @group headless
  *
  */
-class ProcessApiTest extends TestBase implements HeadlessInterface, HookInterface, TransactionalInterface
-{
+class ProcessApiTest extends TestBase implements HeadlessInterface, HookInterface, TransactionalInterface {
+
   /**
    * Create the Client1 process (DropFolderFinder, CSV reader, Api3Processor)
    */
-  public function testProcessApiSingle()
-  {
+  public function testProcessApiSingle() {
     // create finder
     $finder = new Finder\UrlRequestFile();
     $finder->setFile($this->getTestResourcePath('input/CSV/Test01.csv'));
@@ -56,8 +55,7 @@ class ProcessApiTest extends TestBase implements HeadlessInterface, HookInterfac
   /**
    * Create the Client1 process (DropFolderFinder, CSV reader, Api3Processor)
    */
-  public function testProcessMultiple()
-  {
+  public function testProcessMultiple() {
     // create process 1
     $finder = new Finder\UrlRequestFile();
     $finder->setFile($this->getTestResourcePath('input/CSV/Test01.csv'));
@@ -76,7 +74,8 @@ class ProcessApiTest extends TestBase implements HeadlessInterface, HookInterfac
 
     // run the process via APIv3
     $result = $this->traitCallAPISuccess('AIP', 'run_process', ['pid' => "{$process1_id},{$process2_id}"]);
-    $this->assertEquals(4, $result['values']['total_processed'], "should have processed Test01.csv (2 lines) *twice*");
-    $this->assertEquals(4, $result['values']['session_processed'], "should have processed Test01.csv (2 lines) *twice*");
+    $this->assertEquals(4, $result['values']['total_processed'], 'should have processed Test01.csv (2 lines) *twice*');
+    $this->assertEquals(4, $result['values']['session_processed'], 'should have processed Test01.csv (2 lines) *twice*');
   }
+
 }

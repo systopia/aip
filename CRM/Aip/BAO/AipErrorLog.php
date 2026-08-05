@@ -15,7 +15,6 @@
 
 use CRM_Aip_ExtensionUtil as E;
 
-class CRM_Aip_BAO_AipErrorLog extends CRM_Aip_DAO_AipErrorLog
-{
+class CRM_Aip_BAO_AipErrorLog extends CRM_Aip_DAO_AipErrorLog {
 
 }

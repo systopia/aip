@@ -20,11 +20,10 @@ use CRM_Aip_ExtensionUtil as E;
 /**
  * This is an infinite reader, i.e. it simply "invents" data records
  */
-
-class InfiniteRecords extends Base
-{
-  /** @var ?string the source currently used */
-  protected ?string $source = null;
+class InfiniteRecords extends Base {
+  /**
+   * @var ?string the source currently used */
+  protected ?string $source = NULL;
 
   public function __construct() {
     parent::__construct();
@@ -33,20 +32,17 @@ class InfiniteRecords extends Base
   /**
    * Simply 'invent' records. forever.
    */
-  public function getNextRecord(): ?array
-  {
+  public function getNextRecord(): ?array {
     return [
-        'field1' => random_bytes(16),
-        'field2' => random_bytes(16),
-        'field3' => random_bytes(16),
-        'field4' => random_bytes(16),
+      'field1' => random_bytes(16),
+      'field2' => random_bytes(16),
+      'field3' => random_bytes(16),
+      'field4' => random_bytes(16),
     ];
   }
 
-
-  public function canReadSource(string $source): bool
-  {
-    return true;
+  public function canReadSource(string $source): bool {
+    return TRUE;
   }
 
   /**
@@ -55,8 +51,7 @@ class InfiniteRecords extends Base
    * @throws \Exception
    *   any issues with opening/reading the file
    */
-  public function initialiseWithSource($source)
-  {
+  public function initialiseWithSource($source) {
     $this->source = $source;
   }
 
@@ -70,28 +65,24 @@ class InfiniteRecords extends Base
    * @throws \Exception
    *   if the file couldn't be opened
    */
-  protected function openFile(string $source)
-  {
+  protected function openFile(string $source) {
     $this->source = $source;
   }
 
-  public function hasMoreRecords(): bool
-  {
-    return true;
+  public function hasMoreRecords(): bool {
+    return TRUE;
   }
 
-  public function markSourceProcessed(string $uri)
-  {
+  public function markSourceProcessed(string $uri) {
     // nothing to do
   }
 
-  public function markSourceFailed(string $uri)
-  {
+  public function markSourceFailed(string $uri) {
     // nothing to do
   }
 
-  public function getCurrentFile(): ?string
-  {
+  public function getCurrentFile(): ?string {
     return $this->source;
   }
+
 }

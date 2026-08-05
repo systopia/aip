@@ -14,11 +14,12 @@
 +--------------------------------------------------------*/
 
 namespace Civi\AIP\Processor;
+
 use Civi\AIP\Processor\Base as BaseProcessor;
 
-class TestProcessor extends BaseProcessor
-{
-  /** @var int $processed_record_count number of records processed by this processor */
+class TestProcessor extends BaseProcessor {
+  /**
+   * @var int*/
   protected int $processed_record_count = 0;
 
   /**
@@ -28,10 +29,9 @@ class TestProcessor extends BaseProcessor
    *
    * @throws \Exception
    */
-  public function processRecord($record)
-  {
+  public function processRecord($record) {
     parent::processRecord($record);
-    $this->log("Processed record #" . (1 + $this->process->getReader()->getRecordCount()), 'debug');
+    $this->log('Processed record #' . (1 + $this->process->getReader()->getRecordCount()), 'debug');
     $this->processed_record_count++;
   }
 
@@ -39,8 +39,8 @@ class TestProcessor extends BaseProcessor
    *
    * @return int number of records processed by this processor
    */
-  public function getProcessedRecordCount()
-  {
+  public function getProcessedRecordCount() {
     return $this->processed_record_count;
   }
+
 }

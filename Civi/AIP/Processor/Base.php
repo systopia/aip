@@ -18,18 +18,18 @@ namespace Civi\AIP\Processor;
 use Civi\AIP\AbstractComponent;
 use CRM_Aip_ExtensionUtil as E;
 
-class Base extends AbstractComponent
-{
+class Base extends AbstractComponent {
   /**
    * The last record that was processed
    * @var array|null
    */
-  protected ?array $last_processed_record = null;
+  protected ?array $last_processed_record = NULL;
 
   /**
    *
    * @return void
    */
+
   /**
    * Process the given record
    *
@@ -37,8 +37,7 @@ class Base extends AbstractComponent
    *
    * @throws \Exception
    */
-  public function processRecord($record)
-  {
+  public function processRecord($record) {
     // do nothing here, override in implementation
     $this->last_processed_record = $record;
   }
@@ -47,8 +46,7 @@ class Base extends AbstractComponent
    * @return ?array
    *   get the last record processed by this processor
    */
-  public function getLastProcessedRecord() : ?array
-  {
+  public function getLastProcessedRecord() : ?array {
     return $this->last_processed_record;
   }
 
@@ -57,8 +55,8 @@ class Base extends AbstractComponent
    *
    * @return string
    */
-  public function getTypeName() : string
-  {
-    return E::ts("Processor");
+  public function getTypeName() : string {
+    return E::ts('Processor');
   }
+
 }

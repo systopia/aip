@@ -14,11 +14,12 @@
 +--------------------------------------------------------*/
 
 namespace Civi\AIP\Processor;
+
 use Civi\AIP\Processor\Base as BaseProcessor;
 
-class DelayedTestProcessor extends BaseProcessor
-{
-  /** @var int number of records processed */
+class DelayedTestProcessor extends BaseProcessor {
+  /**
+   * @var int number of records processed */
   public int $processed_records = 0;
 
   /**
@@ -28,11 +29,11 @@ class DelayedTestProcessor extends BaseProcessor
    *
    * @throws \Exception
    */
-  public function processRecord($record)
-  {
+  public function processRecord($record) {
     $delay_time_seconds = (float) $this->getConfigValue('test/sleep_time_seconds', 0.0);
     usleep($delay_time_seconds * 1000000);
     parent::processRecord($record);
     $this->processed_records++;
   }
+
 }

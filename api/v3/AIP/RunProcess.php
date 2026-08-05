@@ -1,4 +1,5 @@
 <?php
+// phpcs:disable PSR1.Files.SideEffects.FoundWithSymbols
 /*-------------------------------------------------------+
 | SYSTOPIA Automatic Input Processing (AIP) Framework    |
 | Copyright (C) 2023 SYSTOPIA                            |
@@ -29,15 +30,14 @@ use Civi\AIP\Process;
  * @return array
  *   API3 response
  */
-function civicrm_api3_a_i_p_run_process($params)
-{
+function civicrm_api3_a_i_p_run_process($params) {
   // stats
   $total_processed = 0;
   $session_processed = 0;
 
   // verify pid parameter
   if (empty($params['pid'])) {
-    throw new CRM_Core_Exception("Missing pid.");
+    throw new CRM_Core_Exception('Missing pid.');
   }
 
   // extract pIDs
@@ -46,7 +46,8 @@ function civicrm_api3_a_i_p_run_process($params)
     $pid = (int) $pid_string;
     if ($pid) {
       $pIDs[] = $pid;
-    } else {
+    }
+    else {
       Civi::log()->warning("AIP.run_process: PID '{$pid_string}' invalid. Skipped");
     }
   }
@@ -62,7 +63,7 @@ function civicrm_api3_a_i_p_run_process($params)
 
   // create reply
   return civicrm_api3_create_success([
-          'total_processed' => $total_processed,
-          'session_processed' => $session_processed,
+    'total_processed' => $total_processed,
+    'session_processed' => $session_processed,
   ]);
 }

@@ -19,31 +19,26 @@ use Civi\Test\HeadlessInterface;
 use Civi\Test\HookInterface;
 use Civi\Test\TransactionalInterface;
 
-use function GuzzleHttp\Psr7\parse_request;
-
 /**
  * Basic CVS Reader tests
  *
  * @group headless
  *
  */
-class JSONOnlineReaderTest extends TestBase implements HeadlessInterface, HookInterface, TransactionalInterface
-{
-  public function setUp(): void
-  {
+class JSONOnlineReaderTest extends TestBase implements HeadlessInterface, HookInterface, TransactionalInterface {
+
+  public function setUp(): void {
     parent::setUp();
   }
 
-  protected function getJsonFileUrl($path = null)
-  {
+  protected function getJsonFileUrl($path = NULL) {
     return \Civi::paths()->getPath('[civicrm.files]/ext/aip/tests/resources/finder/termine.json');
   }
 
   /**
    * Create a simple process (UrlRequestFile, CSV reader, TestProcessor)
    */
-  public function testReadOnlineJSON()
-  {
+  public function testReadOnlineJSON() {
     // create finder
     $finder = new Finder\StaticUrlFileFinder();
     $finder->setConfigValue('url', $this->getJsonFileUrl());
@@ -55,7 +50,6 @@ class JSONOnlineReaderTest extends TestBase implements HeadlessInterface, HookIn
 
     // create processor
     $processor = new Processor\TestProcessor();
-
 
     // create a process
     $process = new Process($finder, $reader, $processor);
@@ -73,8 +67,7 @@ class JSONOnlineReaderTest extends TestBase implements HeadlessInterface, HookIn
    * But then process one record, suspend,
    *      revive, process the remaining record
    */
-  public function testReadWithStopAndRestart()
-  {
+  public function testReadWithStopAndRestart() {
     // create finder
     $finder = new Finder\StaticUrlFileFinder();
     $finder->setConfigValue('url', $this->getJsonFileUrl());
@@ -92,24 +85,24 @@ class JSONOnlineReaderTest extends TestBase implements HeadlessInterface, HookIn
     $process->setConfigValue('processing_limit/record_count', 1);
     $process->run();
     $last_processed_record = $process->getProcessor()->getLastProcessedRecord();
-    $this->assertEquals("470580", $last_processed_record['_event_ID'] ?? null, "This should've processed the first record of the file");
+    $this->assertEquals('470580', $last_processed_record['_event_ID'] ?? NULL, "This should've processed the first record of the file");
 
     // check results
     $this->assertEquals(1, $reader->getSessionProcessedRecordCount(), "This should've processed the only one record because of the processing_limit/record_count = 1 limit.");
     $this->assertEquals(0, $reader->getFailedRecordCount());
     $process->store();
 
-
     // revive the process
     $process2 = Process::restore($process->getID());
-    $process2->setConfigValue('processing_limit/record_count', 2); // there should only be one left
+    // there should only be one left
+    $process2->setConfigValue('processing_limit/record_count', 2);
 
     // run the process
     $process2->run();
 
     // check results
     $last_processed_record = $process2->getProcessor()->getLastProcessedRecord();
-    $this->assertEquals("470581", $last_processed_record['_event_ID'], "This should've read the *second* record of the file");
+    $this->assertEquals('470581', $last_processed_record['_event_ID'], "This should've read the *second* record of the file");
     $this->assertEquals(1, $process2->getReader()->getSessionProcessedRecordCount(), "This should've processed the only one record because of the processing_limit/record_count = 1 limit.");
     $this->assertEquals(0, $process2->getReader()->getFailedRecordCount());
   }
@@ -119,12 +112,11 @@ class JSONOnlineReaderTest extends TestBase implements HeadlessInterface, HookIn
    * But then process one record, suspend,
    *      revive, process the remaining record
    */
-  public function testSkipIdenticalFiles()
-  {
+  public function testSkipIdenticalFiles() {
     // create finder
     $finder = new Finder\StaticUrlFileFinder();
     $finder->setConfigValue('url', $this->getJsonFileUrl());
-    $finder->setConfigValue('detect_changes', false);
+    $finder->setConfigValue('detect_changes', FALSE);
 
     // create reader
     $reader = new Reader\JSON();
@@ -135,20 +127,21 @@ class JSONOnlineReaderTest extends TestBase implements HeadlessInterface, HookIn
 
     // run the process -> should process all (2) records
     $process = new Process($finder, $reader, $processor);
-    $process->getFinder()->setConfigValue('detect_changes', false);
+    $process->getFinder()->setConfigValue('detect_changes', FALSE);
     $process->run();
     $this->assertEquals(2, $processor->getProcessedRecordCount(),
-                        "Should have processed two records.");
+                        'Should have processed two records.');
 
-    $process->getFinder()->setConfigValue('detect_changes', true);
+    $process->getFinder()->setConfigValue('detect_changes', TRUE);
     $process->run();
     $this->assertEquals(2, $processor->getProcessedRecordCount(),
-                        "Should NOT have processed two more records from the identical source: detect_changes is on.");
+                        'Should NOT have processed two more records from the identical source: detect_changes is on.');
 
-    $process->getFinder()->setConfigValue('detect_changes', false);
+    $process->getFinder()->setConfigValue('detect_changes', FALSE);
     $process->run();
     $this->assertEquals(4, $processor->getProcessedRecordCount(),
-                        "SHOULD have processed two more records from the identical source: detect_changes is off.");
+                        'SHOULD have processed two more records from the identical source: detect_changes is off.');
 
   }
+
 }

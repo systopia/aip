@@ -19,40 +19,39 @@ use Civi\AIP\Finder\Base    as Finder;
 use Civi\AIP\Reader\Base    as Reader;
 use Civi\AIP\Processor\Base as Processor;
 use CRM_Aip_ExtensionUtil   as E;
-use \Exception;
+use Exception;
 
-use function GuzzleHttp\Psr7\str;
-
-/** Default timeout for the process no-parallel-execution lock */
-const DEFAULT_PROCESS_LOCK_TIMEOUT = 600; // 10 minutes
+/**
+ * Default timeout for the process no-parallel-execution lock */
+// 10 minutes
+const DEFAULT_PROCESS_LOCK_TIMEOUT = 600;
 
 class TimeoutException extends Exception {}
 
 /**
  * A PROCESS will enclose various components
  **/
-class Process extends \Civi\AIP\AbstractComponent
-{
+class Process extends \Civi\AIP\AbstractComponent {
   /**
-   * @var integer $id
+   * @var integer
    *  the processor's ID. Only present (>0) if the process is persisted
    */
   protected int $id = 0;
 
   /**
-   * @var Finder $finder
+   * @var \Civi\AIP\Finder\Base
    *   The finder instance used in this process
    */
   protected Finder $finder;
 
   /**
-   * @var Reader $reader
+   * @var \Civi\AIP\Reader\Base
    *   The reader instance used in this process
    */
   protected Reader $reader;
 
   /**
-   * @var Processor $processor
+   * @var \Civi\AIP\Processor\Base
    *   The processor instance used in this process
    */
   protected Processor $processor;
@@ -68,25 +67,24 @@ class Process extends \Civi\AIP\AbstractComponent
   protected float $timeout_php_process = 0;
 
   /**
-   * @var string process name
+   * @var \functioning process name
    */
   protected string $name = '';
 
   /**
-   * @var string documentation
+   * @var \functioning documentation
    */
   protected string $documentation = '';
 
   /**
    * Create a new process with the given finder, reader and processor
    *
-   * @param Finder $finder
-   * @param Reader $reader
-   * @param Processor $processor
+   * @param \Civi\AIP\Finder\Base $finder
+   * @param \Civi\AIP\Reader\Base $reader
+   * @param \Civi\AIP\Processor\Base $processor
    * @param int $id
    */
-  public function __construct($finder, $reader, $processor, $id = 0)
-  {
+  public function __construct($finder, $reader, $processor, $id = 0) {
     parent::__construct();
     $this->id = $id;
     $this->process = $this;
@@ -105,20 +103,21 @@ class Process extends \Civi\AIP\AbstractComponent
    *
    * @return void
    */
-  protected function prepareForRun()
-  {
+  protected function prepareForRun() {
     // calculate processor timeout (individual processing)
     $processing_time_limit = $this->getConfigValue('processing_limit/processing_time');
     if ($processing_time_limit) {
       if (is_numeric($processing_time_limit)) {
         // this expressed as a number of seconds
-        $this->timeout = microtime(true) + (float) $processing_time_limit;
-      } else {
+        $this->timeout = microtime(TRUE) + (float) $processing_time_limit;
+      }
+      else {
         // this is a strtotime term
         $timeout_value = strtotime($processing_time_limit);
         if (!$timeout_value) {
           $this->log("Processing time limit invalid: {$processing_time_limit}. Time limit ignored.");
-        } else {
+        }
+        else {
           $this->timeout = (float) $timeout_value;
         }
       }
@@ -131,12 +130,14 @@ class Process extends \Civi\AIP\AbstractComponent
         // this expressed as a number of seconds
         $process_time_ms = (float) $php_process_time_limit;
         $this->timeout_php_process = $_SERVER['REQUEST_TIME_FLOAT'] + $process_time_ms;
-      } else {
+      }
+      else {
         // this is a strtotime term
         $timeout_value = strtotime($php_process_time_limit);
         if (!$timeout_value) {
           $this->log("Processing time limit invalid: {$php_process_time_limit}. Time limit ignored.");
-        } else {
+        }
+        else {
           $process_time_ms = (float) $timeout_value;
           $this->timeout_php_process = $_SERVER['REQUEST_TIME_FLOAT'] + $process_time_ms;
         }
@@ -151,11 +152,10 @@ class Process extends \Civi\AIP\AbstractComponent
    *
    * @throws Exception  should an unhandled exception appear
    */
-  public function run()
-  {
+  public function run() {
     // locking / parallel execution
     $parallel_execution = $this->getConfigValue('parallel_execution', 0);
-    $lock = null;
+    $lock = NULL;
     if (!$parallel_execution) {
       $lock = \Civi::lockManager()->create("aip-{$this->id}");
       $lock_timeout = $this->getConfigValue('lock_timeout', DEFAULT_PROCESS_LOCK_TIMEOUT);
@@ -168,9 +168,9 @@ class Process extends \Civi\AIP\AbstractComponent
     $this->prepareForRun();
 
     // find a source
-    $is_new_source = false;
-    $this->timestamp_start = microtime(true);
-    $this->log("Starting process [" . $this->getID() . "]", 'info');
+    $is_new_source = FALSE;
+    $this->timestamp_start = microtime(TRUE);
+    $this->log('Starting process [' . $this->getID() . ']', 'info');
 
     // check if the components are fine:
     $this->verifyConfiguration();
@@ -182,10 +182,11 @@ class Process extends \Civi\AIP\AbstractComponent
     if ($this->reader->getCurrentFile()) {
       // this is a resume
       $source_url = $this->reader->getCurrentFile();
-    } else {
+    }
+    else {
       // this is a new source
       $source_url = $this->finder->findNextSource();
-      $is_new_source = true;
+      $is_new_source = TRUE;
     }
 
     // check if there is a source for us
@@ -204,17 +205,20 @@ class Process extends \Civi\AIP\AbstractComponent
           $record = $this->reader->getNextRecord();
           $this->processor->processRecord($record);
           $this->reader->markLastRecordProcessed();
-        } catch (TimeoutException $exception) {
-            $this->log(E::ts("reader.getNextrecord Timed Out: %1", [1 => $exception->getMessage()]), 'info');
-        } catch (\Exception $exception) {
+        }
+        catch (TimeoutException $exception) {
+          $this->log(E::ts('reader.getNextrecord Timed Out: %1', [1 => $exception->getMessage()]), 'info');
+        }
+        catch (\Exception $exception) {
           $this->reader->markLastRecordFailed();
           $this->handleFailedRecord($record, $exception);
           if ($this->continueWithFailedRecord($exception)) {
             $this->log($exception->getMessage(), 'error');
-          } else {
+          }
+          else {
             $this->finder->markSourceFailed($source_url);
             $this->reader->markSourceFailed($source_url);
-            $this->log(E::ts("Processing aborted due to an exception: %1", [1 => $exception->getMessage()]), 'warning');
+            $this->log(E::ts('Processing aborted due to an exception: %1', [1 => $exception->getMessage()]), 'warning');
             break;
           }
         }
@@ -229,17 +233,19 @@ class Process extends \Civi\AIP\AbstractComponent
     // store current state
     $total_processed_count = $this->getReader()->getProcessedRecordCount();
     $session_processed_count = $this->getReader()->getSessionProcessedRecordCount();
-    $this->log(E::ts("Finished process [%1] after processing %2 records, %3 in total on this source(%4)", [
-            1 => $this->getID(),
-            2 => $session_processed_count,
-            3 => $total_processed_count,
-            4 => $source_url,
-      ]), 'info');
-    $this->store(true);
+    $this->log(E::ts('Finished process [%1] after processing %2 records, %3 in total on this source(%4)', [
+      1 => $this->getID(),
+      2 => $session_processed_count,
+      3 => $total_processed_count,
+      4 => $source_url,
+    ]), 'info');
+    $this->store(TRUE);
     $this->flushAllLogs();
 
     // release lock (if there is one)
-    if ($lock) $lock->release();
+    if ($lock) {
+      $lock->release();
+    }
   }
 
   /**
@@ -247,47 +253,44 @@ class Process extends \Civi\AIP\AbstractComponent
    *
    * @return int
    */
-  public function getID()
-  {
+  public function getID() {
     return $this->id;
   }
-
 
   /**
    * Should this process continue, even if at least one record has failed?
    *
    * @return bool
    */
-  public function continueWithFailedRecord() : bool
-  {
-    if(!is_null($this->getConfigValue('continue_with_failed_record'))){
-      return true;
-    }else{
-      return false;
+  public function continueWithFailedRecord() : bool {
+    if (!is_null($this->getConfigValue('continue_with_failed_record'))) {
+      return TRUE;
+    }
+    else {
+      return FALSE;
     }
   }
 
-  public function getTypeName() : string
-  {
-    return E::ts("Processor");
-  }  /**
- * Should / could this instance process more records right now?
- *
- * @return bool
- */
+  public function getTypeName() : string {
+    return E::ts('Processor');
+  }
 
-  public function shouldProcessMoreRecords() : bool
-  {
+  /**
+   * Should / could this instance process more records right now?
+   *
+   * @return bool
+   */
+  public function shouldProcessMoreRecords() : bool {
     // check time based restrictions
     if ($this->timeout_php_process || $this->timeout) {
-      $timestamp = microtime(true);
+      $timestamp = microtime(TRUE);
       if ($this->timeout && $timestamp > $this->timeout) {
-        $this->log("Process time limit hit.");
-        return false;
+        $this->log('Process time limit hit.');
+        return FALSE;
       }
       if ($this->timeout_php_process && $timestamp > $this->timeout_php_process) {
-        $this->log("PHP process time limit hit.");
-        return false;
+        $this->log('PHP process time limit hit.');
+        return FALSE;
       }
     }
 
@@ -295,40 +298,37 @@ class Process extends \Civi\AIP\AbstractComponent
     $processing_record_limit = (int) $this->getConfigValue('processing_limit/record_count');
     if ($processing_record_limit && $this->reader->getSessionProcessedRecordCount() >= $processing_record_limit) {
       $this->log("Processing record limit of {$processing_record_limit} hit.", 'info');
-      return false;
+      return FALSE;
     }
 
     // should the process continue?
-    return true;
+    return TRUE;
   }
 
   /**
    * Get the reader object in this process
    *
-   * @return Finder
+   * @return \Civi\AIP\Finder\Base
    */
-  public function getFinder() : Finder
-  {
+  public function getFinder() : Finder {
     return $this->finder;
   }
 
   /**
    * Get the reader object in this process
    *
-   * @return Reader
+   * @return \Civi\AIP\Reader\Base
    */
-  public function getReader() : Reader
-  {
+  public function getReader() : Reader {
     return $this->reader;
   }
 
   /**
    * Get the reader object in this process
    *
-   * @return Processor
+   * @return \Civi\AIP\Processor\Base
    */
-  public function getProcessor () : Processor
-  {
+  public function getProcessor () : Processor {
     return $this->processor;
   }
 
@@ -342,50 +342,50 @@ class Process extends \Civi\AIP\AbstractComponent
    * @return int
    *   component ID
    */
-  public function store($debug_output = false) : int
-  {
+  public function store($debug_output = FALSE) : int {
     $serialised_config = json_encode([
-        'finder'    => $this->finder->configuration    + ['class' => get_class($this->finder)],
-        'reader'    => $this->reader->configuration    + ['class' => get_class($this->reader)],
-        'processor' => $this->processor->configuration + ['class' => get_class($this->processor)],
-        'process'   => $this->configuration,
-     ]);
+      'finder'    => $this->finder->configuration + ['class' => get_class($this->finder)],
+      'reader'    => $this->reader->configuration + ['class' => get_class($this->reader)],
+      'processor' => $this->processor->configuration + ['class' => get_class($this->processor)],
+      'process'   => $this->configuration,
+    ]);
 
     $serialised_state = json_encode([
-       'finder'    => $this->finder->state,
-       'reader'    => $this->reader->state,
-       'processor' => $this->processor->state,
-       'process'   => $this->state,
-     ]);
+      'finder'    => $this->finder->state,
+      'reader'    => $this->reader->state,
+      'processor' => $this->processor->state,
+      'process'   => $this->state,
+    ]);
 
     if (!$this->id) {
       \CRM_Core_DAO::executeQuery(
-              "INSERT INTO civicrm_aip_process (name, class, config, state) VALUES (%1, %2, %3, %4)",
+              'INSERT INTO civicrm_aip_process (name, class, config, state) VALUES (%1, %2, %3, %4)',
               [
-                      1 => [$this->name, 'String'],
-                      2 => [\get_class($this), 'String'],
-                      3 => [$serialised_config, 'String'],
-                      4 => [$serialised_state, 'String']
+                1 => [$this->name, 'String'],
+                2 => [\get_class($this), 'String'],
+                3 => [$serialised_config, 'String'],
+                4 => [$serialised_state, 'String'],
               ]);
-      $this->id = \CRM_Core_DAO::singleValueQuery("SELECT LAST_INSERT_ID()");
+      $this->id = \CRM_Core_DAO::singleValueQuery('SELECT LAST_INSERT_ID()');
       $this->log("Process [{$this->id}] created.", 'debug');
 
-    } else {
+    }
+    else {
       \CRM_Core_DAO::executeQuery(
-              "UPDATE civicrm_aip_process SET name = %1, class = %2, config = %3, state = %4 WHERE id = %5",
+              'UPDATE civicrm_aip_process SET name = %1, class = %2, config = %3, state = %4 WHERE id = %5',
               [
-                      1 => [$this->name, 'String'],
-                      2 => [\get_class($this), 'String'],
-                      3 => [$serialised_config, 'String'],
-                      4 => [$serialised_state, 'String'],
-                      5 => [$this->id, 'Integer'],
+                1 => [$this->name, 'String'],
+                2 => [\get_class($this), 'String'],
+                3 => [$serialised_config, 'String'],
+                4 => [$serialised_state, 'String'],
+                5 => [$this->id, 'Integer'],
               ]);
     }
     $this->log("Process [{$this->id}] stored/suspended.", 'debug');
 
     if ($debug_output) {
-      \Civi::log()->debug("to update config in DB:\nUPDATE civicrm_aip_process SET config='" . str_replace('\\', '\\\\' , $serialised_config) . "' WHERE id=?{$this->id};");
-      \Civi::log()->debug("to update state in DB: \nUPDATE civicrm_aip_process SET  state='" . str_replace('\\', '\\\\' , $serialised_state)  . "' WHERE id=?{$this->id};");
+      \Civi::log()->debug("to update config in DB:\nUPDATE civicrm_aip_process SET config='" . str_replace('\\', '\\\\', $serialised_config) . "' WHERE id=?{$this->id};");
+      \Civi::log()->debug("to update state in DB: \nUPDATE civicrm_aip_process SET  state='" . str_replace('\\', '\\\\', $serialised_state) . "' WHERE id=?{$this->id};");
     }
 
     return $this->id;
@@ -397,16 +397,15 @@ class Process extends \Civi\AIP\AbstractComponent
    * @param int $id
    *   component ID (in database)
    */
-  public static function restore(int $id) : Process
-  {
+  public static function restore(int $id) : Process {
     $data_query = \CRM_Core_DAO::executeQuery(
-            "SELECT name, class, config, state FROM civicrm_aip_process WHERE id = %1",
+            'SELECT name, class, config, state FROM civicrm_aip_process WHERE id = %1',
             [1 => [$id, 'Integer']]);
     if ($data_query->fetch()) {
       try {
         // restore process:
-        $config = json_decode($data_query->config, true);
-        $state = json_decode($data_query->state, true);
+        $config = json_decode($data_query->config, TRUE);
+        $state = json_decode($data_query->state, TRUE);
 
         // restore finder
         $finder = new $config['finder']['class']();
@@ -438,10 +437,12 @@ class Process extends \Civi\AIP\AbstractComponent
         // don't do this here: $process->log("Process [{$process_id}] restored.");
         return $process;
 
-      } catch (\Exception $ex) {
+      }
+      catch (\Exception $ex) {
         throw new \Exception("Error while loading process [{$id}]");
       }
-    } else {
+    }
+    else {
       throw new \Exception("Couldn't find or restore process [{$id}]");
     }
   }
@@ -451,13 +452,12 @@ class Process extends \Civi\AIP\AbstractComponent
    *   if this feature is enabled. This way, it could later be retried.
    *
    * @param array $record the record processed
-   * @param Exception $exception the exception/error caught
+   * @param \CRM_Aip_ExtensionUtilxception $exception the exception/error caught
    *
    * @todo create BAOs and APIv4 for these
    * @return void
    */
-  public function handleFailedRecord($record, $exception)
-  {
+  public function handleFailedRecord($record, $exception) {
     // check setting
     $store_failed_record = $this->getConfigValue('use_aip_error_log');
     if (!empty($store_failed_record)) {
@@ -470,12 +470,12 @@ class Process extends \Civi\AIP\AbstractComponent
 
       // then simply write out the error log entry
       \CRM_Core_DAO::executeQuery(
-              "INSERT INTO civicrm_aip_error_log (process_id, error_timestamp, error_message, data) VALUES (%1, %2, %3, %4)",
+              'INSERT INTO civicrm_aip_error_log (process_id, error_timestamp, error_message, data) VALUES (%1, %2, %3, %4)',
               [
-                      1 => [$this->id, 'Integer'],
-                      2 => [date('YmdHis'), 'String'],
-                      3 => [$exception->getMessage(), 'String'],
-                      4 => [json_encode($record), 'String']
+                1 => [$this->id, 'Integer'],
+                2 => [date('YmdHis'), 'String'],
+                3 => [$exception->getMessage(), 'String'],
+                4 => [json_encode($record), 'String'],
               ]);
     }
   }
@@ -485,8 +485,7 @@ class Process extends \Civi\AIP\AbstractComponent
    *
    * @return void
    */
-  public function flushAllLogs()
-  {
+  public function flushAllLogs() {
     foreach (self::$log_files as $log_file) {
       fflush($log_file);
     }
@@ -497,8 +496,7 @@ class Process extends \Civi\AIP\AbstractComponent
    *
    * @return integer processed
    */
-  public function getProcessedRecordCount()
-  {
+  public function getProcessedRecordCount() {
     return (int) $this->getReader()->getStateValue('processed_record_count', 0);
   }
 
@@ -507,10 +505,8 @@ class Process extends \Civi\AIP\AbstractComponent
    *
    * @return integer failed
    */
-  public function getFailedRecordCount()
-  {
+  public function getFailedRecordCount() {
     return (int) $this->getReader()->getStateValue('failed_record_count', 0);
   }
-
 
 }
