@@ -13,9 +13,11 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
-class Local extends AbstractRecord
-{
-  /** @var array data set */
+declare(strict_types = 1);
+
+class Local extends AbstractRecord {
+  /**
+   * @var array data set */
   protected array $data;
 
   /**
@@ -33,8 +35,8 @@ class Local extends AbstractRecord
    * Get a list of field names
    *
    * @return array
-   */  public function getFields() : array
-  {
+   */
+  public function getFields() : array {
     return array_keys($this->data);
   }
 
@@ -43,8 +45,7 @@ class Local extends AbstractRecord
    *
    * @return array
    */
-  public function asArray() : array
-  {
+  public function asArray() : array {
     return $this->data;
   }
 
@@ -54,8 +55,8 @@ class Local extends AbstractRecord
    * @return ?string
    *   field value
    */
-  public function getValue(string $field_name) : ?string
-  {
-    return $this->data[$field_name] ?? null;
+  public function getValue(string $field_name) : ?string {
+    return $this->data[$field_name] ?? NULL;
   }
+
 }

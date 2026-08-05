@@ -13,6 +13,8 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
+declare(strict_types = 1);
+
 namespace Civi\AIP\Finder;
 
 use CRM_Aip_ExtensionUtil as E;
@@ -30,8 +32,9 @@ use CRM_Aip_ExtensionUtil as E;
  *  folder/history    - folder in which this module will store previously processed versions of the files
  *  header            - number of rows to exclude from the diff process, e.g. a CSV header
  *  column/id         - column to be used as ID - the only way to generate the status 'changed'
- *  column/status     - column in the file to list the status (added,changed,removed). If it doesn't exist, it will be added
- **/
+ *  column/status     - column in the file to list the status (added,changed,removed).
+ *                      If it doesn't exist, it will be added
+ */
 class Diff extends Base {
   /**
    * @var \Civi\AIP\Finder\Base the finder to actually look for sources  */
@@ -42,8 +45,8 @@ class Diff extends Base {
    *   i.e. configured correctly.
    *
    * @throws \Exception
-   *   an exception will be thrown if something's wrong with the
-   *     configuration or state
+   *   An exception will be thrown if something's wrong with the
+   *     configuration or state.
    */
   public function verifyConfiguration() {
     // first check the actual finder
@@ -70,15 +73,13 @@ class Diff extends Base {
     }
 
     $last_source = $this->findLastSource($next_source);
-    if ($next_source) {
-      // step 1: identify the last processed version of the file
-      // todo:
 
-      // step 2: separate headers
+    // step 1: identify the last processed version of the file
+    // todo:
 
-      // step 3: run diff
+    // step 2: separate headers
 
-    }
+    // step 3: run diff
 
     return NULL;
   }

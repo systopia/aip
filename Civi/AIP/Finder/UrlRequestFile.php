@@ -13,13 +13,15 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
+declare(strict_types = 1);
+
 namespace Civi\AIP\Finder;
 
 /**
  * This finder will get a file URL from the $_REQUEST['aip_input']
  *
  * BE *VERY* careful with this, it could be used to leak local information
- **/
+ */
 class UrlRequestFile extends Base {
 
   public function findNextSource() : ?string {

@@ -13,6 +13,8 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
+declare(strict_types = 1);
+
 namespace Civi\AIP;
 
 use Civi\Test\HeadlessInterface;
@@ -85,10 +87,18 @@ class JSONOnlineReaderTest extends TestBase implements HeadlessInterface, HookIn
     $process->setConfigValue('processing_limit/record_count', 1);
     $process->run();
     $last_processed_record = $process->getProcessor()->getLastProcessedRecord();
-    $this->assertEquals('470580', $last_processed_record['_event_ID'] ?? NULL, "This should've processed the first record of the file");
+    $this->assertEquals(
+      '470580',
+      $last_processed_record['_event_ID'] ?? NULL,
+      "This should've processed the first record of the file"
+    );
 
     // check results
-    $this->assertEquals(1, $reader->getSessionProcessedRecordCount(), "This should've processed the only one record because of the processing_limit/record_count = 1 limit.");
+    $this->assertEquals(
+      1,
+      $reader->getSessionProcessedRecordCount(),
+      "This should've processed the only one record because of the processing_limit/record_count = 1 limit."
+    );
     $this->assertEquals(0, $reader->getFailedRecordCount());
     $process->store();
 
@@ -102,8 +112,16 @@ class JSONOnlineReaderTest extends TestBase implements HeadlessInterface, HookIn
 
     // check results
     $last_processed_record = $process2->getProcessor()->getLastProcessedRecord();
-    $this->assertEquals('470581', $last_processed_record['_event_ID'], "This should've read the *second* record of the file");
-    $this->assertEquals(1, $process2->getReader()->getSessionProcessedRecordCount(), "This should've processed the only one record because of the processing_limit/record_count = 1 limit.");
+    $this->assertEquals(
+      '470581',
+      $last_processed_record['_event_ID'],
+      "This should've read the *second* record of the file"
+    );
+    $this->assertEquals(
+      1,
+      $process2->getReader()->getSessionProcessedRecordCount(),
+      "This should've processed the only one record because of the processing_limit/record_count = 1 limit."
+    );
     $this->assertEquals(0, $process2->getReader()->getFailedRecordCount());
   }
 

@@ -14,6 +14,8 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
+declare(strict_types = 1);
+
 require_once 'aip.civix.php';
 
 use CRM_AIP_ExtensionUtil as E;

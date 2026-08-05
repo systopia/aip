@@ -13,6 +13,8 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
+declare(strict_types = 1);
+
 namespace Civi\AIP;
 
 use Civi\Test\HeadlessInterface;
@@ -44,7 +46,11 @@ class ProcessorExceptionTest extends TestBase implements HeadlessInterface, Hook
     $processor->setConfigValue('api_entity', 'Contact');
     $processor->setConfigValue('api_action', 'create');
     $processor->setConfigValue('api_values', ['contact_type' => 'Individual']);
-    $processor->setConfigValue('parameter_mapping', ['Vorname' => 'first_name', 'Nachname' => 'last_name', 'E-Mail' => 'email']);
+    $processor->setConfigValue('parameter_mapping', [
+      'Vorname' => 'first_name',
+      'Nachname' => 'last_name',
+      'E-Mail' => 'email',
+    ]);
 
     // create a process
     $process = new Process($finder, $reader, $processor);

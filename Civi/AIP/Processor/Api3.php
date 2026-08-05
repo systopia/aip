@@ -13,6 +13,8 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
+declare(strict_types = 1);
+
 namespace Civi\AIP\Processor;
 
 use CRM_Aip_ExtensionUtil as E;
@@ -105,7 +107,7 @@ class Api3 extends Base {
           continue;
         }
 
-        if (!is_null($this->getArrayValue($parameters, $old_field_name))) {
+        if ($this->getArrayValue($parameters, $old_field_name) !== NULL) {
           $parameters[$new_field_name] = $this->getArrayValue($parameters, $old_field_name);
           unset($parameters[$old_field_name]);
         }

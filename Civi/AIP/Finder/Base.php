@@ -13,6 +13,8 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
+declare(strict_types = 1);
+
 namespace Civi\AIP\Finder;
 
 use Civi\AIP\AbstractComponent;
@@ -20,7 +22,8 @@ use CRM_Aip_ExtensionUtil as E;
 
 /**
  * A FINDER is used to identify new data sources to process
- **/
+ */
+// phpcs:ignore Generic.NamingConventions.AbstractClassNamePrefix.Missing
 abstract class Base extends AbstractComponent {
 
   /**

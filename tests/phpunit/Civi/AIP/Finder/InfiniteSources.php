@@ -13,13 +13,15 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
+declare(strict_types = 1);
+
 namespace Civi\AIP\Finder;
 
 use CRM_Aip_ExtensionUtil as E;
 
 /**
  * A FINDER that will find an infinite amount of sources
- **/
+ */
 class InfiniteSources extends Base {
 
   /**
@@ -27,8 +29,8 @@ class InfiniteSources extends Base {
    *   i.e. configured correctly.
    *
    * @throws \Exception
-   *   an exception will be thrown if something's wrong with the
-   *     configuration or state
+   *   An exception will be thrown if something's wrong with the
+   *     configuration or state.
    */
   public function verifyConfiguration() {}
 
@@ -43,7 +45,8 @@ class InfiniteSources extends Base {
    */
   public function findNextSource(): ?string {
     // copied from https://stackoverflow.com/a/13212994
-    return 'example:' . substr(str_shuffle(str_repeat($x = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ', ceil(16 / strlen($x)))), 1, 16);
+    $chars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    return 'example:' . substr(str_shuffle(str_repeat($chars, (int) ceil(16 / strlen($chars)))), 1, 16);
   }
 
   /**

@@ -13,6 +13,8 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
+declare(strict_types = 1);
+
 namespace Civi\AIP;
 
 use Civi\AIP\Finder\Base    as Finder;
@@ -30,7 +32,8 @@ class TimeoutException extends Exception {}
 
 /**
  * A PROCESS will enclose various components
- **/
+ */
+// phpcs:ignore Generic.Files.OneClassPerFile.MultipleFound, Generic.Files.OneObjectStructurePerFile.MultipleFound
 class Process extends \Civi\AIP\AbstractComponent {
   /**
    * @var integer
@@ -152,6 +155,7 @@ class Process extends \Civi\AIP\AbstractComponent {
    *
    * @throws Exception  should an unhandled exception appear
    */
+  // phpcs:ignore Generic.Metrics.CyclomaticComplexity.TooHigh
   public function run() {
     // locking / parallel execution
     $parallel_execution = $this->getConfigValue('parallel_execution', 0);
@@ -263,7 +267,7 @@ class Process extends \Civi\AIP\AbstractComponent {
    * @return bool
    */
   public function continueWithFailedRecord() : bool {
-    if (!is_null($this->getConfigValue('continue_with_failed_record'))) {
+    if ($this->getConfigValue('continue_with_failed_record') !== NULL) {
       return TRUE;
     }
     else {
@@ -384,8 +388,14 @@ class Process extends \Civi\AIP\AbstractComponent {
     $this->log("Process [{$this->id}] stored/suspended.", 'debug');
 
     if ($debug_output) {
-      \Civi::log()->debug("to update config in DB:\nUPDATE civicrm_aip_process SET config='" . str_replace('\\', '\\\\', $serialised_config) . "' WHERE id=?{$this->id};");
-      \Civi::log()->debug("to update state in DB: \nUPDATE civicrm_aip_process SET  state='" . str_replace('\\', '\\\\', $serialised_state) . "' WHERE id=?{$this->id};");
+      \Civi::log()->debug(
+        "to update config in DB:\nUPDATE civicrm_aip_process SET config='"
+        . str_replace('\\', '\\\\', $serialised_config) . "' WHERE id=?{$this->id};"
+      );
+      \Civi::log()->debug(
+        "to update state in DB: \nUPDATE civicrm_aip_process SET  state='"
+        . str_replace('\\', '\\\\', $serialised_state) . "' WHERE id=?{$this->id};"
+      );
     }
 
     return $this->id;
@@ -397,6 +407,7 @@ class Process extends \Civi\AIP\AbstractComponent {
    * @param int $id
    *   component ID (in database)
    */
+  // phpcs:ignore Generic.Metrics.CyclomaticComplexity.TooHigh
   public static function restore(int $id) : Process {
     $data_query = \CRM_Core_DAO::executeQuery(
             'SELECT name, class, config, state FROM civicrm_aip_process WHERE id = %1',
@@ -470,7 +481,8 @@ class Process extends \Civi\AIP\AbstractComponent {
 
       // then simply write out the error log entry
       \CRM_Core_DAO::executeQuery(
-              'INSERT INTO civicrm_aip_error_log (process_id, error_timestamp, error_message, data) VALUES (%1, %2, %3, %4)',
+              'INSERT INTO civicrm_aip_error_log (process_id, error_timestamp, error_message, data)'
+              . ' VALUES (%1, %2, %3, %4)',
               [
                 1 => [$this->id, 'Integer'],
                 2 => [date('YmdHis'), 'String'],

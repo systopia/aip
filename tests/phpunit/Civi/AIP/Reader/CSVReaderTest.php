@@ -13,6 +13,8 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
+declare(strict_types = 1);
+
 namespace Civi\AIP;
 
 use Civi\Test\HeadlessInterface;
@@ -80,7 +82,11 @@ class CSVReaderTest extends TestBase implements HeadlessInterface, HookInterface
     $this->assertEquals('25120510', reset($last_processed_record), "This should've read the first record of the file");
 
     // check results
-    $this->assertEquals(1, $reader->getSessionProcessedRecordCount(), "This should've processed the only one record because of the processing_limit/record_count = 1 limit.");
+    $this->assertEquals(
+      1,
+      $reader->getSessionProcessedRecordCount(),
+      "This should've processed the only one record because of the processing_limit/record_count = 1 limit."
+    );
     $this->assertEquals(0, $reader->getFailedRecordCount());
     $process->store();
 
@@ -93,8 +99,16 @@ class CSVReaderTest extends TestBase implements HeadlessInterface, HookInterface
     // check results
     $processor = $process2->getProcessor();
     $last_processed_record = $process2->getProcessor()->getLastProcessedRecord();
-    $this->assertEquals('25120511', $last_processed_record['BLZ'], "This should've read the *second* record of the file");
-    $this->assertEquals(1, $process2->getReader()->getSessionProcessedRecordCount(), "This should've processed the only one record because of the processing_limit/record_count = 1 limit.");
+    $this->assertEquals(
+      '25120511',
+      $last_processed_record['BLZ'],
+      "This should've read the *second* record of the file"
+    );
+    $this->assertEquals(
+      1,
+      $process2->getReader()->getSessionProcessedRecordCount(),
+      "This should've processed the only one record because of the processing_limit/record_count = 1 limit."
+    );
     $this->assertEquals(0, $process2->getReader()->getFailedRecordCount());
   }
 
@@ -121,8 +135,16 @@ class CSVReaderTest extends TestBase implements HeadlessInterface, HookInterface
     $process->run();
 
     // check results
-    $this->assertEquals(3, $reader->getProcessedRecordCount(), "This should've processed the three records in the file.");
-    $this->assertEquals(3, $reader->getStateValue('lines_skipped'), "This should've skipped three empty lines in the file.");
+    $this->assertEquals(
+      3,
+      $reader->getProcessedRecordCount(),
+      "This should've processed the three records in the file."
+    );
+    $this->assertEquals(
+      3,
+      $reader->getStateValue('lines_skipped'),
+      "This should've skipped three empty lines in the file."
+    );
     $this->assertEquals(0, $reader->getFailedRecordCount());
   }
 
@@ -149,8 +171,16 @@ class CSVReaderTest extends TestBase implements HeadlessInterface, HookInterface
     $process->run();
 
     // check results
-    $this->assertEquals(3, $reader->getProcessedRecordCount(), "This should've processed the three records in the file.");
-    $this->assertEquals(2, $reader->getStateValue('lines_skipped'), "This should've skipped three empty lines in the file.");
+    $this->assertEquals(
+      3,
+      $reader->getProcessedRecordCount(),
+      "This should've processed the three records in the file."
+    );
+    $this->assertEquals(
+      2,
+      $reader->getStateValue('lines_skipped'),
+      "This should've skipped three empty lines in the file."
+    );
     $this->assertEquals(0, $reader->getFailedRecordCount());
   }
 
@@ -177,8 +207,16 @@ class CSVReaderTest extends TestBase implements HeadlessInterface, HookInterface
     $process->run();
 
     // check results
-    $this->assertEquals(3, $reader->getProcessedRecordCount(), "This should've processed the three records in the file.");
-    $this->assertEquals(8, $reader->getStateValue('lines_skipped'), "This should've skipped three empty lines in the file.");
+    $this->assertEquals(
+      3,
+      $reader->getProcessedRecordCount(),
+      "This should've processed the three records in the file."
+    );
+    $this->assertEquals(
+      8,
+      $reader->getStateValue('lines_skipped'),
+      "This should've skipped three empty lines in the file."
+    );
     $this->assertEquals(0, $reader->getFailedRecordCount());
   }
 

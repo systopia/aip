@@ -13,6 +13,8 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
+declare(strict_types = 1);
+
 namespace Civi\AIP\Reader;
 
 use CRM_Aip_ExtensionUtil as E;
@@ -95,7 +97,7 @@ class CSV extends Base {
    * Open and init the CSV file
    *
    * @throws \Exception
-   *   any issues with opening/reading the file
+   *   Any issues with opening/reading the file.
    */
   public function initialiseWithSource($source) {
     parent::initialiseWithSource($source);
@@ -138,7 +140,7 @@ class CSV extends Base {
    * @return void
    *
    * @throws \Exception
-   *   if the file couldn't be opened
+   *   If the file couldn't be opened.
    */
   protected function openFile(string $source) {
     if ($this->current_file_handle) {
@@ -174,7 +176,7 @@ class CSV extends Base {
    *   a record, or null if there are no more records
    *
    * @throws \Exception
-   *   if there is a read error
+   *   If there is a read error.
    */
   public function getNextRecord(): ?array {
     if ($this->hasMoreRecords()) {
@@ -248,7 +250,7 @@ class CSV extends Base {
 
     // check for empty lines
     if ($skip_empty_lines) {
-      if (is_array($record) && is_null(current($record)) && count($record) <= 1) {
+      if (is_array($record) && current($record) === NULL && count($record) <= 1) {
         // this is an empty line, move on to the next one
         // todo: address recursion issue for files _only_ consisting of line breaks
         $this->increaseLinesSkipped();
@@ -261,10 +263,11 @@ class CSV extends Base {
       // encode record using utf8_encode helper
       if ($encoding != 'UTF8') {
         if ($encoding == 'utf8_encode') {
-          // use the utf8_encode function
+          // utf8_encode() is deprecated as of PHP 8.2; it only ever converted
+          // ISO-8859-1 to UTF-8, so mb_convert_encoding() is the direct replacement.
           $new_record = [];
           foreach ($record as $key => $value) {
-            $new_record[$key] = utf8_encode($value);
+            $new_record[$key] = mb_convert_encoding($value, 'UTF8', 'ISO-8859-1');
           }
           $record = $new_record;
         }

@@ -13,6 +13,8 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
+declare(strict_types = 1);
+
 // phpcs:disable
 use CRM_Aip_ExtensionUtil as E;
 // phpcs:enable
@@ -62,7 +64,9 @@ class CRM_Aip_Upgrader extends CRM_Extension_Upgrader_Base {
     // add column: category
     $column_exists = CRM_Core_DAO::singleValueQuery("SHOW COLUMNS FROM `civicrm_aip_error_log` LIKE 'is_resolved';");
     if (!$column_exists) {
-      CRM_Core_DAO::executeQuery("ALTER TABLE `civicrm_aip_error_log` ADD COLUMN `is_resolved` BOOL COMMENT 'has this error been resolved?';");
+      CRM_Core_DAO::executeQuery(
+        "ALTER TABLE `civicrm_aip_error_log` ADD COLUMN `is_resolved` BOOL COMMENT 'has this error been resolved?';"
+      );
     }
 
     // update rebuild log tables
@@ -77,9 +81,13 @@ class CRM_Aip_Upgrader extends CRM_Extension_Upgrader_Base {
    * @return TRUE on success
    */
   public function upgrade_0003() : bool {
-    CRM_Core_Session::setStatus('AIP does map parameters before filtering parameter now. Please check if your AIP Configuration needs changes');
+    CRM_Core_Session::setStatus(
+      'AIP does map parameters before filtering parameter now. Please check if your AIP Configuration needs changes'
+    );
     return TRUE;
   }
+
+  // phpcs:disable Squiz.PHP.CommentedOutCode.Found
 
   /**
    * Example: Work with entities usually not available during the install step.
@@ -188,5 +196,6 @@ class CRM_Aip_Upgrader extends CRM_Extension_Upgrader_Base {
   //   }
   //   return TRUE;
   // }
+  // phpcs:enable
 
 }

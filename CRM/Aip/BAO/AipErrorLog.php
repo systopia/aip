@@ -13,6 +13,8 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
+declare(strict_types = 1);
+
 use CRM_Aip_ExtensionUtil as E;
 
 class CRM_Aip_BAO_AipErrorLog extends CRM_Aip_DAO_AipErrorLog {

@@ -13,11 +13,14 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
+declare(strict_types = 1);
+
 namespace Civi\AIP\Reader;
 
 use Civi\AIP\AbstractComponent;
 use CRM_Aip_ExtensionUtil as E;
 
+// phpcs:ignore Generic.NamingConventions.AbstractClassNamePrefix.Missing
 abstract class Base extends AbstractComponent {
   /**
    * @var int counting the records processed in this session */

@@ -13,6 +13,8 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
+declare(strict_types = 1);
+
 namespace Civi\AIP\Reader;
 
 use CRM_Aip_ExtensionUtil as E;
@@ -75,7 +77,7 @@ class JSON extends Base {
    * Open and init the JSON file
    *
    * @throws \Exception
-   *   any issues with opening/reading the file
+   *   Any issues with opening/reading the file.
    */
   public function initialiseWithSource($source) {
     parent::initialiseWithSource($source);
@@ -128,7 +130,7 @@ class JSON extends Base {
    * @return void
    *
    * @throws \Exception
-   *   if the file couldn't be opened
+   *   If the file couldn't be opened.
    */
   protected function openFile(string $source) {
     if ($this->current_file_handle) {
@@ -155,7 +157,7 @@ class JSON extends Base {
    *   a record, or null if there are no more records
    *
    * @throws \Exception
-   *   if there is a read error
+   *   If there is a read error.
    */
   public function getNextRecord(): ?array {
     if ($this->hasMoreRecords()) {

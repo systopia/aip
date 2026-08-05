@@ -13,6 +13,8 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
+declare(strict_types = 1);
+
 namespace Civi\AIP\Finder;
 
 use CRM_Aip_ExtensionUtil as E;
@@ -25,7 +27,7 @@ use PHPUnit\Exception;
  *  url            - url of the file
  *  detect_changes - discard the source file if it has already been processed
  *                     (using checksum)
- **/
+ */
 class StaticUrlFileFinder extends Base {
 
   /**
@@ -33,8 +35,8 @@ class StaticUrlFileFinder extends Base {
    *   i.e. configured correctly.
    *
    * @throws \Exception
-   *   an exception will be thrown if something's wrong with the
-   *     configuration or state
+   *   An exception will be thrown if something's wrong with the
+   *     configuration or state.
    */
   public function verifyConfiguration() {
     // looks good.

@@ -13,13 +13,15 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
+declare(strict_types = 1);
+
 namespace Civi\AIP;
 
 use CRM_Aip_ExtensionUtil as E;
 
 /**
  * Generic infrastructure for component
- **/
+ */
 abstract class AbstractComponent {
   /**
    * @var ?Process the process this component belongs to
@@ -50,8 +52,8 @@ abstract class AbstractComponent {
    *   i.e. configured correctly.
    *
    * @throws \Exception
-   *   an exception will be thrown if something's wrong with the
-   *     configuration or state
+   *   An exception will be thrown if something's wrong with the
+   *     configuration or state.
    */
   public function verifyConfiguration() {
     // by default, we're ready :)
@@ -121,7 +123,7 @@ abstract class AbstractComponent {
    * @return void
    */
   public function resetState() {
-    // anything? $this->state = [];?
+    // Nothing to reset by default; override in subclasses if needed.
   }
 
   /**
@@ -256,14 +258,12 @@ abstract class AbstractComponent {
    * @param string $message
    *   the log message
    *
-   * @param string $level
+   * @param string $log_level
    *   log level, one of debug, info, warning, error
    *
    * @return void
    */
   public function log($message, $log_level = 'debug') {
-    //\Civi::log()->debug($message);
-
     // find out if we should log this.
     $min_log_level = strtolower($this->getConfigValue('log/level', 'debug'));
 
@@ -308,6 +308,7 @@ abstract class AbstractComponent {
    *
    * @return void
    */
+  // phpcs:ignore Generic.Metrics.CyclomaticComplexity.TooHigh
   protected function writeLogMessage(string $message, $log_level) {
     $log_file = $this->getConfigValue('log/file');
     if (empty($log_file)) {
@@ -340,7 +341,7 @@ abstract class AbstractComponent {
     else {
       // log to separate log file
       if (!isset(AbstractComponent::$log_files[$log_file])) {
-        if (!is_writeable($log_file)) {
+        if (!is_writable($log_file)) {
           // create an alternative file
           $tmp_log_file = tempnam(sys_get_temp_dir(), date('Y-n-d_H_i_s') . '_aip_log_');
           error_log("Log file '{$log_file}' not writeable, using '{$tmp_log_file}'!");
@@ -402,7 +403,7 @@ abstract class AbstractComponent {
    *   message
    *
    * @throws \Exception
-   *   the requested exception
+   *   The requested exception.
    *
    * @return void
    */

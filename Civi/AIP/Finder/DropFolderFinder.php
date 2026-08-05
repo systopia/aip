@@ -13,6 +13,8 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
+declare(strict_types = 1);
+
 namespace Civi\AIP\Finder;
 
 use CRM_Aip_ExtensionUtil   as E;
@@ -27,7 +29,7 @@ use CRM_Aip_ExtensionUtil   as E;
  *  folder/processed  - folder in which this module will store files after processing (with r/w permissions)
  *  folder/failed     - folder in which this module will keep files after processing failed (with r/w permissions)
  *  folder/uploading - folder for processed to upload files into, before mv'ing them to the inbox (r/w permissions)
- **/
+ */
 class DropFolderFinder extends Base {
 
   /**
@@ -35,13 +37,20 @@ class DropFolderFinder extends Base {
    *   i.e. configured correctly.
    *
    * @throws \Exception
-   *   an exception will be thrown if something's wrong with the
-   *     configuration or state
+   *   An exception will be thrown if something's wrong with the
+   *     configuration or state.
    */
   public function verifyConfiguration() {
     // check if all the folders are there
     $all_folder_paths = [];
-    foreach (['folder/uploading', 'folder/inbox', 'folder/processing', 'folder/processed', 'folder/failed'] as $folder_setting) {
+    $folder_settings = [
+      'folder/uploading',
+      'folder/inbox',
+      'folder/processing',
+      'folder/processed',
+      'folder/failed',
+    ];
+    foreach ($folder_settings as $folder_setting) {
       $folder_path = $this->getConfigValue($folder_setting);
 
       // folders have to be set
@@ -158,7 +167,10 @@ class DropFolderFinder extends Base {
     $target_file = $processed_folder . DIRECTORY_SEPARATOR . basename($file_path);
 
     if (rename($file_path, $target_file)) {
-      $this->log(E::ts('Moved file from %1 to %2 to mark as processed.,', [1 => $file_path, 2 => $target_file]), 'info');
+      $this->log(
+        E::ts('Moved file from %1 to %2 to mark as processed.,', [1 => $file_path, 2 => $target_file]),
+        'info'
+      );
       return TRUE;
     }
     else {

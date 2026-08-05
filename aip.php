@@ -1,6 +1,8 @@
 <?php
 // phpcs:disable PSR1.Files.SideEffects.FoundWithSymbols
 
+declare(strict_types = 1);
+
 require_once 'aip.civix.php';
 // phpcs:disable
 use CRM_Aip_ExtensionUtil as E;
@@ -50,6 +52,7 @@ function aip_civicrm_entityTypes(&$entityTypes) {
 }
 
 // --- Functions below this ship commented out. Uncomment as required. ---
+// phpcs:disable Squiz.PHP.CommentedOutCode.Found
 
 /**
  * Implements hook_civicrm_preProcess().
@@ -76,3 +79,4 @@ function aip_civicrm_entityTypes(&$entityTypes) {
 //  ]);
 //  _aip_civix_navigationMenu($menu);
 //}
+// phpcs:enable

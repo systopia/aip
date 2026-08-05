@@ -13,6 +13,8 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
+declare(strict_types = 1);
+
 namespace Civi\AIP;
 
 use Civi\Test\HeadlessInterface;
@@ -69,7 +71,11 @@ class ProcessTimeRestrictionTest extends TestBase implements HeadlessInterface, 
     $process1->setConfigValue('processing_limit/processing_time', 0.010);
     $process1->setConfigValue('processing_limit/php_process_time', $test_time_elapsed + 0.015);
     $process1->run();
-    $this->assertTrue($reader1->getProcessedRecordCount() > 0, "First process didn't process any records. There's something wrong with the test setup. Or the process was paused during testing.");
+    $this->assertTrue(
+      $reader1->getProcessedRecordCount() > 0,
+      "First process didn't process any records. There's something wrong with the test setup."
+      . ' Or the process was paused during testing.'
+    );
 
     // run process 2
     $finder2 = new InfiniteSources();
@@ -81,8 +87,15 @@ class ProcessTimeRestrictionTest extends TestBase implements HeadlessInterface, 
     $process2->run();
 
     // check stats. Quite tricky, but the second one should've been cut short by the combined runtime of the two
-    $this->assertTrue($reader2->getProcessedRecordCount() > 0, "Second process didn't process any records. There's something wrong with the test setup. Or the process was paused during testing.");
-    $this->assertTrue($reader1->getProcessedRecordCount() > $reader2->getProcessedRecordCount(), "The second process should've been cut short by the accumulated time limit");
+    $this->assertTrue(
+      $reader2->getProcessedRecordCount() > 0,
+      "Second process didn't process any records. There's something wrong with the test setup."
+      . ' Or the process was paused during testing.'
+    );
+    $this->assertTrue(
+      $reader1->getProcessedRecordCount() > $reader2->getProcessedRecordCount(),
+      "The second process should've been cut short by the accumulated time limit"
+    );
   }
 
 }

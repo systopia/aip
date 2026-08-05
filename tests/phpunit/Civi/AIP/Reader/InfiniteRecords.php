@@ -13,6 +13,8 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
+declare(strict_types = 1);
+
 namespace Civi\AIP\Reader;
 
 use CRM_Aip_ExtensionUtil as E;
@@ -49,7 +51,7 @@ class InfiniteRecords extends Base {
    * Open and init the CSV file
    *
    * @throws \Exception
-   *   any issues with opening/reading the file
+   *   Any issues with opening/reading the file.
    */
   public function initialiseWithSource($source) {
     $this->source = $source;
@@ -63,7 +65,7 @@ class InfiniteRecords extends Base {
    * @return void
    *
    * @throws \Exception
-   *   if the file couldn't be opened
+   *   If the file couldn't be opened.
    */
   protected function openFile(string $source) {
     $this->source = $source;

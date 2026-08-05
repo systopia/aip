@@ -13,6 +13,8 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
+declare(strict_types = 1);
+
 namespace Civi\AIP;
 
 use Civi\Test\HeadlessInterface;
@@ -51,7 +53,11 @@ class DropFolderFinderTest extends TestBase implements HeadlessInterface, HookIn
     $processor->setConfigValue('api_entity', 'Contact');
     $processor->setConfigValue('api_action', 'create');
     $processor->setConfigValue('api_values', ['contact_type' => 'Individual']);
-    $processor->setConfigValue('parameter_mapping', ['Vorname' => 'first_name', 'Nachname' => 'last_name', 'E-Mail' => 'email']);
+    $processor->setConfigValue('parameter_mapping', [
+      'Vorname' => 'first_name',
+      'Nachname' => 'last_name',
+      'E-Mail' => 'email',
+    ]);
 
     // create a process
     $process = new Process($finder, $reader, $processor);
@@ -141,10 +147,22 @@ class DropFolderFinderTest extends TestBase implements HeadlessInterface, HookIn
     $process->run();
 
     // check the record
-    $record = \CRM_Core_DAO::executeQuery('SELECT * FROM civicrm_aip_error_log WHERE process_id = %1;', [1 => [$process->getID(), 'Integer']]);
+    $record = \CRM_Core_DAO::executeQuery(
+      'SELECT * FROM civicrm_aip_error_log WHERE process_id = %1;',
+      [1 => [$process->getID(), 'Integer']]
+    );
     $record->fetch();
-    $this->assertEquals('oh-oh', $record->error_message, "The error messages does not match the exceptions' error message");
-    $this->assertEqualsWithDelta(strtotime('now'), strtotime($record->error_timestamp), 1.0, 'The error messages timestamp is off.');
+    $this->assertEquals(
+      'oh-oh',
+      $record->error_message,
+      "The error messages does not match the exceptions' error message"
+    );
+    $this->assertEqualsWithDelta(
+      strtotime('now'),
+      strtotime($record->error_timestamp),
+      1.0,
+      'The error messages timestamp is off.'
+    );
     $this->assertIsArray(json_decode($record->data, TRUE), 'The data was not stored as a JSON array');
     $this->assertNotEmpty(json_decode($record->data, TRUE), 'The data was not stored as a JSON array');
   }
