@@ -43,11 +43,11 @@ class Api3 extends Base {
     $call_parameters = $this->trimCallParameters($call_parameters);
 
     // 3) compile the API parameters
-    $entity = $this->getConfigValue('api_entity');
-    $action = $this->getConfigValue('api_action');
+    $entity = $this->getConfigString('api_entity');
+    $action = $this->getConfigString('api_action');
     $hardcoded_values = (array) $this->getConfigValue('api_values');
     $call_parameters = array_merge($call_parameters, $hardcoded_values);
-    $call_hash = sha1(json_encode($call_parameters));
+    $call_hash = sha1((string) json_encode($call_parameters));
 
     // 4) Run the API call
     $this->log("Call API {$entity}.{$action} with parameters hash {$call_hash}", 'debug');
@@ -83,7 +83,9 @@ class Api3 extends Base {
     $negative_parameter_list = $this->getConfigValue('negative_parameter_list');
     if (is_array($negative_parameter_list)) {
       foreach ($negative_parameter_list as $field_name) {
-        unset($parameters[$field_name]);
+        if (is_scalar($field_name)) {
+          unset($parameters[(string) $field_name]);
+        }
       }
     }
 
@@ -103,12 +105,12 @@ class Api3 extends Base {
     $parameter_mapping = $this->getConfigValue('parameter_mapping');
     if (is_array($parameter_mapping)) {
       foreach ($parameter_mapping as $old_field_name => $new_field_name) {
-        if ((string) $old_field_name === (string) $new_field_name) {
+        if (!is_scalar($new_field_name) || (string) $old_field_name === (string) $new_field_name) {
           continue;
         }
 
-        if ($this->getArrayValue($parameters, $old_field_name) !== NULL) {
-          $parameters[$new_field_name] = $this->getArrayValue($parameters, $old_field_name);
+        if ($this->getArrayValue($parameters, (string) $old_field_name) !== NULL) {
+          $parameters[(string) $new_field_name] = $this->getArrayValue($parameters, (string) $old_field_name);
           unset($parameters[$old_field_name]);
         }
       }
@@ -118,7 +120,9 @@ class Api3 extends Base {
     $negative_parameter_list = $this->getConfigValue('negative_parameter_list');
     if (is_array($negative_parameter_list)) {
       foreach ($negative_parameter_list as $field_name) {
-        unset($parameters[$field_name]);
+        if (is_scalar($field_name)) {
+          unset($parameters[(string) $field_name]);
+        }
       }
     }
 
@@ -138,13 +142,20 @@ class Api3 extends Base {
     $parameter_trimming = $this->getConfigValue('trim_parameters');
     if ($parameter_trimming === 'all') {
       foreach ($parameters as $key => &$value) {
-        $value = trim($value);
+        if (is_string($value)) {
+          $value = trim($value);
+        }
       }
+      unset($value);
     }
     elseif (is_array($parameter_trimming)) {
       foreach ($parameter_trimming as $key) {
-        if (isset($parameters[$key])) {
-          $parameters[$key] = trim($parameters[$key]);
+        if (!is_scalar($key)) {
+          continue;
+        }
+        $parameter_key = (string) $key;
+        if (isset($parameters[$parameter_key]) && is_string($parameters[$parameter_key])) {
+          $parameters[$parameter_key] = trim($parameters[$parameter_key]);
         }
       }
     }

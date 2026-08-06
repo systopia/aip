@@ -99,29 +99,27 @@ class JSON extends Base {
     else {
       // resume the file
       $this->next_record_index = $this->getProcessedRecordCount() + $this->getFailedRecordCount();
-      if ($this->next_record_index) {
+      if ($this->next_record_index !== 0) {
         $this->log("Resume: skipped {$this->next_record_index} previously processed record(s).", 'info');
       }
     }
 
     // try and open the file
-    try {
-      // todo: check if 'file_get_contents' can process URLs, including credentials?
-      $current_file_content = file_get_contents($source);
-    }
-    catch (\Exception $ex) {
+    // todo: check if 'file_get_contents' can process URLs, including credentials?
+    $current_file_content = file_get_contents($source);
+    if ($current_file_content === FALSE) {
       $this->log("Couldn't open file '{$source}' for reading", 'error');
-      throw $ex;
+      throw new \Exception("Couldn't open file '{$source}' for reading");
     }
 
     // parse the JSON
-    try {
-      $this->all_records = json_decode($current_file_content, TRUE);
-      $record_count = count($this->all_records);
+    $decoded_records = json_decode($current_file_content, TRUE);
+    if (is_array($decoded_records)) {
+      $this->all_records = $decoded_records;
+      $record_count = count($decoded_records);
       $this->log("JSON file '{$source}' contains {$record_count} records.");
     }
-    catch (\Exception $exception) {
-      // @ignoreException a failed parse must not abort processing; continue with an empty record set
+    else {
       $this->log("Couldn't parse JSON file '{$source}'", 'error');
       $this->markSourceFailed($source);
       $this->all_records = [];
@@ -143,7 +141,7 @@ class JSON extends Base {
    *   from copying CSV.php. TODO: delete?
    */
   protected function openFile(string $source) {
-    if ($this->current_file_handle) {
+    if (is_resource($this->current_file_handle)) {
       $this->raiseException(E::ts('There is already an open file', [1 => $source]));
     }
 
@@ -157,7 +155,7 @@ class JSON extends Base {
   }
 
   public function hasMoreRecords(): bool {
-    return count($this->all_records) > $this->next_record_index;
+    return $this->all_records !== NULL && count($this->all_records) > $this->next_record_index;
   }
 
   /**
@@ -181,11 +179,14 @@ class JSON extends Base {
       }
 
       // apply path
-      $path = $this->getConfigValue('path');
-      if ((bool) $path) {
-        $path = explode('/', $path);
-        foreach ($path as $path_element) {
-          $record = $record[$path_element] ?? NULL;
+      $path = $this->getConfigString('path');
+      if ($path !== '') {
+        foreach (explode('/', $path) as $path_element) {
+          $record = is_array($record) ? ($record[$path_element] ?? NULL) : NULL;
+        }
+        if (!is_array($record)) {
+          $this->log('Failed to read record, data type is: ' . gettype($record), 'error');
+          throw new \Exception("Couldn't read record.");
         }
       }
 
@@ -212,7 +213,8 @@ class JSON extends Base {
    * @return string the current file path/url
    */
   public function getCurrentFile() : ?string {
-    return $this->getStateValue('current_file');
+    $current_file = $this->getStateValue('current_file');
+    return is_string($current_file) ? $current_file : NULL;
   }
 
   /**

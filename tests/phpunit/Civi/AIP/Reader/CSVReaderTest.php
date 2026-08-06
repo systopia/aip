@@ -80,6 +80,7 @@ class CSVReaderTest extends TestBase implements HeadlessInterface, HookInterface
     // run the process
     $process->run();
     $last_processed_record = $process->getProcessor()->getLastProcessedRecord();
+    $this->assertIsArray($last_processed_record);
     $this->assertEquals('25120510', reset($last_processed_record), "This should've read the first record of the file");
 
     // check results
@@ -100,6 +101,7 @@ class CSVReaderTest extends TestBase implements HeadlessInterface, HookInterface
     // check results
     $processor = $process2->getProcessor();
     $last_processed_record = $process2->getProcessor()->getLastProcessedRecord();
+    $this->assertIsArray($last_processed_record);
     $this->assertEquals(
       '25120511',
       $last_processed_record['BLZ'],

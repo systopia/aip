@@ -63,7 +63,7 @@ class CRM_Aip_Upgrader extends CRM_Extension_Upgrader_Base {
 
     // add column: category
     $column_exists = CRM_Core_DAO::singleValueQuery("SHOW COLUMNS FROM `civicrm_aip_error_log` LIKE 'is_resolved';");
-    if (!$column_exists) {
+    if ($column_exists === NULL || $column_exists === '') {
       CRM_Core_DAO::executeQuery(
         "ALTER TABLE `civicrm_aip_error_log` ADD COLUMN `is_resolved` BOOL COMMENT 'has this error been resolved?';"
       );

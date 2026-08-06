@@ -75,12 +75,12 @@ class Process extends \Civi\AIP\AbstractComponent {
   protected float $timestamp_start = 0;
 
   /**
-   * @var \functioning process name
+   * @var string process name
    */
   protected string $name = '';
 
   /**
-   * @var \functioning documentation
+   * @var string documentation
    */
   protected string $documentation = '';
 
@@ -114,15 +114,15 @@ class Process extends \Civi\AIP\AbstractComponent {
   protected function prepareForRun() {
     // calculate processor timeout (individual processing)
     $processing_time_limit = $this->getConfigValue('processing_limit/processing_time');
-    if ((bool) $processing_time_limit) {
+    if (is_scalar($processing_time_limit) && (bool) $processing_time_limit) {
       if (is_numeric($processing_time_limit)) {
         // this expressed as a number of seconds
         $this->timeout = microtime(TRUE) + (float) $processing_time_limit;
       }
       else {
         // this is a strtotime term
-        $timeout_value = strtotime($processing_time_limit);
-        if (!$timeout_value) {
+        $timeout_value = strtotime((string) $processing_time_limit);
+        if (!(bool) $timeout_value) {
           $this->log("Processing time limit invalid: {$processing_time_limit}. Time limit ignored.");
         }
         else {
@@ -132,22 +132,25 @@ class Process extends \Civi\AIP\AbstractComponent {
     }
 
     // set total runtime timeout
+    $php_process_start = is_numeric($_SERVER['REQUEST_TIME_FLOAT'] ?? NULL)
+      ? (float) $_SERVER['REQUEST_TIME_FLOAT']
+      : microtime(TRUE);
     $php_process_time_limit = $this->getConfigValue('processing_limit/php_process_time');
-    if ((bool) $php_process_time_limit) {
+    if (is_scalar($php_process_time_limit) && (bool) $php_process_time_limit) {
       if (is_numeric($php_process_time_limit)) {
         // this expressed as a number of seconds
         $process_time_ms = (float) $php_process_time_limit;
-        $this->timeout_php_process = $_SERVER['REQUEST_TIME_FLOAT'] + $process_time_ms;
+        $this->timeout_php_process = $php_process_start + $process_time_ms;
       }
       else {
         // this is a strtotime term
-        $timeout_value = strtotime($php_process_time_limit);
-        if (!$timeout_value) {
+        $timeout_value = strtotime((string) $php_process_time_limit);
+        if (!(bool) $timeout_value) {
           $this->log("Processing time limit invalid: {$php_process_time_limit}. Time limit ignored.");
         }
         else {
           $process_time_ms = (float) $timeout_value;
-          $this->timeout_php_process = $_SERVER['REQUEST_TIME_FLOAT'] + $process_time_ms;
+          $this->timeout_php_process = $php_process_start + $process_time_ms;
         }
       }
     }
@@ -167,7 +170,10 @@ class Process extends \Civi\AIP\AbstractComponent {
     $lock = NULL;
     if (!(bool) $parallel_execution) {
       $lock = \Civi::lockManager()->create("aip-{$this->id}");
-      $lock_timeout = $this->getConfigValue('lock_timeout', DEFAULT_PROCESS_LOCK_TIMEOUT);
+      $configured_lock_timeout = $this->getConfigValue('lock_timeout', DEFAULT_PROCESS_LOCK_TIMEOUT);
+      $lock_timeout = is_numeric($configured_lock_timeout)
+        ? (int) $configured_lock_timeout
+        : DEFAULT_PROCESS_LOCK_TIMEOUT;
       $lock->acquire($lock_timeout);
       if (!$lock->isAcquired()) {
         throw new \Exception("Timeout while waiting for lock for process [{$this->id}]. Timeout was {$lock_timeout}s.");
@@ -188,9 +194,10 @@ class Process extends \Civi\AIP\AbstractComponent {
     $this->processor->verifyConfiguration();
 
     // check if this is a resume
-    if ($this->reader->getCurrentFile()) {
+    $current_file = $this->reader->getCurrentFile();
+    if ($current_file !== NULL && $current_file !== '') {
       // this is a resume
-      $source_url = $this->reader->getCurrentFile();
+      $source_url = $current_file;
     }
     else {
       // this is a new source
@@ -199,7 +206,7 @@ class Process extends \Civi\AIP\AbstractComponent {
     }
 
     // check if there is a source for us
-    if ($source_url && $this->reader->canReadSource($source_url)) {
+    if ($source_url !== NULL && $source_url !== '' && $this->reader->canReadSource($source_url)) {
       // claim new source
       if ($is_new_source) {
         $source_url = $this->finder->claimSource($source_url);
@@ -210,8 +217,13 @@ class Process extends \Civi\AIP\AbstractComponent {
       $this->reader->initialiseWithSource($source_url);
       $this->log('Reader initialised with source: ' . $source_url, 'info');
       while ($this->shouldProcessMoreRecords() && $this->reader->hasMoreRecords()) {
+        $record = [];
         try {
-          $record = $this->reader->getNextRecord();
+          $next_record = $this->reader->getNextRecord();
+          if ($next_record === NULL) {
+            break;
+          }
+          $record = $next_record;
           $this->processor->processRecord($record);
           $this->reader->markLastRecordProcessed();
         }
@@ -222,7 +234,7 @@ class Process extends \Civi\AIP\AbstractComponent {
           // @ignoreException a failed record must not abort the whole batch
           $this->reader->markLastRecordFailed();
           $this->handleFailedRecord($record, $exception);
-          if ($this->continueWithFailedRecord($exception)) {
+          if ($this->continueWithFailedRecord()) {
             $this->log($exception->getMessage(), 'error');
           }
           else {
@@ -258,7 +270,7 @@ class Process extends \Civi\AIP\AbstractComponent {
     $this->flushAllLogs();
 
     // release lock (if there is one)
-    if ($lock) {
+    if ($lock !== NULL) {
       $lock->release();
     }
   }
@@ -297,21 +309,22 @@ class Process extends \Civi\AIP\AbstractComponent {
    */
   public function shouldProcessMoreRecords() : bool {
     // check time based restrictions
-    if ($this->timeout_php_process || $this->timeout) {
+    if ($this->timeout_php_process !== 0.0 || $this->timeout !== 0.0) {
       $timestamp = microtime(TRUE);
-      if ($this->timeout && $timestamp > $this->timeout) {
+      if ($this->timeout !== 0.0 && $timestamp > $this->timeout) {
         $this->log('Process time limit hit.');
         return FALSE;
       }
-      if ($this->timeout_php_process && $timestamp > $this->timeout_php_process) {
+      if ($this->timeout_php_process !== 0.0 && $timestamp > $this->timeout_php_process) {
         $this->log('PHP process time limit hit.');
         return FALSE;
       }
     }
 
     // check processing count limit
-    $processing_record_limit = (int) $this->getConfigValue('processing_limit/record_count');
-    if ($processing_record_limit && $this->reader->getSessionProcessedRecordCount() >= $processing_record_limit) {
+    $configured_record_limit = $this->getConfigValue('processing_limit/record_count');
+    $processing_record_limit = is_numeric($configured_record_limit) ? (int) $configured_record_limit : 0;
+    if ($processing_record_limit !== 0 && $this->reader->getSessionProcessedRecordCount() >= $processing_record_limit) {
       $this->log("Processing record limit of {$processing_record_limit} hit.", 'info');
       return FALSE;
     }
@@ -358,21 +371,21 @@ class Process extends \Civi\AIP\AbstractComponent {
    *   component ID
    */
   public function store($debug_output = FALSE) : int {
-    $serialised_config = json_encode([
+    $serialised_config = (string) json_encode([
       'finder'    => $this->finder->configuration + ['class' => get_class($this->finder)],
       'reader'    => $this->reader->configuration + ['class' => get_class($this->reader)],
       'processor' => $this->processor->configuration + ['class' => get_class($this->processor)],
       'process'   => $this->configuration,
     ]);
 
-    $serialised_state = json_encode([
+    $serialised_state = (string) json_encode([
       'finder'    => $this->finder->state,
       'reader'    => $this->reader->state,
       'processor' => $this->processor->state,
       'process'   => $this->state,
     ]);
 
-    if (!$this->id) {
+    if ($this->id === 0) {
       \CRM_Core_DAO::executeQuery(
               'INSERT INTO civicrm_aip_process (name, class, config, state) VALUES (%1, %2, %3, %4)',
               [
@@ -420,42 +433,49 @@ class Process extends \Civi\AIP\AbstractComponent {
    */
   // phpcs:ignore Generic.Metrics.CyclomaticComplexity.TooHigh
   public static function restore(int $id) : Process {
+    /** @var \CRM_Core_DAO $data_query */
     $data_query = \CRM_Core_DAO::executeQuery(
             'SELECT name, class, config, state FROM civicrm_aip_process WHERE id = %1',
             [1 => [$id, 'Integer']]);
     if ($data_query->fetch()) {
       try {
         // restore process:
-        $config = json_decode($data_query->config, TRUE);
-        $state = json_decode($data_query->state, TRUE);
+        $config = self::decodeStoredData($data_query->config, $id);
+        $state = self::decodeStoredData($data_query->state, $id);
 
         // restore finder
-        $finder = new $config['finder']['class']();
-        unset($config['finder']['class']);
-        $finder->configuration = $config['finder'] ?? [];
-        $finder->state = $state['finder'] ?? [];
+        $finder_config = self::getStoredSection($config, 'finder');
+        $finder_class = self::getStoredComponentClass($finder_config['class'] ?? NULL, Finder::class, $id);
+        unset($finder_config['class']);
+        $finder = new $finder_class();
+        $finder->configuration = $finder_config;
+        $finder->state = self::getStoredSection($state, 'finder');
 
         // restore reader
-        $reader = new $config['reader']['class']();
-        unset($config['reader']['class']);
-        $reader->configuration = $config['reader'] ?? [];
-        $reader->state = $state['reader'] ?? [];
+        $reader_config = self::getStoredSection($config, 'reader');
+        $reader_class = self::getStoredComponentClass($reader_config['class'] ?? NULL, Reader::class, $id);
+        unset($reader_config['class']);
+        $reader = new $reader_class();
+        $reader->configuration = $reader_config;
+        $reader->state = self::getStoredSection($state, 'reader');
 
         // restore processor
-        $processor = new $config['processor']['class']();
-        unset($config['processor']['class']);
-        $processor->configuration = $config['processor'] ?? [];
-        $processor->state = $state['processor'] ?? [];
+        $processor_config = self::getStoredSection($config, 'processor');
+        $processor_class = self::getStoredComponentClass($processor_config['class'] ?? NULL, Processor::class, $id);
+        unset($processor_config['class']);
+        $processor = new $processor_class();
+        $processor->configuration = $processor_config;
+        $processor->state = self::getStoredSection($state, 'processor');
 
         // finally, reconstruct the process
-        $process_class = $data_query->class;
+        $process_class = self::getStoredComponentClass($data_query->class, self::class, $id);
         \Civi::log()->debug("Loading class {$process_class} with process ID [{$id}]");
         $process = new $process_class($finder, $reader, $processor, $id);
-        $process->name = $data_query->name;
-        $process->configuration = $config['process'] ?? [];
-        $process->state = $state['process'] ?? [];
+        $process->name = is_string($data_query->name) ? $data_query->name : '';
+        $process->configuration = self::getStoredSection($config, 'process');
+        $process->state = self::getStoredSection($state, 'process');
 
-        $process_id = $process->getId();
+        $process_id = $process->getID();
         // don't do this here: $process->log("Process [{$process_id}] restored.");
         return $process;
 
@@ -467,6 +487,48 @@ class Process extends \Civi\AIP\AbstractComponent {
     else {
       throw new \Exception("Couldn't find or restore process [{$id}]");
     }
+  }
+
+  /**
+   * @param mixed $data
+   *
+   * @return array<mixed>
+   *
+   * @throws \Exception
+   */
+  protected static function decodeStoredData($data, int $id) : array {
+    $decoded = is_string($data) ? json_decode($data, TRUE) : NULL;
+    if (!is_array($decoded)) {
+      throw new \Exception("Process [{$id}] has an invalid configuration or state.");
+    }
+    return $decoded;
+  }
+
+  /**
+   * @param array<mixed> $data
+   *
+   * @return array<mixed>
+   */
+  protected static function getStoredSection(array $data, string $section) : array {
+    $section_data = $data[$section] ?? NULL;
+    return is_array($section_data) ? $section_data : [];
+  }
+
+  /**
+   * @template T of \Civi\AIP\AbstractComponent
+   *
+   * @param mixed $class
+   * @param class-string<T> $base_class
+   *
+   * @return class-string<T>
+   *
+   * @throws \Exception
+   */
+  protected static function getStoredComponentClass($class, string $base_class, int $id) : string {
+    if (!is_string($class) || !is_a($class, $base_class, TRUE)) {
+      throw new \Exception("Process [{$id}] has an invalid {$base_class} class.");
+    }
+    return $class;
   }
 
   /**
@@ -520,7 +582,8 @@ class Process extends \Civi\AIP\AbstractComponent {
    * @return integer processed
    */
   public function getProcessedRecordCount() {
-    return (int) $this->getReader()->getStateValue('processed_record_count', 0);
+    $record_count = $this->getReader()->getStateValue('processed_record_count', 0);
+    return is_numeric($record_count) ? (int) $record_count : 0;
   }
 
   /**
@@ -529,7 +592,8 @@ class Process extends \Civi\AIP\AbstractComponent {
    * @return integer failed
    */
   public function getFailedRecordCount() {
-    return (int) $this->getReader()->getStateValue('failed_record_count', 0);
+    $record_count = $this->getReader()->getStateValue('failed_record_count', 0);
+    return is_numeric($record_count) ? (int) $record_count : 0;
   }
 
 }

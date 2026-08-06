@@ -18,7 +18,6 @@ declare(strict_types = 1);
 namespace Civi\AIP\Finder;
 
 use CRM_Aip_ExtensionUtil as E;
-use PHPUnit\Exception;
 
 /**
  * A FINDER that monitors a fixed file (online or local) for changes
@@ -52,8 +51,8 @@ class StaticUrlFileFinder extends Base {
    * @return ?string
    */
   public function findNextSource(): ?string {
-    $file_url = $this->getConfigValue('url');
-    if ($file_url === NULL || $file_url === '') {
+    $file_url = $this->getConfigString('url');
+    if ($file_url === '') {
       throw new \Exception("No 'url' set");
     }
 
@@ -61,13 +60,17 @@ class StaticUrlFileFinder extends Base {
     try {
       // todo: check if this can process URLs, including credentials
       $data = file_get_contents($file_url);
+      if ($data === FALSE) {
+        $this->log("Could not read the source '{$file_url}'", 'warning');
+        return NULL;
+      }
       $data_checksum = hash('sha256', $data);
 
       // check if source has changed
       $detect_changes = $this->getConfigValue('detect_changes');
       if ((bool) $detect_changes) {
         $previously_processed_checksum = $this->getStateValue('previous_file_checksum');
-        if ($data_checksum && $data_checksum === $previously_processed_checksum) {
+        if ($data_checksum === $previously_processed_checksum) {
           $this->log("The source '{$file_url}' had already been processed");
           return NULL;
         }
@@ -75,8 +78,11 @@ class StaticUrlFileFinder extends Base {
 
       // first: create a local temp file
       $local_file = $this->getStateValue('local_copy');
-      if ($local_file === NULL || $local_file === '') {
+      if (!is_string($local_file) || $local_file === '') {
         $local_file = tempnam(sys_get_temp_dir(), 'aip-' . $this->getProcess()->getID() . '-local-');
+        if ($local_file === FALSE) {
+          throw new \Exception("Couldn't create a local copy of the source '{$file_url}'");
+        }
         $this->setStateValue('local_copy', $local_file);
       }
       file_put_contents($local_file, $data);
@@ -85,7 +91,8 @@ class StaticUrlFileFinder extends Base {
       return $local_file;
 
     }
-    catch (Exception $ex) {
+    catch (\Exception $ex) {
+      // @ignoreException
       $this->log('Error encountered: ' . $ex->getMessage(), 'warn');
       return NULL;
     }
@@ -135,7 +142,7 @@ class StaticUrlFileFinder extends Base {
    */
   public function removeLocalFileCopy() {
     $local_copy = $this->getStateValue('local_copy');
-    if ((bool) $local_copy) {
+    if (is_string($local_copy) && $local_copy !== '') {
       $this->setStateValue('local_copy', NULL);
       if (file_exists($local_copy)) {
         $this->log("Removed local file copy '{$local_copy}'.");

@@ -77,10 +77,13 @@ class ProcessApiTest extends TestBase implements HeadlessInterface, HookInterfac
 
     // run the process via APIv3
     $result = $this->traitCallAPISuccess('AIP', 'run_process', ['pid' => "{$process1_id},{$process2_id}"]);
-    $this->assertEquals(4, $result['values']['total_processed'], 'should have processed Test01.csv (2 lines) *twice*');
+    $this->assertIsArray($result);
+    $values = $result['values'];
+    $this->assertIsArray($values);
+    $this->assertEquals(4, $values['total_processed'], 'should have processed Test01.csv (2 lines) *twice*');
     $this->assertEquals(
       4,
-      $result['values']['session_processed'],
+      $values['session_processed'],
       'should have processed Test01.csv (2 lines) *twice*'
     );
   }

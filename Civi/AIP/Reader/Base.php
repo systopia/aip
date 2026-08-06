@@ -103,6 +103,8 @@ abstract class Base extends AbstractComponent {
 
   /**
    * @param string $source
+   *
+   * @return void
    */
   public function initialiseWithSource($source) {
     // anything?
@@ -123,7 +125,8 @@ abstract class Base extends AbstractComponent {
    * @return integer processed
    */
   public function getProcessedRecordCount() {
-    return (int) $this->getStateValue('processed_record_count', 0);
+    $record_count = $this->getStateValue('processed_record_count', 0);
+    return is_numeric($record_count) ? (int) $record_count : 0;
   }
 
   /**
@@ -166,7 +169,8 @@ abstract class Base extends AbstractComponent {
    * @return integer failed
    */
   public function getFailedRecordCount() {
-    return (int) $this->getStateValue('failed_record_count');
+    $record_count = $this->getStateValue('failed_record_count');
+    return is_numeric($record_count) ? (int) $record_count : 0;
   }
 
   /**

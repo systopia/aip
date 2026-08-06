@@ -90,7 +90,9 @@ class TestBase extends TestCase implements HeadlessInterface, HookInterface, Tra
   public function createTempDir() {
     // lifted from https://stackoverflow.com/a/17280327
     $tmpdir = '--tmpdir=' . sys_get_temp_dir();
-    return exec("mktemp -d $tmpdir AIPXXXXXX");
+    $temp_dir = exec("mktemp -d $tmpdir AIPXXXXXX");
+    $this->assertNotFalse($temp_dir, 'Could not create a temporary directory.');
+    return $temp_dir;
   }
 
 }

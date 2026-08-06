@@ -39,6 +39,7 @@ class ProcessSpecsTest extends TestBase implements HeadlessInterface, HookInterf
     $this->markTestSkipped('Specific configuration example, needs specific environment');
 
     // create finder
+    // @phpstan-ignore deadCode.unreachable
     $finder = new Finder\DropFolderFinder();
     $finder->setConfigValue('filter/file_name', '#30_abo-digi.*[.]csv#');
     $finder->setConfigValue('folder/inbox', '/srv/direktmarketing/aip/inbox');

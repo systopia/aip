@@ -62,7 +62,9 @@ class ProcessTimeRestrictionTest extends TestBase implements HeadlessInterface, 
    */
   public function testTotalRuntimeTimeout() {
     // we need this baseline for the PHP process time
-    $test_time_elapsed = microtime(TRUE) - $_SERVER['REQUEST_TIME_FLOAT'];
+    $request_time = $_SERVER['REQUEST_TIME_FLOAT'] ?? NULL;
+    $this->assertIsFloat($request_time);
+    $test_time_elapsed = microtime(TRUE) - $request_time;
 
     // run process 1
     $finder1 = new InfiniteSources();

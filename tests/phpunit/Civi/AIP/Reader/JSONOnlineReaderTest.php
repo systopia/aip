@@ -113,6 +113,7 @@ class JSONOnlineReaderTest extends TestBase implements HeadlessInterface, HookIn
 
     // check results
     $last_processed_record = $process2->getProcessor()->getLastProcessedRecord();
+    $this->assertIsArray($last_processed_record);
     $this->assertEquals(
       '470581',
       $last_processed_record['_event_ID'],

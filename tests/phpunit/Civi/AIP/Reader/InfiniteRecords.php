@@ -34,7 +34,7 @@ class InfiniteRecords extends Base {
   /**
    * Simply 'invent' records. forever.
    */
-  public function getNextRecord(): ?array {
+  public function getNextRecord(): array {
     return [
       'field1' => random_bytes(16),
       'field2' => random_bytes(16),

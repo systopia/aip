@@ -42,7 +42,6 @@ class DropFolderFinder extends Base {
    */
   public function verifyConfiguration() {
     // check if all the folders are there
-    $all_folder_paths = [];
     $folder_settings = [
       'folder/uploading',
       'folder/inbox',
@@ -51,16 +50,11 @@ class DropFolderFinder extends Base {
       'folder/failed',
     ];
     foreach ($folder_settings as $folder_setting) {
-      $folder_path = $this->getConfigValue($folder_setting);
+      $folder_path = $this->getConfigString($folder_setting);
 
       // folders have to be set
-      if ($folder_path === NULL || $folder_path === '') {
-        throw new \Exception(E::ts("Folder '%1' is not configured.", [1 => $folder_path]));
-      }
-
-      // folders have to be different
-      if (in_array($folder_path, $all_folder_paths, TRUE)) {
-        throw new \Exception(E::ts("Folder '%1' is used for multiple stages.", [1 => $folder_path]));
+      if ($folder_path === '') {
+        throw new \Exception(E::ts("Folder '%1' is not configured.", [1 => $folder_setting]));
       }
 
       // folders have to be readable
@@ -92,8 +86,8 @@ class DropFolderFinder extends Base {
    * @return ?string
    */
   public function findNextSource(): ?string {
-    $file_name_filter = $this->getConfigValue('filter/file_name');
-    $inbox_folder = $this->getConfigValue('folder/inbox');
+    $file_name_filter = $this->getConfigString('filter/file_name');
+    $inbox_folder = $this->getConfigString('folder/inbox');
     $files = scandir($inbox_folder, SCANDIR_SORT_ASCENDING);
 
     // check if that worked
@@ -113,7 +107,7 @@ class DropFolderFinder extends Base {
 
       // only investigate files we can access
       $this->log(E::ts("Investigating file '%1'...", [1 => $file_path]));
-      if ($file_name_filter === NULL || $file_name_filter === '' || preg_match($file_name_filter, $file_path)) {
+      if ($file_name_filter === '' || preg_match($file_name_filter, $file_path) === 1) {
         // this could be a file for us...
         if (is_file($file_path) && is_readable($file_path)) {
           return $file_path;
@@ -142,7 +136,7 @@ class DropFolderFinder extends Base {
     // todo: check if this path makes sense, and is in the inbox folder
 
     // claiming the source means moving it to the
-    $processing_folder = $this->getConfigValue('folder/processing');
+    $processing_folder = $this->getConfigString('folder/processing');
     $target_file_name = date('YmdHis') . '_' . bin2hex(random_bytes(10)) . '_' . basename($file_path);
     $target_file = $processing_folder . DIRECTORY_SEPARATOR . $target_file_name;
 
@@ -163,7 +157,7 @@ class DropFolderFinder extends Base {
    */
   public function markSourceProcessed(string $file_path) {
     // mark the source means moving it to the processed folder
-    $processed_folder = $this->getConfigValue('folder/processed');
+    $processed_folder = $this->getConfigString('folder/processed');
     $target_file = $processed_folder . DIRECTORY_SEPARATOR . basename($file_path);
 
     if (rename($file_path, $target_file)) {
@@ -186,7 +180,7 @@ class DropFolderFinder extends Base {
    */
   public function markSourceFailed(string $file_path) {
     // mark the source means moving it to the processed folder
-    $processed_folder = $this->getConfigValue('folder/failed');
+    $processed_folder = $this->getConfigString('folder/failed');
     $target_file = $processed_folder . DIRECTORY_SEPARATOR . basename($file_path);
 
     if (rename($file_path, $target_file)) {
@@ -196,9 +190,6 @@ class DropFolderFinder extends Base {
     else {
       throw new \Exception(E::ts("Couldn't mark source '%1' as FAILED.", [1 => $file_path]));
     }
-
-    // reset the state
-    $this->resetState();
   }
 
 }

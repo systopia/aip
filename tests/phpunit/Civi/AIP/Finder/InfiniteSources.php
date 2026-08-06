@@ -41,9 +41,9 @@ class InfiniteSources extends Base {
   /**
    * See if there is a new file in the dropbox
    *
-   * @return ?string
+   * @return string
    */
-  public function findNextSource(): ?string {
+  public function findNextSource(): string {
     // copied from https://stackoverflow.com/a/13212994
     $chars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
     return 'example:' . substr(str_shuffle(str_repeat($chars, (int) ceil(16 / strlen($chars)))), 1, 16);

@@ -118,8 +118,8 @@ class CSV extends Base {
       for ($skip = 0; $skip < $records_previously_processed; $skip++) {
         $this->getNextRecord();
       }
-      if ($skip) {
-        $this->log("Resume: skipped {$skip} previously processed record(s).", 'info');
+      if ($records_previously_processed > 0) {
+        $this->log("Resume: skipped {$records_previously_processed} previously processed record(s).", 'info');
       }
 
     }
@@ -143,7 +143,7 @@ class CSV extends Base {
    *   If the file couldn't be opened.
    */
   protected function openFile(string $source) {
-    if ($this->current_file_handle) {
+    if (is_resource($this->current_file_handle)) {
       $this->raiseException(E::ts('There is already an open file', [1 => $source]));
     }
 
@@ -153,10 +153,11 @@ class CSV extends Base {
     }
 
     // open the file
-    $this->current_file_handle = fopen($source, 'r');
-    if (!is_resource($this->current_file_handle)) {
+    $file_handle = fopen($source, 'r');
+    if (!is_resource($file_handle)) {
       $this->raiseException(E::ts("Cannot read source '%1'.", [1 => $source]));
     }
+    $this->current_file_handle = $file_handle;
 
     // update state
     $this->setCurrentFile($source);
@@ -179,38 +180,26 @@ class CSV extends Base {
    *   If there is a read error.
    */
   public function getNextRecord(): ?array {
-    if ($this->hasMoreRecords()) {
-      $this->current_record   = $this->lookahead_record;
-      $this->lookahead_record = $this->readNextRecord();
-
-      // map to headers
-      $record = $this->current_record;
-      if (is_array($this->current_file_headers)) {
-        // todo: setting to disable labelling?
-
-        $file_headers = $this->current_file_headers;
-        if (count($record) !== count($file_headers)) {
-          $this->fixHeaderRecordColumnMismatch($file_headers, $record);
-        }
-        $record = array_combine($file_headers, $record);
-      }
-
-      if ($record === TRUE) {
-        $this->log('Skipped empty line in CSV.', 'info');
-        return $this->getNextRecord();
-      }
-
-      if (!is_array($record)) {
-        // there was an error reading the record
-        $this->log('Failed to read record, data type is: ' . gettype($record), 'error');
-        throw new \Exception("Couldn't read record.");
-      }
-
-      return $record;
-    }
-    else {
+    $record = $this->lookahead_record;
+    if ($record === NULL) {
       return NULL;
     }
+
+    $this->current_record   = $record;
+    $this->lookahead_record = $this->readNextRecord();
+
+    // map to headers
+    if (is_array($this->current_file_headers)) {
+      // todo: setting to disable labelling?
+
+      $file_headers = $this->current_file_headers;
+      if (count($record) !== count($file_headers)) {
+        $this->fixHeaderRecordColumnMismatch($file_headers, $record);
+      }
+      $record = array_combine($file_headers, $record);
+    }
+
+    return $record;
   }
 
   /**
@@ -224,10 +213,10 @@ class CSV extends Base {
     }
 
     // read record
-    $separator = $this->getConfigValue('csv_separator', ';');
-    $enclosure = $this->getConfigValue('csv_string_enclosure', '"');
-    $escape = $this->getConfigValue('csv_string_escape', '\\');
-    fgetcsv($this->current_file_handle, $separator, $enclosure, $escape);
+    $separator = $this->getConfigString('csv_separator', ';');
+    $enclosure = $this->getConfigString('csv_string_enclosure', '"');
+    $escape = $this->getConfigString('csv_string_escape', '\\');
+    fgetcsv($this->current_file_handle, NULL, $separator, $enclosure, $escape);
   }
 
   /**
@@ -240,10 +229,10 @@ class CSV extends Base {
 
     // read record
     // todo: move to class properties?
-    $separator = $this->getConfigValue('csv_separator', ';');
-    $enclosure = $this->getConfigValue('csv_string_enclosure', '"');
-    $escape = $this->getConfigValue('csv_string_escape', '\\');
-    $encoding = $this->getConfigValue('csv_string_encoding', 'UTF8');
+    $separator = $this->getConfigString('csv_separator', ';');
+    $enclosure = $this->getConfigString('csv_string_enclosure', '"');
+    $escape = $this->getConfigString('csv_string_escape', '\\');
+    $encoding = $this->getConfigString('csv_string_encoding', 'UTF8');
     $skip_empty_lines = $this->getConfigValue('skip_empty_lines', FALSE);
 
     $record = fgetcsv($this->current_file_handle, NULL, $separator, $enclosure, $escape);
@@ -258,7 +247,7 @@ class CSV extends Base {
       }
     }
 
-    if ($record) {
+    if ($record !== FALSE) {
       // apply the encoding
       // encode record using utf8_encode helper
       if ($encoding !== 'UTF8') {
@@ -267,7 +256,7 @@ class CSV extends Base {
           // ISO-8859-1 to UTF-8, so mb_convert_encoding() is the direct replacement.
           $new_record = [];
           foreach ($record as $key => $value) {
-            $new_record[$key] = mb_convert_encoding($value, 'UTF8', 'ISO-8859-1');
+            $new_record[$key] = $value === NULL ? NULL : mb_convert_encoding($value, 'UTF8', 'ISO-8859-1');
           }
           $record = $new_record;
         }
@@ -303,7 +292,8 @@ class CSV extends Base {
    * @return string the current file path/url
    */
   public function getCurrentFile() : ?string {
-    return $this->getStateValue('current_file');
+    $current_file = $this->getStateValue('current_file');
+    return is_string($current_file) ? $current_file : NULL;
   }
 
   /**
@@ -368,7 +358,8 @@ class CSV extends Base {
    * Simply increases the 'lines_skipped' counter
    */
   protected function increaseLinesSkipped() {
-    $lines_skipped = (int) $this->getStateValue('lines_skipped');
+    $lines_skipped_state = $this->getStateValue('lines_skipped');
+    $lines_skipped = is_numeric($lines_skipped_state) ? (int) $lines_skipped_state : 0;
     $lines_skipped++;
     $this->setStateValue('lines_skipped', $lines_skipped);
   }

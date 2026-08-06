@@ -41,7 +41,7 @@ abstract class AbstractComponent {
   protected array $state = [];
 
   /**
-   * @var array file_name => handle  */
+   * @var array<string, resource> file_name => handle  */
   protected static array $log_files = [];
 
   public function __construct() {
@@ -70,6 +70,11 @@ abstract class AbstractComponent {
   public function getConfigValue(string $path, $default = NULL) {
     $value = $this->getArrayValue($this->configuration, $path);
     return $value ?? $default;
+  }
+
+  protected function getConfigString(string $path, string $default = '') : string {
+    $value = $this->getConfigValue($path, $default);
+    return is_scalar($value) ? (string) $value : $default;
   }
 
   /**
@@ -131,7 +136,10 @@ abstract class AbstractComponent {
    *
    * @return Process
    */
-  public function getProcess() {
+  public function getProcess() : Process {
+    if ($this->process === NULL) {
+      throw new \Exception(E::ts('Component [%1] is not attached to a process.', [1 => $this->getTypeName()]));
+    }
     return $this->process;
   }
 
@@ -154,14 +162,15 @@ abstract class AbstractComponent {
       if ($key[0] === '@') {
         preg_match('/^@(\w+)=(.+)$/', $key, $matches);
         // "type"
-        $filterKey = $matches[1];
+        $filterKey = $matches[1] ?? '';
         // "Special"
-        $filterValue = $matches[2];
+        $filterValue = $matches[2] ?? '';
 
         // Find the first element in the array where $filterKey == $filterValue
         $found = NULL;
         foreach ($array as $item) {
-          if (is_array($item) && isset($item[$filterKey]) && (string) $item[$filterKey] === $filterValue) {
+          if (is_array($item) && isset($item[$filterKey]) && is_scalar($item[$filterKey])
+              && (string) $item[$filterKey] === $filterValue) {
             $found = $item;
             break;
           }
@@ -265,7 +274,8 @@ abstract class AbstractComponent {
    */
   public function log($message, $log_level = 'debug') {
     // find out if we should log this.
-    $min_log_level = strtolower($this->getConfigValue('log/level', 'debug'));
+    $configured_log_level = $this->getConfigValue('log/level', 'debug');
+    $min_log_level = is_string($configured_log_level) ? strtolower($configured_log_level) : 'debug';
 
     // add timestamp and process ID to log
     $pid = $this->getProcess()->getID();
@@ -311,12 +321,12 @@ abstract class AbstractComponent {
   // phpcs:ignore Generic.Metrics.CyclomaticComplexity.TooHigh
   protected function writeLogMessage(string $message, $log_level) {
     $log_file = $this->getConfigValue('log/file');
-    if ($log_file === NULL || $log_file === '') {
+    if (!is_string($log_file) || $log_file === '') {
       // use the processor's one
-      $log_file = $this->process->getConfigValue('log/file');
+      $log_file = $this->getProcess()->getConfigValue('log/file');
     }
 
-    if ($log_file === NULL || $log_file === '') {
+    if (!is_string($log_file) || $log_file === '') {
       // if still empty: log to CiviCRM standard log
       switch ($log_level) {
         case 'debug':
@@ -344,16 +354,25 @@ abstract class AbstractComponent {
         if (!is_writable($log_file)) {
           // create an alternative file
           $tmp_log_file = tempnam(sys_get_temp_dir(), date('Y-n-d_H_i_s') . '_aip_log_');
+          if ($tmp_log_file === FALSE) {
+            $this->logToCiviLog($message, $log_level);
+            return;
+          }
           error_log("Log file '{$log_file}' not writeable, using '{$tmp_log_file}'!");
           $log_file = $tmp_log_file;
         }
-        AbstractComponent::$log_files[$log_file] = fopen($log_file, 'a');
+        $new_log_file_handle = fopen($log_file, 'a');
+        if ($new_log_file_handle === FALSE) {
+          $this->logToCiviLog($message, $log_level);
+          return;
+        }
+        AbstractComponent::$log_files[$log_file] = $new_log_file_handle;
       }
 
       $log_file_handle = AbstractComponent::$log_files[$log_file];
       fwrite($log_file_handle, date('[Y-m-d H:i:s]'));
       $process_id = $this->getProcess()->getID();
-      if ($process_id) {
+      if ($process_id !== 0) {
         fwrite($log_file_handle, "[P{$process_id}]");
       }
       fwrite($log_file_handle, ' ');
@@ -404,10 +423,8 @@ abstract class AbstractComponent {
    *
    * @throws \Exception
    *   The requested exception.
-   *
-   * @return void
    */
-  public function raiseException($message) {
+  public function raiseException($message) : never {
     throw new \Exception(E::ts('[%1(:%2)] %3', [
       1 => $this->getTypeName(),
       2 => $this->getProcess()->getID(),

@@ -37,7 +37,8 @@ class DropFolderFinderTest extends TestBase implements HeadlessInterface, HookIn
     // create finder
     $finder = new Finder\DropFolderFinder();
     $finder->setConfigValue('filter/file_name', '#[a-z0-9]+.csv#');
-    $finder->setConfigValue('folder/inbox', $this->createTempDir());
+    $inbox_folder = $this->createTempDir();
+    $finder->setConfigValue('folder/inbox', $inbox_folder);
     $finder->setConfigValue('folder/processing', $this->createTempDir());
     $finder->setConfigValue('folder/processed', $this->createTempDir());
     $finder->setConfigValue('folder/uploading', $this->createTempDir());
@@ -47,7 +48,7 @@ class DropFolderFinderTest extends TestBase implements HeadlessInterface, HookIn
     $reader = new Reader\CSV();
     $reader->setConfiguration(['csv_string_encoding' => 'UTF-8']);
     $file = $this->getTestResourcePath('input/CSV/Test03.csv');
-    copy($file, $finder->getConfigValue('folder/inbox') . DIRECTORY_SEPARATOR . 'sdasoi3423.csv');
+    copy($file, $inbox_folder . DIRECTORY_SEPARATOR . 'sdasoi3423.csv');
 
     // create processor
     $processor = new Processor\Api3();
@@ -88,7 +89,8 @@ class DropFolderFinderTest extends TestBase implements HeadlessInterface, HookIn
     // create finder
     $finder = new Finder\DropFolderFinder();
     $finder->setConfigValue('filter/file_name', '#[a-z0-9]+.csv#');
-    $finder->setConfigValue('folder/inbox', $this->createTempDir());
+    $inbox_folder = $this->createTempDir();
+    $finder->setConfigValue('folder/inbox', $inbox_folder);
     $finder->setConfigValue('folder/processing', $this->createTempDir());
     $finder->setConfigValue('folder/processed', $this->createTempDir());
     $finder->setConfigValue('folder/uploading', $this->createTempDir());
@@ -98,7 +100,7 @@ class DropFolderFinderTest extends TestBase implements HeadlessInterface, HookIn
     $reader = new Reader\CSV();
     $reader->setConfiguration(['csv_string_encoding' => 'UTF-8']);
     $file = $this->getTestResourcePath('input/CSV/Test03.csv');
-    copy($file, $finder->getConfigValue('folder/inbox') . DIRECTORY_SEPARATOR . 'sdasoi3423.csv');
+    copy($file, $inbox_folder . DIRECTORY_SEPARATOR . 'sdasoi3423.csv');
 
     // create processor
     $processor = new Processor\ExceptionTestProcessor();
@@ -125,7 +127,8 @@ class DropFolderFinderTest extends TestBase implements HeadlessInterface, HookIn
     // create finder
     $finder = new Finder\DropFolderFinder();
     $finder->setConfigValue('filter/file_name', '#[a-z0-9]+.csv#');
-    $finder->setConfigValue('folder/inbox', $this->createTempDir());
+    $inbox_folder = $this->createTempDir();
+    $finder->setConfigValue('folder/inbox', $inbox_folder);
     $finder->setConfigValue('folder/processing', $this->createTempDir());
     $finder->setConfigValue('folder/processed', $this->createTempDir());
     $finder->setConfigValue('folder/uploading', $this->createTempDir());
@@ -135,7 +138,7 @@ class DropFolderFinderTest extends TestBase implements HeadlessInterface, HookIn
     $reader = new Reader\CSV();
     $reader->setConfiguration(['csv_string_encoding' => 'UTF-8']);
     $file = $this->getTestResourcePath('input/CSV/Test03.csv');
-    copy($file, $finder->getConfigValue('folder/inbox') . DIRECTORY_SEPARATOR . 'sdasoi3423.csv');
+    copy($file, $inbox_folder . DIRECTORY_SEPARATOR . 'sdasoi3423.csv');
 
     // create processor
     $processor = new Processor\ExceptionTestProcessor();
@@ -148,6 +151,7 @@ class DropFolderFinderTest extends TestBase implements HeadlessInterface, HookIn
     $process->run();
 
     // check the record
+    /** @var \CRM_Core_DAO $record */
     $record = \CRM_Core_DAO::executeQuery(
       'SELECT * FROM civicrm_aip_error_log WHERE process_id = %1;',
       [1 => [$process->getID(), 'Integer']]
@@ -158,14 +162,18 @@ class DropFolderFinderTest extends TestBase implements HeadlessInterface, HookIn
       $record->error_message,
       "The error messages does not match the exceptions' error message"
     );
+    $error_timestamp = $record->error_timestamp;
+    $this->assertIsString($error_timestamp);
     $this->assertEqualsWithDelta(
       strtotime('now'),
-      strtotime($record->error_timestamp),
+      strtotime($error_timestamp),
       1.0,
       'The error messages timestamp is off.'
     );
-    $this->assertIsArray(json_decode($record->data, TRUE), 'The data was not stored as a JSON array');
-    $this->assertNotEmpty(json_decode($record->data, TRUE), 'The data was not stored as a JSON array');
+    $record_data = $record->data;
+    $this->assertIsString($record_data);
+    $this->assertIsArray(json_decode($record_data, TRUE), 'The data was not stored as a JSON array');
+    $this->assertNotEmpty(json_decode($record_data, TRUE), 'The data was not stored as a JSON array');
   }
 
 }

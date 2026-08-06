@@ -68,7 +68,7 @@ class Diff extends Base {
   public function findNextSource(): ?string {
     // // get
     $next_source = $this->inner_finder->findNextSource();
-    if (!$next_source) {
+    if ($next_source === NULL || $next_source === '') {
       return NULL;
     }
 
