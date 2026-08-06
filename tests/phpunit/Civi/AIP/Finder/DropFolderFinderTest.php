@@ -25,6 +25,7 @@ use Civi\Test\TransactionalInterface;
  * Basic DropFolder Finder
  *
  * @group headless
+ * @covers \Civi\AIP\Finder\DropFolderFinder
  *
  */
 class DropFolderFinderTest extends TestBase implements HeadlessInterface, HookInterface, TransactionalInterface {

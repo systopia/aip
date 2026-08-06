@@ -44,7 +44,7 @@ function civicrm_api3_a_i_p_run_process($params) {
 
   // extract pIDs
   $pIDs = [];
-  foreach (explode(',', $params['pid']) as $pid_string) {
+  foreach (explode(',', (string) $params['pid']) as $pid_string) {
     $pid = (int) $pid_string;
     if ($pid) {
       $pIDs[] = $pid;

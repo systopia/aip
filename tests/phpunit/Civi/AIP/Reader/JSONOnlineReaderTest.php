@@ -25,6 +25,7 @@ use Civi\Test\TransactionalInterface;
  * Basic CVS Reader tests
  *
  * @group headless
+ * @covers \Civi\AIP\Reader\JSON
  *
  */
 class JSONOnlineReaderTest extends TestBase implements HeadlessInterface, HookInterface, TransactionalInterface {
@@ -34,7 +35,7 @@ class JSONOnlineReaderTest extends TestBase implements HeadlessInterface, HookIn
   }
 
   protected function getJsonFileUrl($path = NULL) {
-    return \Civi::paths()->getPath('[civicrm.files]/ext/aip/tests/resources/finder/termine.json');
+    return $this->getTestResourcePath('finder/termine.json');
   }
 
   /**

@@ -381,7 +381,7 @@ class Process extends \Civi\AIP\AbstractComponent {
                 3 => [$serialised_config, 'String'],
                 4 => [$serialised_state, 'String'],
               ]);
-      $this->id = \CRM_Core_DAO::singleValueQuery('SELECT LAST_INSERT_ID()');
+      $this->id = (int) \CRM_Core_DAO::singleValueQuery('SELECT LAST_INSERT_ID()');
       $this->log("Process [{$this->id}] created.", 'debug');
 
     }

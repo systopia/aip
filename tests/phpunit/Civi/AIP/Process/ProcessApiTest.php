@@ -28,6 +28,7 @@ use Civi\Test\TransactionalInterface;
  * Some of them will be disabled, because the setup doesn't work on a generic test platform
  *
  * @group headless
+ * @covers \Civi\AIP\Process
  *
  */
 class ProcessApiTest extends TestBase implements HeadlessInterface, HookInterface, TransactionalInterface {

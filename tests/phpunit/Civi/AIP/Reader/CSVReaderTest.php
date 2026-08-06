@@ -25,6 +25,7 @@ use Civi\Test\TransactionalInterface;
  * Basic CVS Reader tests
  *
  * @group headless
+ * @covers \Civi\AIP\Reader\CSV
  *
  */
 class CSVReaderTest extends TestBase implements HeadlessInterface, HookInterface, TransactionalInterface {

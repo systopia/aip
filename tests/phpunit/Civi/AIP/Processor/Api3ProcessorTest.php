@@ -25,6 +25,7 @@ use Civi\Test\TransactionalInterface;
  * Basic CVS Reader tests
  *
  * @group headless
+ * @covers \Civi\AIP\Processor\Api3
  *
  */
 class Api3ProcessorTest extends TestBase implements HeadlessInterface, HookInterface, TransactionalInterface {

@@ -27,6 +27,7 @@ use Civi\AIP\Finder\InfiniteSources;
  * Tests about record and time restrictions
  *
  * @group headless
+ * @covers \Civi\AIP\Process
  *
  */
 class ProcessTimeRestrictionTest extends TestBase implements HeadlessInterface, HookInterface, TransactionalInterface {

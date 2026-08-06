@@ -26,6 +26,7 @@ use Civi\Test\TransactionalInterface;
  * Basic complete setup & run tests
  *
  * @group headless
+ * @covers \Civi\AIP\Process
  *
  */
 class BasicTest extends TestBase implements HeadlessInterface, HookInterface, TransactionalInterface {
