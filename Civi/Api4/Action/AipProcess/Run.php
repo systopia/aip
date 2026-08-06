@@ -40,7 +40,7 @@ class Run extends AbstractAction {
    *
    * @required
    */
-  protected int $process_id;
+  protected int $process_id = 0;
 
   /**
    * Runs the AIP process with the given ID
@@ -55,7 +55,7 @@ class Run extends AbstractAction {
       $api3_result = civicrm_api3('AIP', 'run_process', ['pid' => $this->process_id]);
     }
     catch (CRM_Core_Exception $exception) {
-      throw new CRM_Core_Exception($exception->getMessage());
+      throw new CRM_Core_Exception($exception->getMessage(), 0, [], $exception);
     }
     $result[] = $api3_result;
   }

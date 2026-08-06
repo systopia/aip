@@ -33,6 +33,7 @@ class UrlRequestFile extends Base {
         return $potential_file_path;
       }
     }
+    return NULL;
   }
 
   /**

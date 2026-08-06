@@ -154,7 +154,7 @@ class CSV extends Base {
 
     // open the file
     $this->current_file_handle = fopen($source, 'r');
-    if ($this->current_file_handle === NULL || $this->current_file_handle === FALSE) {
+    if (!is_resource($this->current_file_handle)) {
       $this->raiseException(E::ts("Cannot read source '%1'.", [1 => $source]));
     }
 
@@ -219,7 +219,7 @@ class CSV extends Base {
    * @todo needed?
    */
   public function skipNextRecord() {
-    if ($this->current_file_handle === NULL || $this->current_file_handle === FALSE) {
+    if (!is_resource($this->current_file_handle)) {
       throw new \Exception('No file handle!');
     }
 
@@ -234,7 +234,7 @@ class CSV extends Base {
    * Read the next record from the open file
    */
   public function readNextRecord() {
-    if ($this->current_file_handle === NULL || $this->current_file_handle === FALSE) {
+    if (!is_resource($this->current_file_handle)) {
       throw new \Exception('No file opened.');
     }
 

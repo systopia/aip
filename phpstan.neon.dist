@@ -47,4 +47,9 @@ parameters:
 		-
 			identifier: staticMethod.dynamicCall
 			path: */tests/*
+		-
+			message: '#^Do not throw the \\Exception base class\.$#'
+		-
+			message: '#you should not use the \$_REQUEST superglobal#'
+			path: */Civi/AIP/Finder/UrlRequestFile.php
 	tmpDir: .phpstan

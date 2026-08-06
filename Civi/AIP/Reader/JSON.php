@@ -53,6 +53,11 @@ class JSON extends Base {
    */
   protected ?array $all_records = NULL;
 
+  /**
+   * @var resource|false|null
+   */
+  protected $current_file_handle = NULL;
+
   public function canReadSource(string $source): bool {
     if (parent::canReadSource($source)) {
       // file exists and is readable, check for the file type
@@ -116,6 +121,7 @@ class JSON extends Base {
       $this->log("JSON file '{$source}' contains {$record_count} records.");
     }
     catch (\Exception $exception) {
+      // @ignoreException a failed parse must not abort processing; continue with an empty record set
       $this->log("Couldn't parse JSON file '{$source}'", 'error');
       $this->markSourceFailed($source);
       $this->all_records = [];
@@ -131,6 +137,10 @@ class JSON extends Base {
    *
    * @throws \Exception
    *   If the file couldn't be opened.
+   *
+   * @todo this method is never called (JSON reads the whole file via
+   *   file_get_contents() in initialiseWithSource() instead) - leftover
+   *   from copying CSV.php. TODO: delete?
    */
   protected function openFile(string $source) {
     if ($this->current_file_handle) {

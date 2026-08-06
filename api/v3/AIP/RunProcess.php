@@ -18,7 +18,7 @@ declare(strict_types = 1);
 
 require_once 'aip.civix.php';
 
-use CRM_AIP_ExtensionUtil as E;
+use CRM_Aip_ExtensionUtil as E;
 use Civi\AIP\Process;
 
 /**

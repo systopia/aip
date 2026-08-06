@@ -72,8 +72,6 @@ class Diff extends Base {
       return NULL;
     }
 
-    $last_source = $this->findLastSource($next_source);
-
     // step 1: identify the last processed version of the file
     // todo:
 

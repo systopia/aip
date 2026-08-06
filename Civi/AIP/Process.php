@@ -70,6 +70,11 @@ class Process extends \Civi\AIP\AbstractComponent {
   protected float $timeout_php_process = 0;
 
   /**
+   * @var float timestamp on when this run() started, used to log the duration
+   */
+  protected float $timestamp_start = 0;
+
+  /**
    * @var \functioning process name
    */
   protected string $name = '';
@@ -160,7 +165,7 @@ class Process extends \Civi\AIP\AbstractComponent {
     // locking / parallel execution
     $parallel_execution = $this->getConfigValue('parallel_execution', 0);
     $lock = NULL;
-    if (!$parallel_execution) {
+    if (!(bool) $parallel_execution) {
       $lock = \Civi::lockManager()->create("aip-{$this->id}");
       $lock_timeout = $this->getConfigValue('lock_timeout', DEFAULT_PROCESS_LOCK_TIMEOUT);
       $lock->acquire($lock_timeout);
@@ -214,6 +219,7 @@ class Process extends \Civi\AIP\AbstractComponent {
           $this->log(E::ts('reader.getNextrecord Timed Out: %1', [1 => $exception->getMessage()]), 'info');
         }
         catch (\Exception $exception) {
+          // @ignoreException a failed record must not abort the whole batch
           $this->reader->markLastRecordFailed();
           $this->handleFailedRecord($record, $exception);
           if ($this->continueWithFailedRecord($exception)) {
@@ -237,12 +243,17 @@ class Process extends \Civi\AIP\AbstractComponent {
     // store current state
     $total_processed_count = $this->getReader()->getProcessedRecordCount();
     $session_processed_count = $this->getReader()->getSessionProcessedRecordCount();
-    $this->log(E::ts('Finished process [%1] after processing %2 records, %3 in total on this source(%4)', [
-      1 => $this->getID(),
-      2 => $session_processed_count,
-      3 => $total_processed_count,
-      4 => $source_url,
-    ]), 'info');
+    $duration = microtime(TRUE) - $this->timestamp_start;
+    $this->log(E::ts(
+      'Finished process [%1] after processing %2 records, %3 in total on this source(%4), duration: %5s',
+      [
+        1 => $this->getID(),
+        2 => $session_processed_count,
+        3 => $total_processed_count,
+        4 => $source_url,
+        5 => round($duration, 2),
+      ]
+    ), 'info');
     $this->store(TRUE);
     $this->flushAllLogs();
 
@@ -450,7 +461,7 @@ class Process extends \Civi\AIP\AbstractComponent {
 
       }
       catch (\Exception $ex) {
-        throw new \Exception("Error while loading process [{$id}]");
+        throw new \Exception("Error while loading process [{$id}]", 0, $ex);
       }
     }
     else {
@@ -463,7 +474,7 @@ class Process extends \Civi\AIP\AbstractComponent {
    *   if this feature is enabled. This way, it could later be retried.
    *
    * @param array $record the record processed
-   * @param \CRM_Aip_ExtensionUtilxception $exception the exception/error caught
+   * @param \Exception $exception the exception/error caught
    *
    * @todo create BAOs and APIv4 for these
    * @return void

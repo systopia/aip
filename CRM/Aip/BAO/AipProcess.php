@@ -2,6 +2,7 @@
 declare(strict_types = 1);
 
 use CRM_Aip_ExtensionUtil as E;
+use Civi\Core\Event\GenericHookEvent;
 
 /**
  * AipProcess entity.
