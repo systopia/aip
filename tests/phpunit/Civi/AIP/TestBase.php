@@ -19,7 +19,7 @@ namespace Civi\AIP;
 
 use CRM_Aip_ExtensionUtil as E;
 use Civi\Test\HeadlessInterface;
-use Civi\Test\HookInterface;
+use Civi\Core\HookInterface;
 use Civi\Test\TransactionalInterface;
 use Civi\Test\CiviEnvBuilder;
 use PHPUnit\Framework\TestCase as TestCase;

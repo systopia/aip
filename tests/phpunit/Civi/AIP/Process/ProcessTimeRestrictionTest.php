@@ -18,7 +18,7 @@ declare(strict_types = 1);
 namespace Civi\AIP;
 
 use Civi\Test\HeadlessInterface;
-use Civi\Test\HookInterface;
+use Civi\Core\HookInterface;
 use Civi\Test\TransactionalInterface;
 use Civi\AIP\Reader\InfiniteRecords;
 use Civi\AIP\Finder\InfiniteSources;
