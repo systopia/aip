@@ -65,33 +65,3 @@ function aip_civicrm_entityTypes(&$entityTypes) {
     'table' => 'civicrm_aip_process',
   ];
 }
-
-// --- Functions below this ship commented out. Uncomment as required. ---
-// phpcs:disable Squiz.PHP.CommentedOutCode.Found
-
-/**
- * Implements hook_civicrm_preProcess().
- *
- * @link https://docs.civicrm.org/dev/en/latest/hooks/hook_civicrm_preProcess
- */
-//function aip_civicrm_preProcess($formName, &$form): void {
-//
-//}
-
-/**
- * Implements hook_civicrm_navigationMenu().
- *
- * @link https://docs.civicrm.org/dev/en/latest/hooks/hook_civicrm_navigationMenu
- */
-//function aip_civicrm_navigationMenu(&$menu): void {
-//  _aip_civix_insert_navigation_menu($menu, 'Mailings', [
-//    'label' => E::ts('New subliminal message'),
-//    'name' => 'mailing_subliminal_message',
-//    'url' => 'civicrm/mailing/subliminal',
-//    'permission' => 'access CiviMail',
-//    'operator' => 'OR',
-//    'separator' => 0,
-//  ]);
-//  _aip_civix_navigationMenu($menu);
-//}
-// phpcs:enable
