@@ -1,5 +1,4 @@
 <?php
-// phpcs:disable PSR1.Files.SideEffects.FoundWithSymbols
 /*-------------------------------------------------------+
 | SYSTOPIA Automatic Input Processing (AIP) Framework    |
 | Copyright (C) 2023 SYSTOPIA                            |
@@ -16,7 +15,9 @@
 
 declare(strict_types = 1);
 
+// phpcs:disable PSR1.Files.SideEffects.FoundWithSymbols
 require_once 'aip.civix.php';
+// phpcs:enable
 
 use CRM_Aip_ExtensionUtil as E;
 use Civi\AIP\Process;
