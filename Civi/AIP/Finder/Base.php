@@ -13,6 +13,8 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
+declare(strict_types = 1);
+
 namespace Civi\AIP\Finder;
 
 use Civi\AIP\AbstractComponent;
@@ -20,16 +22,17 @@ use CRM_Aip_ExtensionUtil as E;
 
 /**
  * A FINDER is used to identify new data sources to process
- **/
-abstract class Base extends AbstractComponent
-{
+ */
+// phpcs:ignore Generic.NamingConventions.AbstractClassNamePrefix.Missing
+abstract class Base extends AbstractComponent {
+
   /**
    * Ask the finder to find the next data source
    *
    * @return ?string URI
    *   an URI for the following reader to process
    */
-  public abstract function findNextSource() : ?string;
+  abstract public function findNextSource() : ?string;
 
   /**
    * Claim this resource for this process,
@@ -38,10 +41,10 @@ abstract class Base extends AbstractComponent
    * @param string $uri
    *   an URI to marked busy/processing
    *
-   * @return string $uri
+   * @return string
    *   the resulting URI (likely the same)
    */
-  public abstract function claimSource(string $uri);
+  abstract public function claimSource(string $uri);
 
   /**
    * Mark the given resource as 'processing',
@@ -50,7 +53,7 @@ abstract class Base extends AbstractComponent
    * @param string $uri
    *   an URI to marked busy/processing
    */
-  public abstract function markSourceProcessed(string $uri);
+  abstract public function markSourceProcessed(string $uri);
 
   /**
    * Mark the given resource as failed
@@ -58,15 +61,15 @@ abstract class Base extends AbstractComponent
    * @param string $uri
    *   an URI to marked as FAILED
    */
-  public abstract function markSourceFailed(string $uri);
+  abstract public function markSourceFailed(string $uri);
 
   /**
    * Return the type of the given component
    *
    * @return string
    */
-  public function getTypeName() : string
-  {
-    return E::ts("Finder");
+  public function getTypeName() : string {
+    return E::ts('Finder');
   }
+
 }

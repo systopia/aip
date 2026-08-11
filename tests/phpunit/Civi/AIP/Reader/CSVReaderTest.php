@@ -13,25 +13,27 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
+declare(strict_types = 1);
+
 namespace Civi\AIP;
 
 use Civi\Test\HeadlessInterface;
-use Civi\Test\HookInterface;
+use Civi\Core\HookInterface;
 use Civi\Test\TransactionalInterface;
 
 /**
  * Basic CVS Reader tests
  *
  * @group headless
+ * @covers \Civi\AIP\Reader\CSV
  *
  */
-class CSVReaderTest extends TestBase implements HeadlessInterface, HookInterface, TransactionalInterface
-{
+class CSVReaderTest extends TestBase implements HeadlessInterface, HookInterface, TransactionalInterface {
+
   /**
    * Create a simple process (UrlRequestFile, CSV reader, TestProcessor)
    */
-  public function testReadSimpleCSV()
-  {
+  public function testReadSimpleCSV() {
     // create finder
     $finder = new Finder\UrlRequestFile();
     $finder->setFile($this->getTestResourcePath('input/CSV/Test01.csv'));
@@ -59,8 +61,7 @@ class CSVReaderTest extends TestBase implements HeadlessInterface, HookInterface
    * But then process one record, suspend,
    *      revive, process the remaining record
    */
-  public function testReadWithStopAndRestore()
-  {
+  public function testReadWithStopAndRestore() {
     // create finder
     $finder = new Finder\UrlRequestFile();
     $finder->setFile($this->getTestResourcePath('input/CSV/Test01.csv'));
@@ -79,13 +80,17 @@ class CSVReaderTest extends TestBase implements HeadlessInterface, HookInterface
     // run the process
     $process->run();
     $last_processed_record = $process->getProcessor()->getLastProcessedRecord();
-    $this->assertEquals("25120510", reset($last_processed_record), "This should've read the first record of the file");
+    $this->assertIsArray($last_processed_record);
+    $this->assertEquals('25120510', reset($last_processed_record), "This should've read the first record of the file");
 
     // check results
-    $this->assertEquals(1, $reader->getSessionProcessedRecordCount(), "This should've processed the only one record because of the processing_limit/record_count = 1 limit.");
+    $this->assertEquals(
+      1,
+      $reader->getSessionProcessedRecordCount(),
+      "This should've processed the only one record because of the processing_limit/record_count = 1 limit."
+    );
     $this->assertEquals(0, $reader->getFailedRecordCount());
     $process->store();
-
 
     // revive the process
     $process2 = Process::restore($process->getID());
@@ -96,16 +101,24 @@ class CSVReaderTest extends TestBase implements HeadlessInterface, HookInterface
     // check results
     $processor = $process2->getProcessor();
     $last_processed_record = $process2->getProcessor()->getLastProcessedRecord();
-    $this->assertEquals("25120511", $last_processed_record['BLZ'], "This should've read the *second* record of the file");
-    $this->assertEquals(1, $process2->getReader()->getSessionProcessedRecordCount(), "This should've processed the only one record because of the processing_limit/record_count = 1 limit.");
+    $this->assertIsArray($last_processed_record);
+    $this->assertEquals(
+      '25120511',
+      $last_processed_record['BLZ'],
+      "This should've read the *second* record of the file"
+    );
+    $this->assertEquals(
+      1,
+      $process2->getReader()->getSessionProcessedRecordCount(),
+      "This should've processed the only one record because of the processing_limit/record_count = 1 limit."
+    );
     $this->assertEquals(0, $process2->getReader()->getFailedRecordCount());
   }
 
   /**
    * Test the skip_empty_lines feature
    */
-  public function testSkipEmptyLines()
-  {
+  public function testSkipEmptyLines() {
     // create finder
     $finder = new Finder\UrlRequestFile();
     $finder->setFile($this->getTestResourcePath('input/CSV/Test04_with_empty_lines.csv'));
@@ -113,7 +126,7 @@ class CSVReaderTest extends TestBase implements HeadlessInterface, HookInterface
     // create reader
     $reader = new Reader\CSV();
     $reader->setConfiguration(['csv_string_encoding' => 'UTF-8']);
-    $reader->setConfiguration(['skip_empty_lines' => true]);
+    $reader->setConfiguration(['skip_empty_lines' => TRUE]);
 
     // create processor
     $processor = new Processor\TestProcessor();
@@ -125,16 +138,23 @@ class CSVReaderTest extends TestBase implements HeadlessInterface, HookInterface
     $process->run();
 
     // check results
-    $this->assertEquals(3, $reader->getProcessedRecordCount(), "This should've processed the three records in the file.");
-    $this->assertEquals(3, $reader->getStateValue('lines_skipped'), "This should've skipped three empty lines in the file.");
+    $this->assertEquals(
+      3,
+      $reader->getProcessedRecordCount(),
+      "This should've processed the three records in the file."
+    );
+    $this->assertEquals(
+      3,
+      $reader->getStateValue('lines_skipped'),
+      "This should've skipped three empty lines in the file."
+    );
     $this->assertEquals(0, $reader->getFailedRecordCount());
   }
 
   /**
    * Test the skip_empty_lines feature, if the skipped lines are at the end
    */
-  public function testSkipEmptyLinesAtTheEnd()
-  {
+  public function testSkipEmptyLinesAtTheEnd() {
     // create finder
     $finder = new Finder\UrlRequestFile();
     $finder->setFile($this->getTestResourcePath('input/CSV/Test04_with_empty_lines_at_the_end.csv'));
@@ -142,7 +162,7 @@ class CSVReaderTest extends TestBase implements HeadlessInterface, HookInterface
     // create reader
     $reader = new Reader\CSV();
     $reader->setConfiguration(['csv_string_encoding' => 'UTF-8']);
-    $reader->setConfiguration(['skip_empty_lines' => true]);
+    $reader->setConfiguration(['skip_empty_lines' => TRUE]);
 
     // create processor
     $processor = new Processor\TestProcessor();
@@ -154,16 +174,23 @@ class CSVReaderTest extends TestBase implements HeadlessInterface, HookInterface
     $process->run();
 
     // check results
-    $this->assertEquals(3, $reader->getProcessedRecordCount(), "This should've processed the three records in the file.");
-    $this->assertEquals(2, $reader->getStateValue('lines_skipped'), "This should've skipped three empty lines in the file.");
+    $this->assertEquals(
+      3,
+      $reader->getProcessedRecordCount(),
+      "This should've processed the three records in the file."
+    );
+    $this->assertEquals(
+      2,
+      $reader->getStateValue('lines_skipped'),
+      "This should've skipped three empty lines in the file."
+    );
     $this->assertEquals(0, $reader->getFailedRecordCount());
   }
 
   /**
    * Test the skip_empty_lines feature, if the skipped lines are at the end
    */
-  public function testSkipEmptyLinesInBetween()
-  {
+  public function testSkipEmptyLinesInBetween() {
     // create finder
     $finder = new Finder\UrlRequestFile();
     $finder->setFile($this->getTestResourcePath('input/CSV/Test05_with_empty_lines_in_between.csv'));
@@ -171,7 +198,7 @@ class CSVReaderTest extends TestBase implements HeadlessInterface, HookInterface
     // create reader
     $reader = new Reader\CSV();
     $reader->setConfiguration(['csv_string_encoding' => 'UTF-8']);
-    $reader->setConfiguration(['skip_empty_lines' => true]);
+    $reader->setConfiguration(['skip_empty_lines' => TRUE]);
 
     // create processor
     $processor = new Processor\TestProcessor();
@@ -183,8 +210,16 @@ class CSVReaderTest extends TestBase implements HeadlessInterface, HookInterface
     $process->run();
 
     // check results
-    $this->assertEquals(3, $reader->getProcessedRecordCount(), "This should've processed the three records in the file.");
-    $this->assertEquals(8, $reader->getStateValue('lines_skipped'), "This should've skipped three empty lines in the file.");
+    $this->assertEquals(
+      3,
+      $reader->getProcessedRecordCount(),
+      "This should've processed the three records in the file."
+    );
+    $this->assertEquals(
+      8,
+      $reader->getStateValue('lines_skipped'),
+      "This should've skipped three empty lines in the file."
+    );
     $this->assertEquals(0, $reader->getFailedRecordCount());
   }
 

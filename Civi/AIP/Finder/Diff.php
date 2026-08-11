@@ -13,10 +13,11 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
+declare(strict_types = 1);
+
 namespace Civi\AIP\Finder;
 
 use CRM_Aip_ExtensionUtil as E;
-use Civi\AIP\Finder\Base as Finder;
 
 /**
  * A FINDER that stores the previously processed files of the same type,
@@ -31,23 +32,23 @@ use Civi\AIP\Finder\Base as Finder;
  *  folder/history    - folder in which this module will store previously processed versions of the files
  *  header            - number of rows to exclude from the diff process, e.g. a CSV header
  *  column/id         - column to be used as ID - the only way to generate the status 'changed'
- *  column/status     - column in the file to list the status (added,changed,removed). If it doesn't exist, it will be added
- **/
-class Diff extends Base
-{
-  /** @var Finder the finder to actually look for sources  */
-  protected $inner_finder = null;
+ *  column/status     - column in the file to list the status (added,changed,removed).
+ *                      If it doesn't exist, it will be added
+ */
+class Diff extends Base {
+  /**
+   * @var \Civi\AIP\Finder\Base the finder to actually look for sources  */
+  protected $inner_finder = NULL;
 
   /**
    * Check if the component is ready,
    *   i.e. configured correctly.
    *
    * @throws \Exception
-   *   an exception will be thrown if something's wrong with the
-   *     configuration or state
+   *   An exception will be thrown if something's wrong with the
+   *     configuration or state.
    */
-  public function verifyConfiguration()
-  {
+  public function verifyConfiguration() {
     // first check the actual finder
     $this->inner_finder->verifyConfiguration();
 
@@ -55,38 +56,31 @@ class Diff extends Base
 
   }
 
-  public function getTypeName() : string
-  {
-    return E::ts("CSV Diff Finder");
+  public function getTypeName() : string {
+    return E::ts('CSV Diff Finder');
   }
-
 
   /**
    * See if there is a new source in the unter
    *
    * @return ?string
    */
-  public function findNextSource(): ?string
-  {
+  public function findNextSource(): ?string {
     // // get
     $next_source = $this->inner_finder->findNextSource();
-    if (!$next_source) return null;
-
-    $last_source = $this->findLastSource($next_source);
-    if ($next_source) {
-      // step 1: identify the last processed version of the file
-      // todo:
-
-      // step 2: separate headers
-
-      // step 3: run diff
-
-      //
+    if ($next_source === NULL || $next_source === '') {
+      return NULL;
     }
 
-    return null;
-  }
+    // step 1: identify the last processed version of the file
+    // todo:
 
+    // step 2: separate headers
+
+    // step 3: run diff
+
+    return NULL;
+  }
 
   //        FUNCTIONS DIRECTLY DELEGATED TO WRAPPED FINDER
 
@@ -96,8 +90,7 @@ class Diff extends Base
    * @param string $file_path
    *   this should be the file path
    */
-  public function claimSource(string $file_path)
-  {
+  public function claimSource(string $file_path) {
     return $this->inner_finder->claimSource($file_path);
   }
 
@@ -107,8 +100,7 @@ class Diff extends Base
    * @param string $file_path
    *   this should be the file path
    */
-  public function markSourceProcessed(string $file_path)
-  {
+  public function markSourceProcessed(string $file_path) {
     $this->inner_finder->markSourceProcessed($file_path);
   }
 
@@ -118,8 +110,8 @@ class Diff extends Base
    * @param string $file_path
    *   this should be the file path
    */
-  public function markSourceFailed(string $file_path)
-  {
+  public function markSourceFailed(string $file_path) {
     $this->inner_finder->markSourceFailed($file_path);
   }
+
 }

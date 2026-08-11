@@ -13,25 +13,28 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
+declare(strict_types = 1);
+
 namespace Civi\AIP\Finder;
 
 /**
  * This finder will get a file URL from the $_REQUEST['aip_input']
  *
  * BE *VERY* careful with this, it could be used to leak local information
- **/
-class UrlRequestFile extends Base
-{
-  public function findNextSource() : ?string
-  {
-    $potential_file_path = $_REQUEST['aip_input'] ?? null;
+ */
+class UrlRequestFile extends Base {
+
+  public function findNextSource() : ?string {
+    $request_file_path = $_REQUEST['aip_input'] ?? NULL;
+    $potential_file_path = is_string($request_file_path) ? $request_file_path : '';
     $this->log("Received file path '{$potential_file_path}, investigating", 'debug');
-    if (isset($potential_file_path)) {
+    if ($potential_file_path !== '') {
       // check if the file exists
       if (file_exists($potential_file_path) && is_readable($potential_file_path)) {
         return $potential_file_path;
       }
     }
+    return NULL;
   }
 
   /**
@@ -43,29 +46,25 @@ class UrlRequestFile extends Base
    *    the local file that should be tested
    * @return void
    */
-  public function setFile(string $local_file)
-  {
+  public function setFile(string $local_file) {
     $_REQUEST['aip_input'] = $local_file;
   }
 
-  public function claimSource(string $uri)
-  {
+  public function claimSource(string $uri) {
     // TODO: Implement claimSource() method.
     return $uri;
   }
 
-  public function markSourceProcessed(string $uri)
-  {
+  public function markSourceProcessed(string $uri) {
     // TODO: Implement markSourceProcessed() method.
   }
 
-  public function markSourceFailed(string $uri)
-  {
+  public function markSourceFailed(string $uri) {
     // TODO: Implement markSourceFailed() method.
   }
 
-  public function canHandleSource(string $uri)
-  {
+  public function canHandleSource(string $uri) {
     // TODO: Implement canHandleSource() method.
   }
+
 }

@@ -13,11 +13,13 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
+declare(strict_types = 1);
+
 
 namespace Civi\AIP;
 
 use Civi\Test\HeadlessInterface;
-use Civi\Test\HookInterface;
+use Civi\Core\HookInterface;
 use Civi\Test\TransactionalInterface;
 
 /**
@@ -26,15 +28,15 @@ use Civi\Test\TransactionalInterface;
  * Some of them will be disabled, because the setup doesn't work on a generic test platform
  *
  * @group headless
+ * @covers \Civi\AIP\Process
  *
  */
-class ProcessApiTest extends TestBase implements HeadlessInterface, HookInterface, TransactionalInterface
-{
+class ProcessApiTest extends TestBase implements HeadlessInterface, HookInterface, TransactionalInterface {
+
   /**
    * Create the Client1 process (DropFolderFinder, CSV reader, Api3Processor)
    */
-  public function testProcessApiSingle()
-  {
+  public function testProcessApiSingle() {
     // create finder
     $finder = new Finder\UrlRequestFile();
     $finder->setFile($this->getTestResourcePath('input/CSV/Test01.csv'));
@@ -56,8 +58,7 @@ class ProcessApiTest extends TestBase implements HeadlessInterface, HookInterfac
   /**
    * Create the Client1 process (DropFolderFinder, CSV reader, Api3Processor)
    */
-  public function testProcessMultiple()
-  {
+  public function testProcessMultiple() {
     // create process 1
     $finder = new Finder\UrlRequestFile();
     $finder->setFile($this->getTestResourcePath('input/CSV/Test01.csv'));
@@ -76,7 +77,15 @@ class ProcessApiTest extends TestBase implements HeadlessInterface, HookInterfac
 
     // run the process via APIv3
     $result = $this->traitCallAPISuccess('AIP', 'run_process', ['pid' => "{$process1_id},{$process2_id}"]);
-    $this->assertEquals(4, $result['values']['total_processed'], "should have processed Test01.csv (2 lines) *twice*");
-    $this->assertEquals(4, $result['values']['session_processed'], "should have processed Test01.csv (2 lines) *twice*");
+    $this->assertIsArray($result);
+    $values = $result['values'];
+    $this->assertIsArray($values);
+    $this->assertEquals(4, $values['total_processed'], 'should have processed Test01.csv (2 lines) *twice*');
+    $this->assertEquals(
+      4,
+      $values['session_processed'],
+      'should have processed Test01.csv (2 lines) *twice*'
+    );
   }
+
 }

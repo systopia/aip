@@ -13,22 +13,23 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
+declare(strict_types = 1);
+
 namespace Civi\AIP;
 
 use CRM_Aip_ExtensionUtil as E;
 use Civi\Test\HeadlessInterface;
-use Civi\Test\HookInterface;
+use Civi\Core\HookInterface;
 use Civi\Test\TransactionalInterface;
 use Civi\Test\CiviEnvBuilder;
-use \PHPUnit\Framework\TestCase as TestCase;
+use PHPUnit\Framework\TestCase as TestCase;
 
 /**
  * Base class for all CiviBanking tests
  *
  * @group headless
  */
-class TestBase extends TestCase implements HeadlessInterface, HookInterface, TransactionalInterface
-{
+class TestBase extends TestCase implements HeadlessInterface, HookInterface, TransactionalInterface {
   use \Civi\Test\Api3TestTrait {
     callAPISuccess as protected traitCallAPISuccess;
   }
@@ -44,8 +45,7 @@ class TestBase extends TestCase implements HeadlessInterface, HookInterface, Tra
    *
    * @throws \CRM_Extension_Exception_ParseException
    */
-  public function setUpHeadless(): CiviEnvBuilder
-  {
+  public function setUpHeadless(): CiviEnvBuilder {
     $this->setUp();
 
     // make sure the table is there??
@@ -56,13 +56,11 @@ class TestBase extends TestCase implements HeadlessInterface, HookInterface, Tra
       ->apply();
   }
 
-  public function setUp(): void
-  {
+  public function setUp(): void {
     parent::setUp();
   }
 
-  public function tearDown(): void
-  {
+  public function tearDown(): void {
     parent::tearDown();
   }
 
@@ -75,8 +73,7 @@ class TestBase extends TestCase implements HeadlessInterface, HookInterface, Tra
    * @return string
    *   the full path
    */
-  public function getTestResourcePath($internal_path)
-  {
+  public function getTestResourcePath($internal_path) {
     $importer_spec = 'tests/resources/' . $internal_path;
     $full_path     = E::path($importer_spec);
     $this->assertTrue(file_exists($full_path), "Test resource '{$internal_path}' not found.");
@@ -90,10 +87,12 @@ class TestBase extends TestCase implements HeadlessInterface, HookInterface, Tra
    * @return string
    *   temp dir name
    */
-  public function createTempDir()
-  {
+  public function createTempDir() {
     // lifted from https://stackoverflow.com/a/17280327
     $tmpdir = '--tmpdir=' . sys_get_temp_dir();
-    return exec("mktemp -d $tmpdir AIPXXXXXX");
+    $temp_dir = exec("mktemp -d $tmpdir AIPXXXXXX");
+    $this->assertNotFalse($temp_dir, 'Could not create a temporary directory.');
+    return $temp_dir;
   }
+
 }

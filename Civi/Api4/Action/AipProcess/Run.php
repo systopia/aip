@@ -13,14 +13,16 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
+declare(strict_types = 1);
+
 namespace Civi\Api4\Action\AipProcess;
 
 /**
  * AipProcess.run action
  */
 
-use \Civi\Api4\Generic\AbstractAction;
-use \Civi\Api4\Generic\Result;
+use Civi\Api4\Generic\AbstractAction;
+use Civi\Api4\Generic\Result;
 use CRM_Core_Exception;
 
 /**
@@ -38,12 +40,12 @@ class Run extends AbstractAction {
    *
    * @required
    */
-  protected int $process_id;
+  protected int $process_id = 0;
 
   /**
    * Runs the AIP process with the given ID
    *
-   * @param Result $result
+   * @param \Civi\Api4\Generic\Result $result
    *
    * @throws CRM_Core_Exception
    */
@@ -51,9 +53,11 @@ class Run extends AbstractAction {
     try {
       // todo refactor RUN implementation
       $api3_result = civicrm_api3('AIP', 'run_process', ['pid' => $this->process_id]);
-    } catch (CRM_Core_Exception $exception) {
-      throw new CRM_Core_Exception($exception->getMessage());
+    }
+    catch (CRM_Core_Exception $exception) {
+      throw new CRM_Core_Exception($exception->getMessage(), 0, [], $exception);
     }
     $result[] = $api3_result;
   }
+
 }

@@ -13,15 +13,18 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
+declare(strict_types = 1);
+
 namespace Civi\AIP\Processor;
+
 use Civi\AIP\Processor\Base as BaseProcessor;
 
-class ExceptionTestProcessor extends BaseProcessor
-{
+class ExceptionTestProcessor extends BaseProcessor {
   /**
    *
    * @return void
    */
+
   /**
    * Process the given record
    *
@@ -29,9 +32,8 @@ class ExceptionTestProcessor extends BaseProcessor
    *
    * @throws \Exception
    */
-  public function processRecord($record)
-  {
-    throw new \Exception("oh-oh");
+  public function processRecord($record) {
+    throw new \Exception('oh-oh');
   }
 
 }

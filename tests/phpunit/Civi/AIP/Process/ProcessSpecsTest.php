@@ -13,10 +13,12 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
+declare(strict_types = 1);
+
 namespace Civi\AIP;
 
 use Civi\Test\HeadlessInterface;
-use Civi\Test\HookInterface;
+use Civi\Core\HookInterface;
 use Civi\Test\TransactionalInterface;
 
 /**
@@ -25,18 +27,19 @@ use Civi\Test\TransactionalInterface;
  * Some of them will be disabled, because the setup doesn't work on a generic test platform
  *
  * @group headless
+ * @covers \Civi\AIP\Process
  *
  */
-class ProcessSpecsTest extends TestBase implements HeadlessInterface, HookInterface, TransactionalInterface
-{
+class ProcessSpecsTest extends TestBase implements HeadlessInterface, HookInterface, TransactionalInterface {
+
   /**
    * Create the Client1 process (DropFolderFinder, CSV reader, Api3Processor)
    */
-  public function testSetupClient1ViaCode()
-  {
-    $this->markTestSkipped("Specific configuration example, needs specific environment");
+  public function testSetupClient1ViaCode() {
+    $this->markTestSkipped('Specific configuration example, needs specific environment');
 
     // create finder
+    // @phpstan-ignore deadCode.unreachable
     $finder = new Finder\DropFolderFinder();
     $finder->setConfigValue('filter/file_name', '#30_abo-digi.*[.]csv#');
     $finder->setConfigValue('folder/inbox', '/srv/direktmarketing/aip/inbox');
@@ -57,11 +60,13 @@ class ProcessSpecsTest extends TestBase implements HeadlessInterface, HookInterf
 
     // create a process
     $process = new Process($finder, $reader, $processor);
-    $process->setConfigValue("log/file", "/srv/direktmarketing/aip/processing.log");
+    $process->setConfigValue('log/file', '/srv/direktmarketing/aip/processing.log');
     $process->setConfigValue('processing_limit/record_count', 200);
-    $process->store(true); // check log for DB update tips
+    // check log for DB update tips
+    $process->store(TRUE);
 
     // run the process
     $process->run();
   }
+
 }

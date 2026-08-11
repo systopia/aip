@@ -13,9 +13,13 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*/
 
-require_once 'aip.civix.php';
+declare(strict_types = 1);
 
-use CRM_AIP_ExtensionUtil as E;
+// phpcs:disable PSR1.Files.SideEffects.FoundWithSymbols
+require_once 'aip.civix.php';
+// phpcs:enable
+
+use CRM_Aip_ExtensionUtil as E;
 use Civi\AIP\Process;
 
 /**
@@ -29,24 +33,24 @@ use Civi\AIP\Process;
  * @return array
  *   API3 response
  */
-function civicrm_api3_a_i_p_run_process($params)
-{
+function civicrm_api3_a_i_p_run_process($params) {
   // stats
   $total_processed = 0;
   $session_processed = 0;
 
   // verify pid parameter
-  if (empty($params['pid'])) {
-    throw new CRM_Core_Exception("Missing pid.");
+  if (!isset($params['pid']) || $params['pid'] === '') {
+    throw new CRM_Core_Exception('Missing pid.');
   }
 
   // extract pIDs
   $pIDs = [];
-  foreach (explode(',', $params['pid']) as $pid_string) {
+  foreach (explode(',', (string) $params['pid']) as $pid_string) {
     $pid = (int) $pid_string;
-    if ($pid) {
+    if ($pid !== 0) {
       $pIDs[] = $pid;
-    } else {
+    }
+    else {
       Civi::log()->warning("AIP.run_process: PID '{$pid_string}' invalid. Skipped");
     }
   }
@@ -62,7 +66,7 @@ function civicrm_api3_a_i_p_run_process($params)
 
   // create reply
   return civicrm_api3_create_success([
-          'total_processed' => $total_processed,
-          'session_processed' => $session_processed,
+    'total_processed' => $total_processed,
+    'session_processed' => $session_processed,
   ]);
 }

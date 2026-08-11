@@ -1,0 +1,27 @@
+site_name: Automated Input Processing
+site_description: Allows you to configure various automated processors for different input types
+site_author: B. Endres
+repo_url: https://github.com/systopia/aip
+
+theme:
+  name: material
+
+nav:
+  - Introduction: index.md
+
+markdown_extensions:
+  - attr_list
+  - admonition
+  - def_list
+  - codehilite
+  - toc:
+      permalink: true
+  - pymdownx.superfences
+  - pymdownx.inlinehilite
+  - pymdownx.tilde
+  - pymdownx.betterem
+  - pymdownx.mark
+
+plugins:
+  - search:
+      lang: en

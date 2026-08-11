@@ -1,0 +1,727 @@
+parameters:
+	ignoreErrors:
+		-
+			message: '#^Method CRM_Aip_BAO_AipProcess\:\:getSubscribedEvents\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: CRM/Aip/BAO/AipProcess.php
+
+		-
+			message: '#^Method Civi\\AIP\\AbstractComponent\:\:getArrayValue\(\) has parameter \$array with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: Civi/AIP/AbstractComponent.php
+
+		-
+			message: '#^Method Civi\\AIP\\AbstractComponent\:\:getConfigValue\(\) has parameter \$default with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: Civi/AIP/AbstractComponent.php
+
+		-
+			message: '#^Method Civi\\AIP\\AbstractComponent\:\:getConfiguration\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: Civi/AIP/AbstractComponent.php
+
+		-
+			message: '#^Method Civi\\AIP\\AbstractComponent\:\:getStateValue\(\) has parameter \$default with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: Civi/AIP/AbstractComponent.php
+
+		-
+			message: '#^Method Civi\\AIP\\AbstractComponent\:\:raiseException\(\) has parameter \$message with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: Civi/AIP/AbstractComponent.php
+
+		-
+			message: '#^Method Civi\\AIP\\AbstractComponent\:\:serialise\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: Civi/AIP/AbstractComponent.php
+
+		-
+			message: '#^Method Civi\\AIP\\AbstractComponent\:\:setArrayValue\(\) has parameter \$array with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: Civi/AIP/AbstractComponent.php
+
+		-
+			message: '#^Method Civi\\AIP\\AbstractComponent\:\:setArrayValue\(\) has parameter \$value with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: Civi/AIP/AbstractComponent.php
+
+		-
+			message: '#^Method Civi\\AIP\\AbstractComponent\:\:setConfiguration\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Civi/AIP/AbstractComponent.php
+
+		-
+			message: '#^Method Civi\\AIP\\AbstractComponent\:\:setConfiguration\(\) has parameter \$configuration with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: Civi/AIP/AbstractComponent.php
+
+		-
+			message: '#^Method Civi\\AIP\\AbstractComponent\:\:verifyConfiguration\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Civi/AIP/AbstractComponent.php
+
+		-
+			message: '#^Method Civi\\AIP\\AbstractComponent\:\:writeLogMessage\(\) has parameter \$log_level with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: Civi/AIP/AbstractComponent.php
+
+		-
+			message: '#^Property Civi\\AIP\\AbstractComponent\:\:\$configuration type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: Civi/AIP/AbstractComponent.php
+
+		-
+			message: '#^Property Civi\\AIP\\AbstractComponent\:\:\$state type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: Civi/AIP/AbstractComponent.php
+
+		-
+			message: '#^Method Civi\\AIP\\Finder\\Base\:\:markSourceFailed\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Civi/AIP/Finder/Base.php
+
+		-
+			message: '#^Method Civi\\AIP\\Finder\\Base\:\:markSourceProcessed\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Civi/AIP/Finder/Base.php
+
+		-
+			message: '#^Method Civi\\AIP\\Finder\\Diff\:\:markSourceFailed\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Civi/AIP/Finder/Diff.php
+
+		-
+			message: '#^Method Civi\\AIP\\Finder\\Diff\:\:markSourceProcessed\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Civi/AIP/Finder/Diff.php
+
+		-
+			message: '#^Method Civi\\AIP\\Finder\\Diff\:\:verifyConfiguration\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Civi/AIP/Finder/Diff.php
+
+		-
+			message: '#^Method Civi\\AIP\\Finder\\DropFolderFinder\:\:markSourceFailed\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Civi/AIP/Finder/DropFolderFinder.php
+
+		-
+			message: '#^Method Civi\\AIP\\Finder\\DropFolderFinder\:\:markSourceProcessed\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Civi/AIP/Finder/DropFolderFinder.php
+
+		-
+			message: '#^Method Civi\\AIP\\Finder\\DropFolderFinder\:\:verifyConfiguration\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Civi/AIP/Finder/DropFolderFinder.php
+
+		-
+			message: '#^Method Civi\\AIP\\Finder\\StaticUrlFileFinder\:\:markSourceFailed\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Civi/AIP/Finder/StaticUrlFileFinder.php
+
+		-
+			message: '#^Method Civi\\AIP\\Finder\\StaticUrlFileFinder\:\:markSourceProcessed\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Civi/AIP/Finder/StaticUrlFileFinder.php
+
+		-
+			message: '#^Method Civi\\AIP\\Finder\\StaticUrlFileFinder\:\:verifyConfiguration\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Civi/AIP/Finder/StaticUrlFileFinder.php
+
+		-
+			message: '#^Method Civi\\AIP\\Finder\\UrlRequestFile\:\:canHandleSource\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Civi/AIP/Finder/UrlRequestFile.php
+
+		-
+			message: '#^Method Civi\\AIP\\Finder\\UrlRequestFile\:\:markSourceFailed\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Civi/AIP/Finder/UrlRequestFile.php
+
+		-
+			message: '#^Method Civi\\AIP\\Finder\\UrlRequestFile\:\:markSourceProcessed\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Civi/AIP/Finder/UrlRequestFile.php
+
+		-
+			message: '#^Method Civi\\AIP\\Process\:\:handleFailedRecord\(\) has parameter \$record with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: Civi/AIP/Process.php
+
+		-
+			message: '#^Method Civi\\AIP\\Process\:\:store\(\) has parameter \$debug_output with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: Civi/AIP/Process.php
+
+		-
+			message: '#^Method Civi\\AIP\\Processor\\Api3\:\:filterCallParameters\(\) has parameter \$parameters with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: Civi/AIP/Processor/Api3.php
+
+		-
+			message: '#^Method Civi\\AIP\\Processor\\Api3\:\:filterCallParameters\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: Civi/AIP/Processor/Api3.php
+
+		-
+			message: '#^Method Civi\\AIP\\Processor\\Api3\:\:mapCallParameters\(\) has parameter \$parameters with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: Civi/AIP/Processor/Api3.php
+
+		-
+			message: '#^Method Civi\\AIP\\Processor\\Api3\:\:mapCallParameters\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: Civi/AIP/Processor/Api3.php
+
+		-
+			message: '#^Method Civi\\AIP\\Processor\\Api3\:\:processRecord\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Civi/AIP/Processor/Api3.php
+
+		-
+			message: '#^Method Civi\\AIP\\Processor\\Api3\:\:processRecord\(\) has parameter \$record with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: Civi/AIP/Processor/Api3.php
+
+		-
+			message: '#^Method Civi\\AIP\\Processor\\Api3\:\:trimCallParameters\(\) has parameter \$parameters with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: Civi/AIP/Processor/Api3.php
+
+		-
+			message: '#^Method Civi\\AIP\\Processor\\Api3\:\:trimCallParameters\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: Civi/AIP/Processor/Api3.php
+
+		-
+			message: '#^Method Civi\\AIP\\Processor\\Base\:\:getLastProcessedRecord\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: Civi/AIP/Processor/Base.php
+
+		-
+			message: '#^Method Civi\\AIP\\Processor\\Base\:\:processRecord\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Civi/AIP/Processor/Base.php
+
+		-
+			message: '#^Method Civi\\AIP\\Processor\\Base\:\:processRecord\(\) has parameter \$record with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: Civi/AIP/Processor/Base.php
+
+		-
+			message: '#^Property Civi\\AIP\\Processor\\Base\:\:\$last_processed_record type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: Civi/AIP/Processor/Base.php
+
+		-
+			message: '#^Method Civi\\AIP\\Reader\\Base\:\:getNextRecord\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: Civi/AIP/Reader/Base.php
+
+		-
+			message: '#^Method Civi\\AIP\\Reader\\Base\:\:markLastRecordFailed\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Civi/AIP/Reader/Base.php
+
+		-
+			message: '#^Method Civi\\AIP\\Reader\\Base\:\:markLastRecordProcessed\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Civi/AIP/Reader/Base.php
+
+		-
+			message: '#^Method Civi\\AIP\\Reader\\Base\:\:markSourceFailed\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Civi/AIP/Reader/Base.php
+
+		-
+			message: '#^Method Civi\\AIP\\Reader\\Base\:\:markSourceProcessed\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Civi/AIP/Reader/Base.php
+
+		-
+			message: '#^Method Civi\\AIP\\Reader\\Base\:\:setFailedRecordCount\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Civi/AIP/Reader/Base.php
+
+		-
+			message: '#^Method Civi\\AIP\\Reader\\Base\:\:setProcessedRecordCount\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Civi/AIP/Reader/Base.php
+
+		-
+			message: '#^Method Civi\\AIP\\Reader\\CSV\:\:fixHeaderRecordColumnMismatch\(\) has parameter \$file_headers with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: Civi/AIP/Reader/CSV.php
+
+		-
+			message: '#^Method Civi\\AIP\\Reader\\CSV\:\:fixHeaderRecordColumnMismatch\(\) has parameter \$record with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: Civi/AIP/Reader/CSV.php
+
+		-
+			message: '#^Method Civi\\AIP\\Reader\\CSV\:\:getNextRecord\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: Civi/AIP/Reader/CSV.php
+
+		-
+			message: '#^Method Civi\\AIP\\Reader\\CSV\:\:increaseLinesSkipped\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Civi/AIP/Reader/CSV.php
+
+		-
+			message: '#^Method Civi\\AIP\\Reader\\CSV\:\:markLastRecordFailed\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Civi/AIP/Reader/CSV.php
+
+		-
+			message: '#^Method Civi\\AIP\\Reader\\CSV\:\:markLastRecordProcessed\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Civi/AIP/Reader/CSV.php
+
+		-
+			message: '#^Method Civi\\AIP\\Reader\\CSV\:\:markSourceFailed\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Civi/AIP/Reader/CSV.php
+
+		-
+			message: '#^Method Civi\\AIP\\Reader\\CSV\:\:markSourceProcessed\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Civi/AIP/Reader/CSV.php
+
+		-
+			message: '#^Method Civi\\AIP\\Reader\\CSV\:\:readNextRecord\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Civi/AIP/Reader/CSV.php
+
+		-
+			message: '#^Method Civi\\AIP\\Reader\\CSV\:\:setCurrentFile\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Civi/AIP/Reader/CSV.php
+
+		-
+			message: '#^Method Civi\\AIP\\Reader\\CSV\:\:setCurrentFile\(\) has parameter \$file with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: Civi/AIP/Reader/CSV.php
+
+		-
+			message: '#^Method Civi\\AIP\\Reader\\CSV\:\:skipNextRecord\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Civi/AIP/Reader/CSV.php
+
+		-
+			message: '#^Property Civi\\AIP\\Reader\\CSV\:\:\$current_file_headers type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: Civi/AIP/Reader/CSV.php
+
+		-
+			message: '#^Property Civi\\AIP\\Reader\\CSV\:\:\$current_record type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: Civi/AIP/Reader/CSV.php
+
+		-
+			message: '#^Property Civi\\AIP\\Reader\\CSV\:\:\$last_processed_record type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: Civi/AIP/Reader/CSV.php
+
+		-
+			message: '#^Property Civi\\AIP\\Reader\\CSV\:\:\$lookahead_record type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: Civi/AIP/Reader/CSV.php
+
+		-
+			message: '#^Method Civi\\AIP\\Reader\\JSON\:\:getNextRecord\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: Civi/AIP/Reader/JSON.php
+
+		-
+			message: '#^Method Civi\\AIP\\Reader\\JSON\:\:markLastRecordFailed\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Civi/AIP/Reader/JSON.php
+
+		-
+			message: '#^Method Civi\\AIP\\Reader\\JSON\:\:markLastRecordProcessed\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Civi/AIP/Reader/JSON.php
+
+		-
+			message: '#^Method Civi\\AIP\\Reader\\JSON\:\:markSourceFailed\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Civi/AIP/Reader/JSON.php
+
+		-
+			message: '#^Method Civi\\AIP\\Reader\\JSON\:\:markSourceProcessed\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Civi/AIP/Reader/JSON.php
+
+		-
+			message: '#^Method Civi\\AIP\\Reader\\JSON\:\:setCurrentFile\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Civi/AIP/Reader/JSON.php
+
+		-
+			message: '#^Method Civi\\AIP\\Reader\\JSON\:\:setCurrentFile\(\) has parameter \$file with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: Civi/AIP/Reader/JSON.php
+
+		-
+			message: '#^Property Civi\\AIP\\Reader\\JSON\:\:\$all_records type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: Civi/AIP/Reader/JSON.php
+
+		-
+			message: '#^Method AbstractRecord\:\:asArray\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: Civi/AIP/Record/Abstract.php
+
+		-
+			message: '#^Method AbstractRecord\:\:getFields\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: Civi/AIP/Record/Abstract.php
+
+		-
+			message: '#^Method Local\:\:__construct\(\) has parameter \$data with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: Civi/AIP/Record/Local.php
+
+		-
+			message: '#^Method Local\:\:asArray\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: Civi/AIP/Record/Local.php
+
+		-
+			message: '#^Method Local\:\:getFields\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: Civi/AIP/Record/Local.php
+
+		-
+			message: '#^Property Local\:\:\$data type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: Civi/AIP/Record/Local.php
+
+		-
+			message: '#^Method Civi\\Api4\\Action\\AipProcess\\Run\:\:_run\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: Civi/Api4/Action/AipProcess/Run.php
+
+		-
+			message: '#^Method Civi\\Api4\\AipErrorLog\:\:permissions\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: Civi/Api4/AipErrorLog.php
+
+		-
+			message: '#^Method Civi\\Api4\\AipProcess\:\:permissions\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: Civi/Api4/AipProcess.php
+
+		-
+			message: '#^Function aip_civicrm_config\(\) has parameter \$config with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: aip.php
+
+		-
+			message: '#^Function aip_civicrm_entityTypes\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: aip.php
+
+		-
+			message: '#^Function aip_civicrm_entityTypes\(\) has parameter \$entityTypes with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: aip.php
+
+		-
+			message: '#^Function civicrm_api3_a_i_p_run_process\(\) has parameter \$params with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: api/v3/AIP/RunProcess.php
+
+		-
+			message: '#^Function civicrm_api3_a_i_p_run_process\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: api/v3/AIP/RunProcess.php
+
+		-
+			message: '#^Method Civi\\AIP\\BasicTest\:\:testSetupViaCode\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: tests/phpunit/Civi/AIP/BasicTest.php
+
+		-
+			message: '#^Method Civi\\AIP\\DropFolderFinderTest\:\:testProcessorException\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: tests/phpunit/Civi/AIP/Finder/DropFolderFinderTest.php
+
+		-
+			message: '#^Method Civi\\AIP\\DropFolderFinderTest\:\:testProcessorExceptionLog\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: tests/phpunit/Civi/AIP/Finder/DropFolderFinderTest.php
+
+		-
+			message: '#^Method Civi\\AIP\\DropFolderFinderTest\:\:testSetup\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: tests/phpunit/Civi/AIP/Finder/DropFolderFinderTest.php
+
+		-
+			message: '#^Method Civi\\AIP\\Finder\\InfiniteSources\:\:markSourceFailed\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: tests/phpunit/Civi/AIP/Finder/InfiniteSources.php
+
+		-
+			message: '#^Method Civi\\AIP\\Finder\\InfiniteSources\:\:markSourceProcessed\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: tests/phpunit/Civi/AIP/Finder/InfiniteSources.php
+
+		-
+			message: '#^Method Civi\\AIP\\Finder\\InfiniteSources\:\:verifyConfiguration\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: tests/phpunit/Civi/AIP/Finder/InfiniteSources.php
+
+		-
+			message: '#^Method Civi\\AIP\\ProcessApiTest\:\:testProcessApiSingle\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: tests/phpunit/Civi/AIP/Process/ProcessApiTest.php
+
+		-
+			message: '#^Method Civi\\AIP\\ProcessApiTest\:\:testProcessMultiple\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: tests/phpunit/Civi/AIP/Process/ProcessApiTest.php
+
+		-
+			message: '#^Method Civi\\AIP\\ProcessSpecsTest\:\:testSetupClient1ViaCode\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: tests/phpunit/Civi/AIP/Process/ProcessSpecsTest.php
+
+		-
+			message: '#^Method Civi\\AIP\\ProcessTimeRestrictionTest\:\:testSimpleTimeout\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: tests/phpunit/Civi/AIP/Process/ProcessTimeRestrictionTest.php
+
+		-
+			message: '#^Method Civi\\AIP\\ProcessTimeRestrictionTest\:\:testTotalRuntimeTimeout\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: tests/phpunit/Civi/AIP/Process/ProcessTimeRestrictionTest.php
+
+		-
+			message: '#^Method Civi\\AIP\\Api3ProcessorTest\:\:testSimpleApi3\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: tests/phpunit/Civi/AIP/Processor/Api3ProcessorTest.php
+
+		-
+			message: '#^Method Civi\\AIP\\Processor\\DelayedTestProcessor\:\:processRecord\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: tests/phpunit/Civi/AIP/Processor/DelayedTestProcessor.php
+
+		-
+			message: '#^Method Civi\\AIP\\Processor\\DelayedTestProcessor\:\:processRecord\(\) has parameter \$record with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: tests/phpunit/Civi/AIP/Processor/DelayedTestProcessor.php
+
+		-
+			message: '#^Method Civi\\AIP\\Processor\\ExceptionTestProcessor\:\:processRecord\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: tests/phpunit/Civi/AIP/Processor/ExceptionTestProcessor.php
+
+		-
+			message: '#^Method Civi\\AIP\\Processor\\ExceptionTestProcessor\:\:processRecord\(\) has parameter \$record with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: tests/phpunit/Civi/AIP/Processor/ExceptionTestProcessor.php
+
+		-
+			message: '#^Method Civi\\AIP\\ProcessorExceptionTest\:\:test\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: tests/phpunit/Civi/AIP/Processor/ProcessorExceptionTest.php
+
+		-
+			message: '#^Method Civi\\AIP\\Processor\\TestProcessor\:\:processRecord\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: tests/phpunit/Civi/AIP/Processor/TestProcessor.php
+
+		-
+			message: '#^Method Civi\\AIP\\Processor\\TestProcessor\:\:processRecord\(\) has parameter \$record with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: tests/phpunit/Civi/AIP/Processor/TestProcessor.php
+
+		-
+			message: '#^Method Civi\\AIP\\CSVReaderTest\:\:testReadSimpleCSV\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: tests/phpunit/Civi/AIP/Reader/CSVReaderTest.php
+
+		-
+			message: '#^Method Civi\\AIP\\CSVReaderTest\:\:testReadWithStopAndRestore\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: tests/phpunit/Civi/AIP/Reader/CSVReaderTest.php
+
+		-
+			message: '#^Method Civi\\AIP\\CSVReaderTest\:\:testSkipEmptyLines\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: tests/phpunit/Civi/AIP/Reader/CSVReaderTest.php
+
+		-
+			message: '#^Method Civi\\AIP\\CSVReaderTest\:\:testSkipEmptyLinesAtTheEnd\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: tests/phpunit/Civi/AIP/Reader/CSVReaderTest.php
+
+		-
+			message: '#^Method Civi\\AIP\\CSVReaderTest\:\:testSkipEmptyLinesInBetween\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: tests/phpunit/Civi/AIP/Reader/CSVReaderTest.php
+
+		-
+			message: '#^Method Civi\\AIP\\Reader\\InfiniteRecords\:\:getNextRecord\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: tests/phpunit/Civi/AIP/Reader/InfiniteRecords.php
+
+		-
+			message: '#^Method Civi\\AIP\\Reader\\InfiniteRecords\:\:markSourceFailed\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: tests/phpunit/Civi/AIP/Reader/InfiniteRecords.php
+
+		-
+			message: '#^Method Civi\\AIP\\Reader\\InfiniteRecords\:\:markSourceProcessed\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: tests/phpunit/Civi/AIP/Reader/InfiniteRecords.php
+
+		-
+			message: '#^Method Civi\\AIP\\JSONOnlineReaderTest\:\:getJsonFileUrl\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: tests/phpunit/Civi/AIP/Reader/JSONOnlineReaderTest.php
+
+		-
+			message: '#^Method Civi\\AIP\\JSONOnlineReaderTest\:\:getJsonFileUrl\(\) has parameter \$path with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: tests/phpunit/Civi/AIP/Reader/JSONOnlineReaderTest.php
+
+		-
+			message: '#^Method Civi\\AIP\\JSONOnlineReaderTest\:\:testReadOnlineJSON\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: tests/phpunit/Civi/AIP/Reader/JSONOnlineReaderTest.php
+
+		-
+			message: '#^Method Civi\\AIP\\JSONOnlineReaderTest\:\:testReadWithStopAndRestart\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: tests/phpunit/Civi/AIP/Reader/JSONOnlineReaderTest.php
+
+		-
+			message: '#^Method Civi\\AIP\\JSONOnlineReaderTest\:\:testSkipIdenticalFiles\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: tests/phpunit/Civi/AIP/Reader/JSONOnlineReaderTest.php
